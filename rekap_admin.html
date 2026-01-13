@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Rekapitulasi Musrenbang</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #fff; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background: #f2f2f2; text-align: center; }
+        .header-print { text-align: center; margin-bottom: 20px; }
+        .no-print { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .btn-excel { background: #1d6f42; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-pdf { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        @media print {
+            .no-print { display: none; }
+            table { font-size: 9px; }
+            @page { size: landscape; margin: 1cm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="location.href='dashboard_admin.html'">⬅ Kembali</button>
+        <div style="float:right; display:flex; gap:10px;">
+            <button class="btn-excel" onclick="exportExcelAll()">📊 Export Excel (All)</button>
+            <button class="btn-pdf" onclick="window.print()">🖨 Cetak / PDF</button>
+        </div>
+        <br><br>
+        <strong>Filter Wilayah:</strong> 
+        <select id="filterKel" onchange="filterData()" style="padding:8px; border-radius:5px;">
+            <option value="">-- Semua Kelurahan --</option>
+        </select>
+    </div>
+
+    <div class="header-print">
+        <h2 style="margin:0">DAFTAR USULAN MUSRENBANG KECAMATAN MAKALE</h2>
+        <h3 style="margin:5px">TAHUN ANGGARAN 2027</h3>
+    </div>
+
+    <table id="tabelRekap">
+        <thead>
+            <tr>
+                <th>NO</th>
+                <th>KELURAHAN</th>
+                <th>BIDANG</th>
+                <th>KEGIATAN</th>
+                <th>LOKASI</th>
+                <th>VOLUME</th>
+                <th>ANGGARAN</th>
+                <th>OPD TUJUAN</th>
+                <th>KETERANGAN</th>
+            </tr>
+        </thead>
+        <tbody id="isiRekap"></tbody>
+    </table>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtwlajG20K1PJXjwrctoZFr6aNaqoq923J7cq9ybZMmyRZU4oMyTj-IBKBfD58UEM-fQ/exec";
+        let masterData = [];
+
+        async function loadRekap() {
+            try {
+                const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+                const rawData = await res.json();
+                masterData = rawData.map(item => {
+                    const d = {};
+                    for (let key in item) {
+                        let k = key.toLowerCase().trim();
+                        if (k === "bidang program") k = "bidang";
+                        if (k === "nama kegiatan") k = "kegiatan";
+                        if (k === "opd tujuan") k = "opd";
+                        d[k] = item[key];
+                    }
+                    return d;
+                });
+                const kelurahans = [...new Set(masterData.map(d => d.kelurahan))];
+                kelurahans.sort().forEach(k => {
+                    const opt = document.createElement("option");
+                    opt.value = k; opt.innerText = k;
+                    document.getElementById("filterKel").appendChild(opt);
+                });
+                renderTable(masterData);
+            } catch (e) { alert("Gagal memuat data"); }
+        }
+
+        function renderTable(data) {
+            let html = "";
+            data.forEach((d, i) => {
+                html += `<tr>
+                    <td align="center">${i+1}</td>
+                    <td>${d.kelurahan || '-'}</td>
+                    <td>${d.bidang || '-'}</td>
+                    <td><strong>${d.kegiatan || '-'}</strong></td>
+                    <td>${d.lokasi || '-'}</td>
+                    <td>${d.volume || '-'}</td>
+                    <td align="right">${Number(d.anggaran || 0).toLocaleString('id-ID')}</td>
+                    <td>${d.opd || '-'}</td>
+                    <td>${d.keterangan || '-'}</td>
+                </tr>`;
+            });
+            document.getElementById("isiRekap").innerHTML = html;
+        }
+
+        function exportExcelAll() {
+            const table = document.getElementById("tabelRekap");
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Rekap Musrenbang"});
+            XLSX.writeFile(wb, "Rekap_Usulan_Kecamatan_Makale_2027.xlsx");
+        }
+
+        function filterData() {
+            const f = document.getElementById("filterKel").value;
+            renderTable(f ? masterData.filter(d => d.kelurahan === f) : masterData);
+        }
+        loadRekap();
+    </script>
+</body>
+</html>

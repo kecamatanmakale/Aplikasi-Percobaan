@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Grafik Musrenbang</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background: #f4f6f9; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
+        .header-grafik { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .bar-container { margin-top: 20px; }
+        .bar-item { margin-bottom: 25px; }
+        .bar-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #4a5568; }
+        .bar-bg { background: #e2e8f0; height: 35px; border-radius: 18px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; transition: width 1s ease-in-out; min-width: 40px; }
+        
+        .btn-back { background: #4a5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+        
+        @media print { .btn-back { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <button class="btn-back" onclick="history.back()">⬅ Kembali</button>
+    
+    <div class="header-grafik">
+        <h2 style="margin:0; color:#2d3748;">📊 Analisis Anggaran Per Bidang</h2>
+        <p style="color:#718096; margin:5px 0 0 0;">Kecamatan Makale - Tahun 2026</p>
+    </div>
+
+    <div id="grafikArea" class="bar-container">
+        <p style="text-align:center">Memuat data analisis...</p>
+    </div>
+</div>
+
+<script>
+    // URL API yang sama dengan input.html
+    const API = "https://script.google.com/macros/s/AKfycbxtwlajG20K1PJXjwrctoZFr6aNaqoq923J7cq9ybZMmyRZU4oMyTj-IBKBfD58UEM-fQ/exec";
+
+    const colors = {
+        "Bidang Sarana dan Prasarana": "#3182ce", // Biru
+        "Bidang Sosial Budaya": "#e53e3e",       // Merah
+        "Bidang Ekonomi": "#38a169",            // Hijau
+        "Default": "#a0aec0"
+    };
+
+    async function renderGrafik() {
+        const area = document.getElementById("grafikArea");
+        
+        try {
+            const resp = await fetch(API_URL + "?t=" + new Date().getTime());
+            const data = await resp.json();
+            
+            // Inisialisasi rekap agar semua bidang selalu muncul meski 0
+            const rekap = {
+                "Bidang Sarana dan Prasarana": 0,
+                "Bidang Sosial Budaya": 0,
+                "Bidang Ekonomi": 0
+            };
+
+            let totalTerbesar = 0;
+
+            data.forEach(d => {
+                // Gunakan trim() untuk menghindari error karena spasi tidak sengaja
+                const b = d.bidang ? d.bidang.trim() : ""; 
+                const a = parseFloat(d.anggaran) || 0;
+                
+                if (rekap.hasOwnProperty(b)) {
+                    rekap[b] += a;
+                }
+            });
+
+            // Cari nilai tertinggi untuk perbandingan panjang bar (100%)
+            Object.values(rekap).forEach(nilai => {
+                if (nilai > totalTerbesar) totalTerbesar = nilai;
+            });
+
+            area.innerHTML = "";
+            
+            Object.keys(rekap).forEach(bidang => {
+                const totalAnggaran = rekap[bidang];
+                // Hitung persen panjang bar terhadap nilai tertinggi
+                const persenBar = totalTerbesar > 0 ? (totalAnggaran / totalTerbesar) * 100 : 0;
+                
+                area.innerHTML += `
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span>${bidang}</span>
+                            <span>Rp ${totalAnggaran.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width:${persenBar}%; background:${colors[bidang] || colors.Default}">
+                                ${totalAnggaran > 0 ? Math.round(persenBar) + '%' : ''}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+        } catch (err) {
+            console.error(err);
+            area.innerHTML = "<p style='text-align:center; color:red'>Gagal mengambil data dari server.</p>";
+        }
+    }
+
+    renderGrafik();
+</script>
+</body>
+</html>
