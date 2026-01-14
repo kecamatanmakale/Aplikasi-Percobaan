@@ -14,26 +14,31 @@
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 150px; }
         .card h4 { margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .stat-value { font-size: 28px; font-weight: bold; color: #1a5bb8; margin: 10px 0; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        table th, table td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table th, table td { border: 1px solid #eee; padding: 8px; text-align: left; }
         table th { background: #f9f9f9; font-weight: bold; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        .footer-total { font-weight: bold; background: #f9f9f9 !important; }
         
+        /* Tombol */
         .btn-group { display: flex; gap: 10px; }
-        .btn { border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; transition: 0.3s; }
+        .btn { border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; }
         .btn-logout { background: #c0392b; width: 100%; margin-top: 30px; }
         .btn-excel { background: #27ae60; }
         .btn-pdf { background: #e67e22; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-        /* Style khusus untuk cetak tabel */
+        /* Area Tanda Tangan (Sembunyi di layar, muncul di print) */
+        .signature-area { display: none; margin-top: 30px; justify-content: flex-end; }
+        .sig-box { text-align: center; width: 250px; }
+
         @media print {
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid black !important; padding: 8px; font-size: 12px; }
-            .no-print { display: none; }
+            #printSection { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; }
+            table { border: 1px solid black !important; }
+            th, td { border: 1px solid black !important; }
+            .no-print { display: none !important; }
+            .signature-area { display: flex !important; }
         }
     </style>
 </head>
@@ -49,7 +54,7 @@
         <div class="header-flex no-print">
             <h1>Dashboard Monitoring T.A. 2027</h1>
             <div class="btn-group">
-                <button class="btn btn-excel" onclick="exportToExcel()">Excel</button>
+                <button class="btn btn-excel" onclick="exportToExcel()">Export Excel</button>
                 <button class="btn btn-pdf" onclick="printTableOnly()">Print Tabel PDF</button>
             </div>
         </div>
@@ -57,30 +62,38 @@
         <div class="grid-container no-print">
             <div class="card">
                 <h4>Total Usulan Masuk</h4>
-                <div class="stat-value" id="totalUsulan">Memuat...</div>
+                <div class="stat-value" id="totalUsulan">0 Usulan</div>
             </div>
             <div class="card">
-                <h4>Total Anggaran Keseluruhan</h4>
+                <h4>Total Anggaran</h4>
                 <div id="totalAnggaranSemua" class="stat-value" style="color: #27ae60;">Rp 0</div>
             </div>
             <div class="card">
-                <h4>Proporsi Anggaran</h4>
-                <div class="chart-container"><canvas id="chartBidang"></canvas></div>
+                <h4>Proporsi Bidang</h4>
+                <div id="chartContainer" style="height: 120px;">
+                    <canvas id="chartBidang"></canvas>
+                </div>
             </div>
         </div>
 
         <div id="printSection" class="card full-width">
-            <h4 class="no-print">Data Keseluruhan Usulan</h4>
-            <div id="targetPrint">
-                <table id="mainDataTable">
-                    <thead>
-                        <tr id="tableHeader">
-                            </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr><td style="text-align:center">Memuat data...</td></tr>
-                    </tbody>
-                </table>
+            <h2 style="text-align: center; margin-bottom: 10px;" class="only-print">REKAPITULASI USULAN MUSRENBANG 2027</h2>
+            <h3 style="text-align: center; margin-bottom: 20px; font-weight: normal;" class="only-print">KECAMATAN MAKALE</h3>
+            
+            <table id="mainTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+                <tfoot id="tableFooter"></tfoot> </table>
+
+            <div class="signature-area">
+                <div class="sig-box">
+                    <p>Makale, <span id="currentDate"></span></p>
+                    <p style="margin-bottom: 80px;">Camat Makale</p>
+                    <p><strong>( ________________________ )</strong></p>
+                    <p>NIP. ........................................</p>
+                </div>
             </div>
         </div>
     </div>
@@ -95,38 +108,49 @@
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
             rawData = await res.json();
-            
             if (!rawData || rawData.length === 0) return;
 
-            // Update Statistik
             document.getElementById("totalUsulan").innerText = rawData.length + " Usulan";
-            
-            let totalAnggaran = 0;
+            document.getElementById("currentDate").innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            let totalAnggaranGlobal = 0;
             const rekapBidang = {"Bidang Sarana dan Prasarana": 0, "Bidang Sosial Budaya": 0, "Bidang Ekonomi": 0};
 
-            // Bangun Header Tabel Secara Dinamis
-            const keys = Object.keys(rawData[0]);
+            // Filter kunci tanpa Timestamp
+            const keys = Object.keys(rawData[0]).filter(k => k.toLowerCase() !== 'timestamp');
             document.getElementById("tableHeader").innerHTML = keys.map(k => `<th>${k}</th>`).join('');
 
-            // Bangun Isi Tabel & Hitung Total
+            // Bangun Isi Tabel
             let bodyHtml = "";
             rawData.forEach(item => {
-                bodyHtml += "<tr>" + keys.map(k => `<td>${item[k] || '-'}</td>`).join('') + "</tr>";
+                bodyHtml += "<tr>" + keys.map(k => {
+                    let val = item[k] || '-';
+                    if(k === "Anggaran" && !isNaN(val)) return `<td>Rp ${parseFloat(val).toLocaleString('id-ID')}</td>`;
+                    return `<td>${val}</td>`;
+                }).join('') + "</tr>";
                 
-                // Hitung Anggaran
                 let valAng = item["Anggaran"] || 0;
                 if (typeof valAng === 'string') valAng = parseFloat(valAng.replace(/[^0-9.-]+/g, "")) || 0;
-                totalAnggaran += valAng;
+                totalAnggaranGlobal += valAng;
                 
                 const b = item["Bidang Kegiatan"];
                 if(rekapBidang.hasOwnProperty(b)) rekapBidang[b] += valAng;
             });
-            
             document.getElementById("tableBody").innerHTML = bodyHtml;
-            document.getElementById("totalAnggaranSemua").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
+
+            // Update Statistik Dashboard
+            document.getElementById("totalAnggaranSemua").innerText = "Rp " + totalAnggaranGlobal.toLocaleString('id-ID');
+
+            // BUAT FOOTER TOTAL ANGGARAN (Untuk Print)
+            const colSpanTotal = keys.length - 1;
+            document.getElementById("tableFooter").innerHTML = `
+                <tr class="footer-total">
+                    <td colspan="${colSpanTotal}" style="text-align: right;">TOTAL ANGGARAN KESELURUHAN</td>
+                    <td style="color: #c0392b;">Rp ${totalAnggaranGlobal.toLocaleString('id-ID')}</td>
+                </tr>
+            `;
 
             renderChart(rekapBidang);
-
         } catch (e) { console.error(e); }
     }
 
@@ -137,20 +161,15 @@
                 labels: Object.keys(bidData),
                 datasets: [{ data: Object.values(bidData), backgroundColor: ['#27ae60', '#e74c3c', '#f1c40f'] }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
     }
 
-    // FUNGSI PRINT KHUSUS TABEL
-    function printTableOnly() {
-        const originalTitle = document.title;
-        document.title = "Laporan_Musrenbang_Makale_2027";
-        window.print();
-        document.title = originalTitle;
-    }
+    function printTableOnly() { window.print(); }
 
     function exportToExcel() {
-        const ws = XLSX.utils.json_to_sheet(rawData);
+        const excelData = rawData.map(({Timestamp, ...rest}) => rest);
+        const ws = XLSX.utils.json_to_sheet(excelData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data Usulan");
         XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
