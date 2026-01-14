@@ -13,18 +13,33 @@
         .footer-total { background: #f8f9fa; font-weight: bold; font-size: 11px; }
         .kop-surat { display: none; text-align: center; }
 
-        .btn { padding:10px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; }
+        /* Area Tanda Tangan */
+        .signature-wrapper {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .signature-box {
+            text-align: center;
+            width: 300px;
+            font-size: 12px;
+        }
+
+        .btn { padding:10px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; margin-right: 5px; }
         .btn-print { background:#3498db; }
         .btn-excel { background:#27ae60; }
         .btn-back { background:#666; }
 
         @media print {
-            .no-print { display: none; }
+            .no-print { display: none !important; }
             .kop-surat { display: block; margin-bottom: 20px; }
             @page { size: landscape; margin: 1cm; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: none; padding: 0; }
             table { width: 100%; }
             th { background-color: #2c7be5 !important; color: white !important; -webkit-print-color-adjust: exact; }
             .footer-total { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+            .signature-wrapper { display: flex !important; }
         }
     </style>
 </head>
@@ -33,7 +48,7 @@
         <div class="no-print">
             <h3>Rekapitulasi Usulan Seluruh Wilayah</h3>
             <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
-            <button class="btn btn-excel" onclick="exportToExcel()">Excel</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">Excel Export</button>
             <button class="btn btn-back" onclick="location.href='dashboard_admin.html'">Kembali</button>
             <hr>
         </div>
@@ -43,7 +58,7 @@
             <h2 style="margin:0">KECAMATAN MAKALE</h2>
             <p style="margin:0">Jl. R. A. Kartini No. 5, Bombongan, Makale</p>
             <hr style="border: 2px solid black">
-            <h4>REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027</h4>
+            <h4 style="margin-top:10px">REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027</h4>
         </div>
 
         <table>
@@ -63,6 +78,16 @@
             </tbody>
             <tfoot id="footerTabel"></tfoot>
         </table>
+
+        <div class="signature-wrapper">
+            <div class="signature-box">
+                <p>Makale, <span id="tglCetak"></span></p>
+                <p>Camat Makale,</p>
+                <br><br><br><br>
+                <p><strong><u>Benyamin Dengen, S.S., M.M.</u></strong></p>
+                <p>NIP. 197208312007011011</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -70,6 +95,10 @@
         let rawData = [];
 
         async function load() {
+            // Set Tanggal Otomatis
+            const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById("tglCetak").innerText = new Date().toLocaleDateString('id-ID', opsi);
+
             try {
                 const r = await fetch(API + "?t=" + Date.now());
                 rawData = await r.json();
@@ -78,24 +107,23 @@
                 let totalSemua = 0;
 
                 rawData.forEach(d => {
-                    // Bersihkan nilai anggaran agar bisa dijumlahkan
                     let nominal = Number(d.anggaran) || 0;
                     totalSemua += nominal;
 
                     h += `<tr>
-                        <td>${d.kelurahan || d["Kelurahan/Lembang"] || "-"}</td>
-                        <td>${d.bidang || d["Bidang Kegiatan"] || "-"}</td>
-                        <td>${d.kegiatan || d["Kamus Usulan"] || "-"}</td>
-                        <td>${d.lokasi || d["Lokasi Detail"] || "-"}</td>
+                        <td>${d.kelurahan || "-"}</td>
+                        <td>${d.bidang || "-"}</td>
+                        <td>${d.kegiatan || "-"}</td>
+                        <td>${d.lokasi || "-"}</td>
                         <td>Rp ${nominal.toLocaleString('id-ID')}</td>
-                        <td>${d.opd || d["SKPD Pelaksana"] || "-"}</td>
+                        <td>${d.opd || "-"}</td>
                         <td>${d.keterangan || "-"}</td>
                     </tr>`;
                 });
 
                 document.getElementById("isiTabel").innerHTML = h;
 
-                // Tambahkan Baris Total di Footer
+                // Footer Total
                 document.getElementById("footerTabel").innerHTML = `
                     <tr class="footer-total">
                         <td colspan="4" style="text-align:right">TOTAL ANGGARAN KESELURUHAN</td>
@@ -103,7 +131,7 @@
                     </tr>
                 `;
             } catch (e) {
-                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7'>Gagal memuat data.</td></tr>";
+                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' style='text-align:center'>Gagal memuat data dari server.</td></tr>";
             }
         }
 
@@ -111,7 +139,7 @@
             if (rawData.length === 0) return alert("Data belum siap!");
             const ws = XLSX.utils.json_to_sheet(rawData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Rekap_Usulan");
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap Usulan 2027");
             XLSX.writeFile(wb, "Rekap_Musrenbang_Makale_2027.xlsx");
         }
 
