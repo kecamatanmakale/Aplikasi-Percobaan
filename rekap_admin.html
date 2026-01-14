@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
     <title>Rekapitulasi Admin - Musrenbang Makale</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10px; word-wrap: break-word; }
         th { background: #2c7be5; color: white; }
+        .footer-total { background: #f8f9fa; font-weight: bold; font-size: 11px; }
         .kop-surat { display: none; text-align: center; }
+
+        .btn { padding:10px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; }
+        .btn-print { background:#3498db; }
+        .btn-excel { background:#27ae60; }
+        .btn-back { background:#666; }
 
         @media print {
             .no-print { display: none; }
@@ -16,6 +24,7 @@
             @page { size: landscape; margin: 1cm; }
             table { width: 100%; }
             th { background-color: #2c7be5 !important; color: white !important; -webkit-print-color-adjust: exact; }
+            .footer-total { background-color: #eee !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -23,8 +32,9 @@
     <div class="card">
         <div class="no-print">
             <h3>Rekapitulasi Usulan Seluruh Wilayah</h3>
-            <button onclick="window.print()" style="padding:10px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer">🖨️ Cetak PDF (Landscape)</button>
-            <button onclick="location.href='dashboard_admin.html'" style="padding:10px; background:#666; color:white; border:none; border-radius:4px; cursor:pointer">Kembali</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">Excel</button>
+            <button class="btn btn-back" onclick="location.href='dashboard_admin.html'">Kembali</button>
             <hr>
         </div>
 
@@ -48,29 +58,63 @@
                     <th style="width: 18%;">Keterangan</th>
                 </tr>
             </thead>
-            <tbody id="isiTabel"></tbody>
+            <tbody id="isiTabel">
+                <tr><td colspan="7" style="text-align:center">Memuat data...</td></tr>
+            </tbody>
+            <tfoot id="footerTabel"></tfoot>
         </table>
     </div>
 
     <script>
         const API = "https://script.google.com/macros/s/AKfycbyQTPRqZaFrpsHGUrADSpnjAffkHLBDANxFzC2_Hwi4DOteviK9G77SOq5n6IU-u0CG/exec";
+        let rawData = [];
+
         async function load() {
-            const r = await fetch(API + "?t=" + Date.now());
-            const data = await r.json();
-            let h = "";
-            data.forEach(d => {
-                h += `<tr>
-                    <td>${d.kelurahan}</td>
-                    <td>${d.bidang}</td>
-                    <td>${d.kegiatan}</td>
-                    <td>${d.lokasi}</td>
-                    <td>Rp ${Number(d.anggaran).toLocaleString('id-ID')}</td>
-                    <td>${d.opd}</td>
-                    <td>${d.keterangan || "-"}</td>
-                </tr>`;
-            });
-            document.getElementById("isiTabel").innerHTML = h;
+            try {
+                const r = await fetch(API + "?t=" + Date.now());
+                rawData = await r.json();
+                
+                let h = "";
+                let totalSemua = 0;
+
+                rawData.forEach(d => {
+                    // Bersihkan nilai anggaran agar bisa dijumlahkan
+                    let nominal = Number(d.anggaran) || 0;
+                    totalSemua += nominal;
+
+                    h += `<tr>
+                        <td>${d.kelurahan || d["Kelurahan/Lembang"] || "-"}</td>
+                        <td>${d.bidang || d["Bidang Kegiatan"] || "-"}</td>
+                        <td>${d.kegiatan || d["Kamus Usulan"] || "-"}</td>
+                        <td>${d.lokasi || d["Lokasi Detail"] || "-"}</td>
+                        <td>Rp ${nominal.toLocaleString('id-ID')}</td>
+                        <td>${d.opd || d["SKPD Pelaksana"] || "-"}</td>
+                        <td>${d.keterangan || "-"}</td>
+                    </tr>`;
+                });
+
+                document.getElementById("isiTabel").innerHTML = h;
+
+                // Tambahkan Baris Total di Footer
+                document.getElementById("footerTabel").innerHTML = `
+                    <tr class="footer-total">
+                        <td colspan="4" style="text-align:right">TOTAL ANGGARAN KESELURUHAN</td>
+                        <td colspan="3" style="color: #d35400;">Rp ${totalSemua.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            } catch (e) {
+                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7'>Gagal memuat data.</td></tr>";
+            }
         }
+
+        function exportToExcel() {
+            if (rawData.length === 0) return alert("Data belum siap!");
+            const ws = XLSX.utils.json_to_sheet(rawData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap_Usulan");
+            XLSX.writeFile(wb, "Rekap_Musrenbang_Makale_2027.xlsx");
+        }
+
         if(localStorage.getItem("role") !== "admin") location.href="index.html";
         load();
     </script>
