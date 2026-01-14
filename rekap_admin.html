@@ -11,19 +11,15 @@
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10px; word-wrap: break-word; }
         th { background: #2c7be5; color: white; }
         .footer-total { background: #f8f9fa; font-weight: bold; font-size: 11px; }
-        .kop-surat { display: none; text-align: center; }
+        .kop-surat { text-align: center; margin-bottom: 20px; }
+        
+        /* Style Ringkasan Bidang */
+        .ringkasan-bidang { margin: 15px 0; font-size: 12px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #fafafa; }
+        .ringkasan-item { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 2px; }
 
         /* Area Tanda Tangan */
-        .signature-wrapper {
-            margin-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-        }
-        .signature-box {
-            text-align: center;
-            width: 300px;
-            font-size: 12px;
-        }
+        .signature-wrapper { margin-top: 30px; display: flex; justify-content: flex-end; }
+        .signature-box { text-align: center; width: 300px; font-size: 12px; }
 
         .btn { padding:10px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; margin-right: 5px; }
         .btn-print { background:#3498db; }
@@ -32,14 +28,13 @@
 
         @media print {
             .no-print { display: none !important; }
-            .kop-surat { display: block; margin-bottom: 20px; }
             @page { size: landscape; margin: 1cm; }
             body { background: white; padding: 0; }
             .card { box-shadow: none; border: none; padding: 0; }
             table { width: 100%; }
             th { background-color: #2c7be5 !important; color: white !important; -webkit-print-color-adjust: exact; }
             .footer-total { background-color: #eee !important; -webkit-print-color-adjust: exact; }
-            .signature-wrapper { display: flex !important; }
+            .ringkasan-bidang { background: white !important; border: 1px solid black; }
         }
     </style>
 </head>
@@ -59,6 +54,21 @@
             <p style="margin:0">Jl. R. A. Kartini No. 5, Bombongan, Makale</p>
             <hr style="border: 2px solid black">
             <h4 style="margin-top:10px">REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027</h4>
+        </div>
+
+        <div class="ringkasan-bidang">
+            <div class="ringkasan-item">
+                <span>Total Bidang Sarana Prasarana:</span>
+                <strong id="totalSarpras">Rp 0</strong>
+            </div>
+            <div class="ringkasan-item">
+                <span>Total Bidang Sosial Budaya:</span>
+                <strong id="totalSosbud">Rp 0</strong>
+            </div>
+            <div class="ringkasan-item">
+                <span>Total Bidang Ekonomi:</span>
+                <strong id="totalEkonomi">Rp 0</strong>
+            </div>
         </div>
 
         <table>
@@ -95,7 +105,6 @@
         let rawData = [];
 
         async function load() {
-            // Set Tanggal Otomatis
             const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById("tglCetak").innerText = new Date().toLocaleDateString('id-ID', opsi);
 
@@ -105,10 +114,17 @@
                 
                 let h = "";
                 let totalSemua = 0;
+                let sumSarpras = 0, sumSosbud = 0, sumEkonomi = 0;
 
                 rawData.forEach(d => {
                     let nominal = Number(d.anggaran) || 0;
                     totalSemua += nominal;
+
+                    // Hitung per bidang (pastikan penamaan bidang sesuai dengan inputan Google Sheets)
+                    const bidang = (d.bidang || "").toLowerCase();
+                    if (bidang.includes("sarana") || bidang.includes("prasarana")) sumSarpras += nominal;
+                    else if (bidang.includes("sosial") || bidang.includes("budaya")) sumSosbud += nominal;
+                    else if (bidang.includes("ekonomi")) sumEkonomi += nominal;
 
                     h += `<tr>
                         <td>${d.kelurahan || "-"}</td>
@@ -123,7 +139,12 @@
 
                 document.getElementById("isiTabel").innerHTML = h;
 
-                // Footer Total
+                // Update Ringkasan Diatas Tabel
+                document.getElementById("totalSarpras").innerText = "Rp " + sumSarpras.toLocaleString('id-ID');
+                document.getElementById("totalSosbud").innerText = "Rp " + sumSosbud.toLocaleString('id-ID');
+                document.getElementById("totalEkonomi").innerText = "Rp " + sumEkonomi.toLocaleString('id-ID');
+
+                // Footer Total Keseluruhan
                 document.getElementById("footerTabel").innerHTML = `
                     <tr class="footer-total">
                         <td colspan="4" style="text-align:right">TOTAL ANGGARAN KESELURUHAN</td>
@@ -131,7 +152,7 @@
                     </tr>
                 `;
             } catch (e) {
-                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' style='text-align:center'>Gagal memuat data dari server.</td></tr>";
+                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' style='text-align:center'>Gagal memuat data.</td></tr>";
             }
         }
 
@@ -139,7 +160,7 @@
             if (rawData.length === 0) return alert("Data belum siap!");
             const ws = XLSX.utils.json_to_sheet(rawData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Rekap Usulan 2027");
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap 2027");
             XLSX.writeFile(wb, "Rekap_Musrenbang_Makale_2027.xlsx");
         }
 
