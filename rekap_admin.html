@@ -5,44 +5,62 @@
     <title>Rekapitulasi Admin - Musrenbang Makale</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; }
+        .card-main { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* Style Kotak Ringkasan Sejajar */
+        .bidang-container { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+            margin: 20px 0; 
+        }
+        .bidang-box { 
+            padding: 15px; 
+            border-radius: 8px; 
+            color: white; 
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .bg-sarpras { background: #2980b9; } /* Biru */
+        .bg-sosbud { background: #e67e22; }  /* Oranye */
+        .bg-ekonomi { background: #27ae60; } /* Hijau */
+        
+        .bidang-title { font-size: 11px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px; opacity: 0.9; }
+        .bidang-price { font-size: 16px; font-weight: bold; }
+
+        /* Style Tabel */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10px; word-wrap: break-word; }
         th { background: #2c7be5; color: white; }
-        .footer-total { background: #f8f9fa; font-weight: bold; font-size: 11px; }
-        .kop-surat { text-align: center; margin-bottom: 20px; }
-        
-        /* Style Ringkasan Bidang */
-        .ringkasan-bidang { margin: 15px 0; font-size: 12px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #fafafa; }
-        .ringkasan-item { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 2px; }
+        .footer-total { background: #eee; font-weight: bold; font-size: 11px; }
 
-        /* Area Tanda Tangan */
+        .kop-surat { text-align: center; margin-bottom: 20px; }
         .signature-wrapper { margin-top: 30px; display: flex; justify-content: flex-end; }
         .signature-box { text-align: center; width: 300px; font-size: 12px; }
 
-        .btn { padding:10px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; margin-right: 5px; }
+        /* Tombol */
+        .btn { padding:10px 15px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; margin-right: 5px; }
         .btn-print { background:#3498db; }
-        .btn-excel { background:#27ae60; }
-        .btn-back { background:#666; }
+        .btn-excel { background:#2ecc71; }
+        .btn-back { background:#95a5a6; }
 
         @media print {
             .no-print { display: none !important; }
             @page { size: landscape; margin: 1cm; }
             body { background: white; padding: 0; }
-            .card { box-shadow: none; border: none; padding: 0; }
-            table { width: 100%; }
+            .card-main { box-shadow: none; border: none; padding: 0; }
+            .bidang-box { border: 1px solid #444; color: black !important; background: white !important; box-shadow: none; }
+            .bidang-price { color: #000; }
             th { background-color: #2c7be5 !important; color: white !important; -webkit-print-color-adjust: exact; }
-            .footer-total { background-color: #eee !important; -webkit-print-color-adjust: exact; }
-            .ringkasan-bidang { background: white !important; border: 1px solid black; }
         }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="card-main">
         <div class="no-print">
             <h3>Rekapitulasi Usulan Seluruh Wilayah</h3>
-            <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF</button>
             <button class="btn btn-excel" onclick="exportToExcel()">Excel Export</button>
             <button class="btn btn-back" onclick="location.href='dashboard_admin.html'">Kembali</button>
             <hr>
@@ -56,18 +74,18 @@
             <h4 style="margin-top:10px">REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027</h4>
         </div>
 
-        <div class="ringkasan-bidang">
-            <div class="ringkasan-item">
-                <span>Total Bidang Sarana Prasarana:</span>
-                <strong id="totalSarpras">Rp 0</strong>
+        <div class="bidang-container">
+            <div class="bidang-box bg-sarpras">
+                <span class="bidang-title">Bidang Sarana Prasarana</span>
+                <div class="bidang-price" id="totalSarpras">Rp 0</div>
             </div>
-            <div class="ringkasan-item">
-                <span>Total Bidang Sosial Budaya:</span>
-                <strong id="totalSosbud">Rp 0</strong>
+            <div class="bidang-box bg-sosbud">
+                <span class="bidang-title">Bidang Sosial Budaya</span>
+                <div class="bidang-price" id="totalSosbud">Rp 0</div>
             </div>
-            <div class="ringkasan-item">
-                <span>Total Bidang Ekonomi:</span>
-                <strong id="totalEkonomi">Rp 0</strong>
+            <div class="bidang-box bg-ekonomi">
+                <span class="bidang-title">Bidang Ekonomi</span>
+                <div class="bidang-price" id="totalEkonomi">Rp 0</div>
             </div>
         </div>
 
@@ -120,7 +138,6 @@
                     let nominal = Number(d.anggaran) || 0;
                     totalSemua += nominal;
 
-                    // Hitung per bidang (pastikan penamaan bidang sesuai dengan inputan Google Sheets)
                     const bidang = (d.bidang || "").toLowerCase();
                     if (bidang.includes("sarana") || bidang.includes("prasarana")) sumSarpras += nominal;
                     else if (bidang.includes("sosial") || bidang.includes("budaya")) sumSosbud += nominal;
@@ -139,7 +156,7 @@
 
                 document.getElementById("isiTabel").innerHTML = h;
 
-                // Update Ringkasan Diatas Tabel
+                // Update Anggaran di Kotak
                 document.getElementById("totalSarpras").innerText = "Rp " + sumSarpras.toLocaleString('id-ID');
                 document.getElementById("totalSosbud").innerText = "Rp " + sumSosbud.toLocaleString('id-ID');
                 document.getElementById("totalEkonomi").innerText = "Rp " + sumEkonomi.toLocaleString('id-ID');
@@ -157,7 +174,7 @@
         }
 
         function exportToExcel() {
-            if (rawData.length === 0) return alert("Data belum siap!");
+            if (rawData.length === 0) return alert("Data kosong!");
             const ws = XLSX.utils.json_to_sheet(rawData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Rekap 2027");
