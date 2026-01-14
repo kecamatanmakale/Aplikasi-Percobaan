@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard Admin Musrenbang Makale</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; display: flex; }
         .sidebar { width: 250px; background: #1a5bb8; height: 100vh; position: fixed; color: white; padding: 25px; box-sizing: border-box; }
@@ -17,13 +18,23 @@
         table th, table td { border: 1px solid #eee; padding: 10px; text-align: left; }
         table th { background: #f9f9f9; font-weight: bold; }
         .chart-container { position: relative; height: 300px; width: 100%; }
-        .btn-logout { background: #c0392b; color: white; border: none; padding: 10px; width: 100%; margin-top: 30px; cursor: pointer; border-radius: 5px; }
         
-        /* Penyesuaian Responsif untuk Tabel */
-        .table-container { grid-column: span 1; }
-        @media (max-width: 1100px) {
-            .grid-container { grid-template-columns: 1fr 1fr; }
-            .table-container { grid-column: span 1; }
+        /* Tombol Navigasi */
+        .btn-group { display: flex; gap: 10px; }
+        .btn { border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; color: white; }
+        .btn-logout { background: #c0392b; width: 100%; margin-top: 30px; }
+        .btn-excel { background: #27ae60; }
+        .btn-pdf { background: #e67e22; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+        /* Kustomisasi Tampilan Cetak (PDF) */
+        @media print {
+            .sidebar, .btn-group, .btn-logout { display: none !important; }
+            .main-content { margin-left: 0; width: 100%; padding: 0; }
+            .grid-container { display: block; }
+            .card { box-shadow: none; border: 1px solid #ddd; margin-bottom: 20px; page-break-inside: avoid; }
+            body { background: white; }
+            .chart-container { height: 250px !important; }
         }
     </style>
 </head>
@@ -32,27 +43,33 @@
         <h3>ADMIN PANEL</h3>
         <p>Kecamatan Makale</p>
         <hr>
-        <button class="btn-logout" onclick="logout()">LOGOUT</button>
+        <button class="btn btn-logout" onclick="logout()">LOGOUT</button>
     </div>
 
     <div class="main-content">
-        <h1>Dashboard Monitoring Usulan Musrenbang T.A. 2027</h1>
+        <div class="header-flex">
+            <h1>Dashboard Monitoring T.A. 2027</h1>
+            <div class="btn-group">
+                <button class="btn btn-excel" onclick="exportToExcel()">Export Excel</button>
+                <button class="btn btn-pdf" onclick="window.print()">Print PDF</button>
+            </div>
+        </div>
         
         <div class="grid-container">
             <div class="card">
                 <h4>Total Usulan Masuk</h4>
                 <div class="stat-value" id="totalUsulan">Memuat...</div>
-                <p>By : Fuad Amry - Januari 2026</p>
+                <p>Berdasarkan Baris Aktif</p>
             </div>
 
             <div class="card">
                 <h4>Total Anggaran Keseluruhan</h4>
                 <div id="totalAnggaranSemua" class="stat-value" style="color: #27ae60;">Rp 0</div>
-                <p>Akumulasi dari 3 Bidang Utama</p>
+                <p>Akumulasi Semua Bidang</p>
             </div>
 
             <div class="card">
-                <h4>Proporsi Anggaran Per Bidang</h4>
+                <h4>Proporsi Anggaran</h4>
                 <div class="chart-container">
                     <canvas id="chartBidang"></canvas>
                 </div>
@@ -65,53 +82,48 @@
                 </div>
             </div>
 
-            <div class="card table-container">
+            <div class="card">
                 <h4>Rekapitulasi Bidang</h4>
-                <table>
+                <table id="tableBidang">
                     <thead>
                         <tr><th>Bidang</th><th>Jml</th><th>Total Anggaran</th></tr>
                     </thead>
-                    <tbody id="bodyBidang">
-                        <tr><td colspan="3" style="text-align:center">Memproses data...</td></tr>
-                    </tbody>
+                    <tbody id="bodyBidang"></tbody>
                 </table>
             </div>
 
-            <div class="card table-container" style="grid-column: span 2;">
+            <div class="card" style="grid-column: span 2;">
                 <h4>Rekapitulasi Kelurahan</h4>
-                <table>
+                <table id="tableKelurahan">
                     <thead>
                         <tr><th>Kelurahan/Lembang</th><th>Jumlah Usulan</th></tr>
                     </thead>
-                    <tbody id="bodyKelurahan">
-                        <tr><td colspan="2" style="text-align:center">Memproses data...</td></tr>
-                    </tbody>
+                    <tbody id="bodyKelurahan"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
 <script>
-    // Proteksi Role Admin
     if(localStorage.getItem("role") !== "admin") window.location.href = "index.html";
 
     let chart1, chart2;
+    let rawData = [];
 
     async function loadStats() {
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
         
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
-            const data = await res.json();
+            rawData = await res.json();
             
-            if (!data || data.length === 0) {
+            if (!rawData || rawData.length === 0) {
                 document.getElementById("totalUsulan").innerText = "0 Usulan";
-                document.getElementById("totalAnggaranSemua").innerText = "Rp 0";
                 return;
             }
 
-            // Update Total Usulan
-            document.getElementById("totalUsulan").innerText = data.length + " Usulan";
+            // Memastikan sinkronisasi sesuai jumlah baris di Sheets (2 usulan)
+            document.getElementById("totalUsulan").innerText = rawData.length + " Usulan";
 
             let totalAnggaranGlobal = 0;
             const rekapKelurahan = {};
@@ -121,16 +133,13 @@
                 "Bidang Ekonomi": { jml: 0, biaya: 0 }
             };
 
-            data.forEach(item => {
-                // 1. Rekap Kelurahan
+            rawData.forEach(item => {
                 const valKel = (item["Kelurahan/Lembang"] || "Lainnya").toString().trim();
                 rekapKelurahan[valKel] = (rekapKelurahan[valKel] || 0) + 1;
 
-                // 2. Rekap Bidang & Anggaran
                 const valBid = (item["Bidang Kegiatan"] || "").toString().trim();
                 let valAng = item["Anggaran"] || 0;
                 
-                // Pembersihan format uang ke angka
                 if (typeof valAng === 'string') {
                     valAng = parseFloat(valAng.replace(/[^0-9.-]+/g, "")) || 0;
                 }
@@ -142,7 +151,6 @@
                 }
             });
 
-            // Update Tampilan Anggaran Keseluruhan
             document.getElementById("totalAnggaranSemua").innerText = "Rp " + totalAnggaranGlobal.toLocaleString('id-ID');
 
             updateTables(rekapKelurahan, rekapBidang);
@@ -150,19 +158,16 @@
 
         } catch (error) {
             console.error("Gagal memuat data:", error);
-            document.getElementById("totalUsulan").innerText = "Error Sinkronisasi";
         }
     }
 
     function updateTables(kel, bid) {
-        // Update Tabel Kelurahan
         let htmlKel = "";
         Object.keys(kel).sort().forEach(k => {
             htmlKel += `<tr><td>${k}</td><td>${kel[k]} Usulan</td></tr>`;
         });
         document.getElementById("bodyKelurahan").innerHTML = htmlKel;
 
-        // Update Tabel Bidang
         let htmlBid = "";
         for (const b in bid) {
             htmlBid += `<tr>
@@ -178,30 +183,20 @@
         if (chart1) chart1.destroy();
         if (chart2) chart2.destroy();
 
-        const labelsKel = Object.keys(kelData).sort();
-        const dataKel = labelsKel.map(k => kelData[k]);
-
-        // Chart Kelurahan (Bar)
         chart1 = new Chart(document.getElementById('chartKelurahan'), {
             type: 'bar',
             data: {
-                labels: labelsKel,
+                labels: Object.keys(kelData).sort(),
                 datasets: [{
                     label: 'Jumlah Usulan',
-                    data: dataKel,
+                    data: Object.keys(kelData).sort().map(k => kelData[k]),
                     backgroundColor: '#1a5bb8',
                     borderRadius: 5
                 }]
             },
-            options: { 
-                indexAxis: 'y', 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-            }
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
         });
 
-        // Chart Bidang (Doughnut)
         chart2 = new Chart(document.getElementById('chartBidang'), {
             type: 'doughnut',
             data: {
@@ -211,12 +206,16 @@
                     backgroundColor: ['#27ae60', '#e74c3c', '#f1c40f']
                 }]
             },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
+    }
+
+    function exportToExcel() {
+        if (rawData.length === 0) return alert("Data belum dimuat!");
+        const wb = XLSX.utils.book_new();
+        const wsData = XLSX.utils.json_to_sheet(rawData);
+        XLSX.utils.book_append_sheet(wb, wsData, "Rekap Musrenbang");
+        XLSX.writeFile(wb, "Rekap_Musrenbang_Makale_2027.xlsx");
     }
 
     loadStats();
