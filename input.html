@@ -2,432 +2,114 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Input Usulan Musrenbang Makale</title>
+    <title>Input Usulan Musrenbang</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 1000px; margin: auto; }
+        .container { max-width: 1100px; margin: auto; }
         .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h3 { margin: 0 0 20px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         
-        /* Style Rekapitulasi Card */
-        .rekap-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .rekap-card { background: white; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
-        .rekap-card h5 { margin: 0; font-size: 11px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
-        .rekap-card p { margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .search-box { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 300px; }
+        
+        .pagination { display: flex; gap: 5px; }
+        .pagination button { padding: 6px 12px; border: 1px solid #3498db; background: white; color: #3498db; cursor: pointer; border-radius: 4px; }
+        .pagination button.active { background: #3498db; color: white; }
+        .pagination button:disabled { border-color: #eee; color: #ccc; cursor: not-allowed; }
 
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-kirim { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-kirim:hover { background-color: #219150; }
-        .btn-excel { background-color: #1f8a50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .btn-pdf { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .btn-logout { background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; border-radius: 8px; overflow: hidden; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
         th { background-color: #34495e; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tfoot { font-weight: bold; background-color: #ecf0f1; font-size: 14px; }
-
-        .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
-        .btn-hapus { background: #e74c3c; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; margin-left: 5px; }
-
-        /* Fix Select2 Height */
-        .select2-container .select2-selection--single { height: 40px !important; margin-top: 5px; border: 1px solid #ccc !important; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
-
+        tr:hover { background-color: #f8f9fa; }
+        
+        .btn-kirim { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-edit { background: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 3px; cursor: pointer; }
+        .no-print { display: block; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="btn-group no-print">
-        <button onclick="window.location.href='dashboard.html'" style="background:#4a5568; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">⬅ Dashboard</button>
-        <button onclick="exportExcel()" class="btn-excel">📥 Export Excel</button>
-        <button onclick="window.print()" class="btn-pdf">🖨️ Print PDF</button>
-        <button onclick="logout()" class="btn-logout" style="margin-left:auto;">Logout</button>
-    </div>
-
-    <h3>Usulan: <span id="namaKel">-</span></h3>
-
-    <div class="rekap-container">
-        <div class="rekap-card" style="border-left-color: #3498db;">
-            <h5>Sarana Prasarana</h5>
-            <p id="countSarpra">0</p>
-        </div>
-        <div class="rekap-card" style="border-left-color: #e67e22;">
-            <h5>Sosial Budaya</h5>
-            <p id="countSosbud">0</p>
-        </div>
-        <div class="rekap-card" style="border-left-color: #2ecc71;">
-            <h5>Ekonomi</h5>
-            <p id="countEkonomi">0</p>
-        </div>
+    <div class="no-print" style="margin-bottom: 15px;">
+        <button onclick="window.location.href='dashboard.html'" style="padding:10px 15px; border-radius:5px; cursor:pointer; background:#4a5568; color:white; border:none;">⬅ Dashboard</button>
+        <button onclick="location.reload()" style="padding:10px 15px; border-radius:5px; cursor:pointer; background:#3498db; color:white; border:none;">🔄 Refresh Data</button>
     </div>
 
     <div class="box no-print">
+        <h3>Form Usulan: <span id="namaKel">-</span></h3>
         <form id="formUsulan">
             <input type="hidden" id="rowId">
-            
-            <label>Bidang</label>
-            <select id="bidang" required>
-                <option value="">-- Pilih Bidang --</option>
-                <option value="Bidang Sarana dan Prasarana">Bidang Sarana dan Prasarana</option>
-                <option value="Bidang Sosial Budaya">Bidang Sosial Budaya</option>
-                <option value="Bidang Ekonomi">Bidang Ekonomi</option>
-            </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Bidang Kegiatan</label>
+                    <select id="bidang" required>
+                        <option value="">-- Pilih Bidang --</option>
+                        <option>Bidang Sarana dan Prasarana</option>
+                        <option>Bidang Sosial Budaya</option>
+                        <option>Bidang Ekonomi</option>
+                    </select>
+                </div>
+                <div>
+                    <label>OPD Tujuan</label>
+                    <select id="opd" required>
+                        <option value="">-- Pilih OPD --</option>
+                        <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
+                        <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+                        <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
+                    </select>
+                </div>
+            </div>
 
             <label>Nama Kegiatan (Kamus Usulan)</label>
             <select id="kegiatan" class="js-select2" required>
                 <option value=""></option>
-                <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
-                <option>Belum meratanya infrastruktur teknologi informasi dan komunikasi terutama di wilayah terpencil</option>
-                <option>Bimbingan Teknis dan Supervisi Pengembangan dan Pelaksanaan Upaya Kesehatan Bersumber Daya Masyarakat (UKBM)</option>
-		 <option>Belum meratanya infrastruktur teknologi informasi dan komunikasi terutama di wilayah terpencil membuat masyarakat sulit mendapatkan informasi yang akurat dan terkini</option>
- <option>Bimbingan Teknis dan Supervisi Pengembangan dan Pelaksanaan Upaya Kesehatan Bersumber Daya Masyarakat (UKBM)</option>
- <option>Bintek Pengembangan kompetensi Keterampilan dan Ketehnikan Konstruksi Tenaga OAP</option>
- <option>Deteksi Dini Penyalahgunaan NAPZA di Fasyankes dan Sekolah</option>
- <option>Distribusi Alat Kesehatan, Obat, Bahan Habis Pakai, Bahan Medis Habis Pakai, Vaksin,  Makanan dan Minuman ke Fasilitas Kesehatan</option>
- <option>Diversifikasi Tanaman Jagung dan Kacang Tanah</option>
- <option>Evaluasi dan Konsultasi Evaluasi RTRW Kabupaten Tana Toraja</option>
- <option>Fasilitasi forum penataan ruang di lingkungan Kabupaten Tana Toraja</option>
- <option>Fasilitasi Pemenuhan Komitmen Penerbitan Izin Pembangunan dan Pengembangan Kawasan Permukiman Terintegrasi Secara Elektronik</option>
- <option>Fasilitasi Penyediaan Rumah bagi Korban Bencana Kabupaten/Kota</option>
- <option>Fasilitasi Sertifikasi Tenaga Kerja Konstruksi Kualifikasi Jabatan Operator dan Teknisi atau Analis</option>
- <option>Hadiah/penghargaan terhadap pemuda berprestasi</option>
- <option>HIBAH ke Organisasi Keolahragaan</option>
- <option>Identifikasi, Penetapan, Penyelenggaraan Bangunan Gedung Cagar Budaya yang Dilestarikan untuk Kepentingan Strategis Daerah Kabupaten Tana Toraja</option>
- <option>Identifikasi Potensi Kerja Sama dan Pemberdayaan Jasa Konstruksi</option>
- <option>Investigasi Awal Kejadian Tidak Diharapkan (Kejadian Ikutan Pasca Imunisasi dan Pemberian Obat Massal)</option>
- <option>Kerjasama dengan Badan Promosi Pariwisata Daerah dan pihak terkait lainnya</option>
- <option>Kerjasama dengan dunia usaha</option>
- <option>Kerja Sama Penyediaan/ Pengelolaan PSU Perumahan</option>
- <option>Kerja Sama Perbaikan Rumah Tidak Layak Huni Beserta PSU</option> 
- <option>Konseling Satyagatra</option> 
- <option>Koordinasi dan Sinkronasi Pengendalian Pembangunan dan Pengembangan Perumahan</option> 
- <option>Koordinasi dan Sinkronasi Pengendalian Penyelenggaraan Pemugaran/Peremajaan Permukiman Kumuh</option>
- <option>Koordinasi dan Sinkronisasi dalam Rangka Penyediaan Prasarana, Sarana, dan Utilitas Umum Perumahan</option>
- <option>Koordinasi dan Sinkronisasi Penerapan   SPM Bidang Kesehatan Kabupaten/Kota</option>
- <option>Kurangnya Data Rumah yang Berada di Lokasi Rawan Bencana</option>
- <option>Kurangnya Data Tingkat Kerusakan Rumah Akibat Bencana</option>
- <option>Kurangnya kapasitas SDM di bidang IT sehingga website Kelurahan/Lembang belum dapat dimanfaatkan secara optimal untuk memberikan informasi, transparansi, dan partisipasi kepada masyarakat.</option>
- <option>Kurangnya penyebaran informasi mengenai program desa, kegiatan sosial, pengumuman, atau hal-hal lain yang berkaitan dengan pembangunan dan kesejahteraan desa.</option>
- <option>Kurangnya penyebaran informasi mengenai program desa, kegiatan sosial, pengumuman, atau hal-hal lain yang berkaitan dengan pembangunan dan kesejahteraan desa (Layanan PODCAST Gamaranta)</option>
- <option>Kurangnya penyebaran informasi mengenai program desa, kegiatan sosial, pengumuman, atau hal-hal lain yang berkaitan dengan pembangunan dan kesejahteraan desa (Layanan Radio Pemerintah Kabupaten FM/RPK FM)</option>
- <option>Layanan Informasi Jasa Konstruksi</option>
- <option>Maraknya konten-konten berbau negatif dan penyebaran aplikasi-aplikasi yang bersifat phising yang dapat membahayakan pengguna internet, perlu untuk mendapatkan pemahaman yang benar tentang berinternet yang baik dan benar</option>
- <option>Monitoring Ekraf</option>
- <option>Normalisasi Sungai</option>
- <option>Normalisasi Tebing Sungai</option>
- <option>Operasional Pelayanan Fasilitas Kesehatan Lainnya-Operasional Pelayanan Puskesmas</option>
- <option>Partisipasi dalam kegiatan kepramukaan tingkat propinsi dan nasional</option>
- <option>Partisipasi dalam penyelenggaraan kejuaraan di luar daerah</option>
- <option>Pelaksanaan Akreditasi Fasilitas Kesehatan di Kabupaten/Kota</option>
- <option>Pelaksanaan event olahraga wisata</option>
- <option>Pelaksanaan event promosi</option>
- <option>Pelaksanaan festival olahraga rekreasi</option>
- <option>Pelaksanaan Kewaspadaan Dini dan Respon Wabah</option> 
- <option>Pelaksanaan Monitoring dan Evaluasi Pengembangan Pemasaran Pariwisata</option>
- <option>Pelaksanaan Pemugaran Kawasan Permukiman Kumuh</option>
- <option>Pelaksanaan Pendampingan Penggunaan Sarana Pendukung Pertanian</option>
- <option>Pelaksanaan Pengawasan Penggunaan Alsintan</option>
- <option>Pelaksanaan Pengawasan Penggunaan Peredaran Benih/Bibit</option>
- <option>Pelaksanaan Pengawasan Penggunaan Pupuk dan Pestisida</option>
- <option>Pelaksanaan Peremajaan Kawasan Permukiman Kumuh</option>
- <option>Pelaksanaan perkemahan pramuka</option>
- <option>Pelaksanaan Permukiman Kembali Kawasan Permukiman Kumuh</option>
- <option>Pelaksanaan Persetujuan Kesesuaian Kegiatan Pemanfaatan Ruang untuk Kegiatan Berusaha di Kabupaten Tana Toraja</option>
- <option>Pelaksanaan Persetujuan Kesesuaian Kegiatan Pemanfaatan Ruang untuk Kegiatan Non Berusaha di Kabupaten Tana Toraja</option>
- <option>Pelaksanaan promosi melalui semua media</option>
- <option>Pelatihan Ekraf</option>
- <option>Pelatihan Kapasitas Pengelola SIPJAKI</option>
- <option>Pelatihan Ketrampilan  bagi Anak Terlantar dan / atau Anak putus Sekolah</option>
- <option>Pelatihan Pemasaran ekraf</option>
- <option>Pelatihan Pengelolaan Desa Wisata</option>
- <option>Pelatihan pengembangan kompetensi SDM Ekraf</option>
- <option>Pelatihan Pengurus BUMDES</option>
- <option>Pelatihan wirausaha pemula pemuda</option> 
- <option>Pelayanan Kesehatan Penderita IMS</option> 
- <option>Pelayanan Kesehatan Penderita Kecacingan</option>
- <option>Pelayanan Kesehatan Penderita Kusta</option> 
- <option>Pelayanan Kesehatan Penyakit Menular dan Tidak Menular</option>
- <option>Pelayanan Kesehatan Penyakit yang dapat Dicegah dengan Imunisasi</option>
- <option>Pelebaran Jalan Kabupaten</option>
- <option>Pelebaran Jembatan Kabupaten</option>
- <option>Perlindungan Cagar Budaya</option> 
- <option>Perlindungan, Pengembangan, Pemanfaatan Objek Pemajuan Kebudayaan</option>
- <option>Perlindungan, Pengembangan, Pemanfaatan Objek Pemajuan Lembaga Adat</option> 
- <option>Perlindungan, Pengembangan, Pemanfaatan Objek Pemajuan Tradisi Budaya</option> 
- <option>Pemanfaatan Cagar Budaya</option> 
- <option>Pemantauan dan Evaluasi Pelatihan Tenaga Kerja Konstruksi Kualifikasi Jabatan Operator dan Teknisi Kabupaten Tana Toraja</option>
- <option>Pemasangan warning light</option> 
- <option>Pembaharuan data profil Desa/Lembang</option>
- <option>Pembangunan Bangunan Perkuatan Tebing</option> 
- <option>Pembangunan Bendungan</option> 
- <option>Pembangunan Embung</option> 
- <option>Pembangunan Fasilitas Parkir</option> 
- <option>Pembangunan Infrastruktur Sumber Mata Air</option> 
- <option>Pembangunan Instalasi Pengolahan Lumpur Tinja (IPLT)</option> 
- <option>Pembangunan Instalasi Pengolahan Lumpur Tinja (IPLT) Kawasan Permukiman dan Kawasan Wisata</option> 
- <option>Pembangunan Jalan Kabupaten</option>
- <option>Pembangunan Jaringan Irigasi</option>
- <option>Pembangunan Jembatan</option>
- <option>Pembangunan Kantin Sekolah</option> 
- <option>Pembangunan Laboratorium</option> 
- <option>Pembangunan/Pengembangan Destinasi Pariwisata</option>
- <option>Pembangunan/Pengembangan/ Pemeliharaan Sistem Layanan Informasi dan Komunikasi Bidang Perumahan dan Kawasan Permukiman</option> 
- <option>Pembangunan Perpustakaan Sekolah</option> 
- <option>Pembangunan pusat latihan daerah (sport science)</option> 
- <option>Pembangunan Puskesmas</option> 
- <option>Pembangunan Ruang Guru/Kepala Sekolah/TU</option> 
- <option>Pembangunan Ruang Kelas Baru</option>
- <option>Pembangunan Ruang Serba Guna/Aula</option>
- <option>Pembangunan Ruang Unit Kesehatan Sekolah</option> 
- <option>Pembangunan Rumah bagi Korban Bencana</option> 
- <option>Pembangunan Rumah Baru Layak Huni dalam Rangka Pencegahan terhadap Kumuh dan Berkembangnya Perumahan Kumuh dan Permukiman Kumuh Baru</option> 
- <option>Pembangunan Rumah Baru Layak Huni untuk Peningkatan Kualitas Permukiman Kumuh dengan Luas dibawah 10 (Sepuluh) Ha</option> 
- <option>Pembangunan Rumah Dinas Kepala Sekolah/Guru/Penjaga Sekolah</option>
- <option>Pembangunan Rumah Dinas Tenaga Kesehatan</option> 
- <option>Pembangunan rumah sehat yang dilengkapi dengan prasarana dan sarana utilitas umum, terutama bagi OAP di daerah terisolasi</option> 
- <option>Pembangunan Sarana, Prasarana dan Utilitas Sekolah</option> 
- <option>Pembangunan Sistem Drainase Lingkungan</option> 
- <option>Pembangunan Sistem Drainase Perkotaan</option> 
- <option>Pembangunan Sistem Pengelolaan Air Limbah Domestik (SPALD) Terpusat Skala Perkotaan</option> 
- <option>Pembangunan Sistem Pengelolaan Air Limbah Domestik (SPALD) Terpusat Skala Permukiman</option> 
- <option>Pembangunan Sistem Pengelolaan Air Limbah Domestik (SPALD) Terpusat Skala Permukiman Berbasis Masyarakat</option> 
- <option>Pembangunan Sistem Penyediaan Air Minum (SPAM) Jaringan Perpipaan</option> 
- <option>Pembangunan Tanggul Sungai</option> 
- <option>Pembangunan TPA dan TPS</option> 
- <option>Pembangunan Unit Air Baku</option> 
- <option>Pembangunan Youth Creative Hub</option>
- <option>Pembangunan Zona Selamat Sekolah (ZOSS)</option> 
- <option>Pembentukan dan Pembinanaan P3A</option> 
- <option>Pembentukan Lembaga Sistem Penyediaan Air Minum di Lembang</option> 
- <option>Pembentukan/Pembinaan Kelompok Swadaya Masyarakat di Permukiman Kumuh</option> 
- <option>Pembentukan pemuda pelopor</option>
- <option>Pembentukan/Pendirian PPOP Kabupaten</option>
- <option>Pembentukan perkumpulan olahraga satuan pendidikan dasar</option> 
- <option>Pembentukan Rumah Data Kependudukan di Kampung KB</option> 
- <option>Pembentukan Satuan Karya Keluarga Berencana (SAKA KENCANA)</option> 
- <option>Pembentukan Sekolah Lansia di Tiap Kecamatan</option> 
- <option>Pemberdayaan Masyarakat adat pada Kawasan terpencil</option> 
- <option>Pemberian Bantuan permakanan</option> 
- <option>Pemberian Bimbingan Fisik, Mental Spritual, dan Sosial</option> 
- <option>Pemberian DANA HIBAH kepada organisasi kepemudaan</option>
- <option>Pemberian fasilitas teknologi informasi untuk pelaku ekraf</option>
- <option>Pemberian Insentif Bagi Kader KB</option> 
- <option>Pemberian insentif untuk pelaku ekonomi kreatif</option>
- <option>Pemberian layanan pendampingan bagi satuan pendidikan untuk pencegahan perundungan, kekerasan, dan intoleransi</option> 
- <option>Pembinaan dan Pengawasan Sumber  Daya  Manusia Kesehatan</option> 
- <option>Pembinaan dan Pengawasan Tenaga Kesehatan serta Tindak Lanjut Perizinan Praktik Tenaga Kesehatan</option> 
- <option>Pembinaan dan Peningkatan Kapasitas Kelembagaan Jasa Konstruksi Kabupaten Tana Toraja</option>
- <option>Pembinaan dan Peningkatan Mutu dan Kapasitas Sumber Daya Manusia Permuseuman</option> 
- <option>Pembinaan Masyarakat Pariwisata</option>
- <option>Pembinaan Minat, Bakat dan Kreativitas Siswa</option> 
- <option>Pembinaan Poktan</option> 
- <option>Pembinaan Sumber Daya Manusia, Lembaga, dan Pranata Adat</option> 
- <option>Pembinaan Sumber Daya Manusia, Lembaga, dan Pranata Kebudayaan</option> 
- <option>Pembuatan marka jalan</option> 
- <option>Pemelihaharaan Bantaran Sungai</option> 
- <option>Pemeliharaan alat penerangan jalan (apj)</option> 
- <option>Pemeliharan Berkala Jembatan Kabupaten</option>
- <option>Pemeliharaan cermin cembung</option> 
- <option>Pemeliharaan Embung</option> 
- <option>Pemeliharaan Jalan Kabupaten</option>
- <option>Pemeliharaan Jaringan Irigasi dan Pembentukan Lembaga Pengoperasian Bendung Irigasi</option> 
- <option>Pemeliharaan Jaringan Irigasi dan Pembentukan Lembaga Pengoperasian Jaringan Irigasi</option> 
- <option>Pemeliharaan pagar pengaman jalan (guardrail)</option> 
- <option>Pemeliharaan patok pengaman jalan (deliniator)</option> 
- <option>Pemeliharaan, Perawatan, dan Pemeriksaan Berkala Bangunan Gedung</option> 
- <option>Pemeliharaan rambu-rambu lalu lintas</option> 
- <option>Pemeliharaan/Rehabilitasi Bendungan</option> 
- <option>Pemeliharaan/Rehabilitasi Tanggul Sungai</option> 
- <option>Pemeliharaan  Rutin dan Berkala Alat Kesehatan/Alat Penunjang Medik Fasilitas Pelayanan Kesehatan</option> 
- <option>Pemeliharaan Rutin Jalan Kabupaten</option>
- <option>Pemeliharaan Rutin Jembatan Kabupaten</option>
- <option>Pemeliharaan Sistem Drainase Lingkungan</option> 
- <option>Pemeliharaan Sistem Drainase Perkotaan</option>
- <option>Pemeliharaan Sistem Pengelolaan Air Limbah Domestik (SPALD)</option> 
- <option>Pemeliharaan Sistem Penyediaan Air Minum (SPAM)</option> 
- <option>Pemeliharaan Sumber Mata Air</option> 
- <option>Pemeliharaan Sumur Air Tanah</option> 
- <option>Pemeliharaan Unit Air Baku</option> 
- <option>Pemenuhan Kebutuhan Sumber Daya Manusia Kesehatan Sesuai Standar</option> 
- <option>Pemeriksaan Post Market pada Produk Makanan-Minuman Industri Rumah Tangga yang Beredar dan Pengawasan serta Tindak Lanjut Pengawasan</option> 
- <option>Pemilihan pemuda kader di setiap kecamatan</option>
- <option>Pemilihan Pemuda Pelopor di tiap Kecamatan</option>
- <option>Penangkaran jagung</option> 
- <option>Penangkaran Padi</option> 
- <option>Penataan Kawasan Wisata</option>
- <option>Penatausahaan Serah Terima Rumah bagi Korban Bencana Kabupaten/Kota</option> 
- <option>Penatausahaan Serah Terima Rumah Baru Layak Huni bagi Masyarakat di Kawasan Permukiman Kumuh dengan Luas dibawah 10 (Sepuluh) Ha</option> 
- <option>Pendampingan Anak Berhadapan Hukum</option> 
- <option>Pendampingan  Pendaftaran Kekayaan Intelektual</option>
- <option>Pendampingan proses kreasi Ekraf</option>
- <option>Pendataan dan penetapan olahraga tradisional Tana Toraja</option> 
- <option>Pendataan dan penyebaran informasi  pariwisata (data 3A)</option> 
- <option>Pendataan dan Verifikasi Calon Penerima Rumah bagi Korban Bencana Kabupaten/Kota</option> 
- <option>Pendataan dan Verifikasi Penyelenggaraan Kawasan Permukiman Kumuh</option> 
- <option>Penetapan Cagar Budaya</option> 
- <option>Penetapan Kawasan Strategis Pariwisata</option>  
- <option>Penetapan Objek Wisata/DTW unggulan</option> 
- <option>Penetapan RDTR Kabupaten Tana Toraja</option>
- <option>Penetapan RTRW Kabupaten Tana Toraja</option>
- <option>Pengadaan Alat Kesehatan/Alat Penunjang Medik Fasilitas Pelayanan Kesehatan</option> 
- <option>Pengadaan Alat Praktik dan Peraga Siswa</option> 
- <option>Pengadaan Benih Sayur (Kangkung, Sawi, Tomat, Cabe Rawit, Kacang Panjang, Kacang Buncis, Terung dan Wortel)</option> 
- <option>Pengadaan dan pemasangan alat penerangan jalan (Apj)</option> 
- <option>Pengadaan dan pemasangan cermin tikungan  (safety mirror)</option> 
- <option>Pengadaan dan pemasangan pagar pengaman jalan (guardrail)</option> 
- <option>Pengadaan dan pemasangan patok pengaman jalan (deliniator)</option> 
- <option>Pengadaan dan pemasangan rambu-rambu lalu lintas</option> 
- <option>Pengadaan Lemari Alokon, IUD Kit dan Implant  Kit di Fasyankes</option> 
- <option>Pengadaan Mebel Sekolah</option> 
- <option>Pengadaan Obat, Bahan Habis Pakai, Bahan Medis Habis Pakai, Vaksin,  Makanan  dan Minuman di Fasilitas Kesehatan</option> 
- <option>Pengadaan Perlengkapan Peserta Didik</option> 
- <option>Pengadaan Perlengkapan Sekolah</option> 
- <option>Pengadaan Rambu Pendahulu Petunjuk Jurusan (RPPJ)</option> 
- <option>Pengadaan sarana pendukung destinasi</option>
- <option>Pengadaan Ternak Babi</option> 
- <option>Pengadaan Ternak Kambing</option> 
- <option>Pengadaan Ternak Kebau</option> 
- <option>Pengambilan dan Pengiriman Spesimen Penyakit Potensial KLB ke Laboratorium Rujukan/Nasional</option> 
- <option>Pengawasan dan Pengendalian dalam Rangka Pencegahan terhadap Kumuh dan Berkembangnya Perumahan Kumuh dan Permukiman Kumuh Baru</option> 
- <option>Pengawasan pada tempat-tempat yang rentan gangguan ketertiban umum dan ketentraman masyarakat</option> 
- <option>Pengawasan Standar Pelayanan Bidang Penataan Ruang di Kabupaten Tana Toraja</option>
- <option>Pengelolaan Jaminan Kesehatan Masyarakat</option> 
- <option>Pengelolaan Kawasan tanpa rokok</option> 
- <option>Pengelolaan Layanan Imunisasi</option> 
- <option>Pengelolaan Manajemen Puskesmas</option> 
- <option>Pengelolaan pelayanan kelanjutusiaan</option> 
- <option>Pengelolaan Pelayanan Kesehatan bagi Penduduk pada Kondisi Kejadian Luar Biasa (KLB)</option> 
- <option>Pengelolaan Pelayanan Kesehatan bagi Penduduk Terdampak Krisis Kesehatan Akibat Bencana dan/atau Berpotensi Bencana</option> 
- <option>Pengelolaan Pelayanan Kesehatan Balita</option> 
- <option>Pengelolaan Pelayanan Kesehatan Bayi Baru Lahir</option> 
- <option>Pengelolaan Pelayanan Kesehatan Dasar Melalui Pendekatan Keluarga</option> 
- <option>Pengelolaan Pelayanan Kesehatan Gizi Masyarakat Pengelolaan pelayanan Kesehatan Haji</option> 
- <option>Pengelolaan Pelayanan Kesehatan Ibu Bersalin</option> 
- <option>Pengelolaan Pelayanan Kesehatan Ibu Hamil</option> 
- <option>Pengelolaan Pelayanan Kesehatan Jiwa dan NAPZA</option> 
- <option>Pengelolaan Pelayanan Kesehatan Kerja dan Olahraga</option> 
- <option>Pengelolaan Pelayanan Kesehatan Lingkungan Kesehatan Lingkungan</option> 
- <option>Pengelolaan pelayanan kesehatan Malaria</option> 
- <option>Pengelolaan Pelayanan Kesehatan Orang dengan Gangguan Jiwa Berat</option> 
- <option>Pengelolaan pelayanan kesehatan orang dengan HIV (ODHIV)</option> 
- <option>Pengelolaan  Pelayanan Kesehatan Orang  dengan Masalah Kesehatan Jiwa (ODMK)</option> 
- <option>Penyusunan Dokumen Rencana strategi dan Teknis Pengembangan Jaringan Jalan serta Perencanaan Teknis Penyelenggaraan Jalan dan Jembatan Kab. Tana Toraja</option>
- <option>Penyusunan Dokumen Rencana, Kebijakan, Strategi dan Teknis Sistem Drainase Lingkungan Kabupaten Tana toraja</option> 
- <option>Penyusunan Dokumen Rencana, Kebijakan, Strategi dan Teknis Sistem Drainase Perkotaan</option> 
- <option>Penyusunan Dokumen Rencana, Kebijakan, Strategi dan Teknis Sistem Pengelolaan Air Limbah Domestik (SPALD) Kabupaten Tana Toraja</option> 
- <option>Penyusunan Dokumen Rencana, Kebijakan, Strategi dan Teknis Sistem Pengelolaan Persampahan</option> 
- <option>Penyusunan Dokumen Rencana Teknis dan Dokumen Lingkungan Hidup untuk Konstruksi Bendungan, Embung, dan Bangunan Penampung Air Lainnya</option> 
- <option>Penyusunan Dokumen Rencana Teknis dan Dokumen Lingkungan Hidup untuk Konstruksi Irigasi dan Rawa Kab. Tana Toraja</option> 
- <option>Penyusunan Dokumen Revisi RTRW Kabupaten Tana Toraja dan RRTR</option> 
- <option>Penyusunan Leger Jalan</option>
- <option>Penyusunan Master Plan Objek Wisata/ DTW unggulan Kabupaten/Kota</option>
- <option>Penyusunan/Review/Legalisasi Kebijakan Bidang PKP</option> 
- <option>Perbaikan Prasarana, Sarana dan Utilitas Umum di Perumahan untuk Menunjang Fungsi Hunian</option> 
- <option>Perbaikan Rumah Tidak Layak Huni</option> 
- <option>Perbaikan Rumah Tidak Layak Huni untuk Pencegahan Terhadap Tumbuh dan Berkembangnya Permukiman Kumuh di Luar Kawasan Permukiman Kumuh dengan Luas dibawah 10 (Sepuluh) Ha</option> 
- <option>Perencanaan dan Distribusi serta Pemerataan  Sumber  Daya Manusia Kesehatan</option> 
- <option>Perencanaan Penyediaan PSU Perumahan</option> 
- <option>Peringatan hari besar kepemudaan</option>
- <option>Rehabilitasi dan Pemeliharaan Bendung Irigasi</option> 
- <option>Rehabilitasi dan Pemeliharaan Fasilitas Kesehatan Lainnya</option> 
- <option>Rehabilitasi dan Pemeliharaan Puskesmas</option> 
- <option>Rehabilitasi dan Pemeliharaan Rumah Dinas Tenaga Kesehatan</option> 
- <option>Rehabilitasi Embung</option> 
- <option>Rehabilitasi Jalan Kabupaten</option>
- <option>Rehabilitasi Jaringan Irigasi</option> 
- <option>Rehabilitasi Jembatan Kabupaten</option>
- <option>Rehabilitasi Rumah bagi Korban Bencana</option> 
- <option>Rehabilitasi Sedang/Berat Perpustakaan Sekolah</option> 
- <option>Rehabilitasi Sedang/Berat Ruang Guru/Kepala Sekolah/TU</option> 
- <option>Rehabilitasi Sedang/Berat Ruang Kelas Sekolah</option> 
- <option>Rehabilitasi Sedang/Berat Ruang Unit Kesehatan Sekolah</option> 
- <option>Rehabilitasi Sedang/Berat Rumah Dinas Kepala Sekolah/Guru/Penjaga Sekolah</option> 
- <option>Rehabilitasi Sistem Drainase Perkotaan</option> 
- <option>Rekonstruksi Jalan Kabupaten</option>
- <option>Salah satu tantangan yang dihadapi oleh desa-desa dalam mengadakan kegiatan secara daring adalah kurangnya kapasitas SDM di bidang IT. Hal ini menyebabkan pemanfaatan teknologi zoom dan live streaming masih kurang optimal.</option> 
- <option>Sertifikasi Kompetensi Ekraf</option>
- <option>Sosialiasasi tentang kekayaan intelektual</option>
- <option>Sosialisasi Cegah Dini Bahaya Kebakaran</option>
- <option>Sosialisasi Pengembangan Perumahan Baru dan Mekanisme Akses Pembiayaan Perumahan</option>
- <option>Sosialisasi Peraturan Perundangundangan dan pedoman Bidang Penataan ruang Kabupaten Tana Toraja</option>
- <option>Standardisasi dan Sertifikasi Sumber Daya Manusia Kesenian Tradisional Sesuai dengan Kebutuhan dan Tuntutan</option> 
- <option>Survei dan Penetapan Lokasi Perumahan dan Permukiman Kumuh</option> 
- <option>Survey Kondisi Jalan/Jembatan Kabupaten</option>
- <option>Upaya untuk membantu pencari kerja mendapatkan informasi kerja</option> 
- <option>Upaya untuk Membuat Perusahaan Memahami Aturan-aturan Ketenagakerjaan</option> 
- <option>Upaya untuk Mencegah Terjadinya Perselisihan antara Pekerja dan Pemberi Kerja</option> 
- <option>Upaya untuk Mengatasi Perselisihan yang Terjadi antara Pekerja dan Pemberi Kerja</option>  
- <option>Upaya untuk meningkatkan keterampilan bagi pencari kerja</option> 
- <option>Upaya untuk Meningkatkan Keterampilan Warga Transmigrasi yang Dibina</option> 
- <option>Verifikasi dan Penyerahan PSU Perumahan dari Pengembang</option>
-                <option>Sosialisasi Cegah Dini Bahaya Kebakaran</option>
+                <option>Normalisasi Sungai</option>
+                <option>Pembangunan Jaringan Irigasi</option>
+                <option>Pengadaan Ternak Babi</option>
+                <option>Perbaikan Rumah Tidak Layak Huni</option>
             </select>
 
             <label>Lokasi Spesifik</label>
-            <input type="text" id="lokasi" required>
+            <input type="text" id="lokasi" required placeholder="Contoh: Dusun A, RT 01">
 
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;"><label>Volume</label><input type="text" id="volume" required></div>
-                <div style="flex: 1;"><label>Anggaran (Rp)</label><input type="number" id="anggaran" required></div>
+            <div style="display: flex; gap: 15px;">
+                <div style="flex:1"><label>Volume</label><input type="text" id="volume" required></div>
+                <div style="flex:1"><label>Anggaran (Rp)</label><input type="number" id="anggaran" required></div>
             </div>
 
-            <label>OPD Tujuan</label>
-            <select id="opd" required>
-                <option value="">-- Pilih OPD --</option>
-                <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
-                <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
-                <option>BPBD</option><option>Dinas Pariwisata</option>
-                <option>Dinas Koperasi & UKM</option><option>DLHD</option>
-                <option>DPML</option><option>DPMPTSP</option>
-                <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
-                <option>Disnakertans</option><option>Bappelitbangda</option>
-                <option>BPKPD</option><option>Bakesbangpol</option>
-                <option>Inspektorat Daerah</option><option>Satpol PP</option>
-                <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
-                <option>RSUD Lakipadada</option>
-            </select>
-
-            <label>Keterangan</label>
+            <label>Keterangan Tambahan</label>
             <textarea id="keterangan" rows="2"></textarea>
 
             <button type="submit" id="btnProses" class="btn-kirim">Kirim Usulan</button>
         </form>
     </div>
 
-    <h4>Daftar Usulan :</h4>
-    <div style="overflow-x: auto;">
-        <table id="tabelData">
-            <thead>
-                <tr>
-                    <th>Kegiatan</th>
-                    <th>Bidang</th>
-                    <th>Lokasi</th>
-                    <th>Volume</th>
-                    <th>Anggaran (Rp)</th>
-                    <th>OPD</th>
-                    <th>Keterangan</th>
-                    <th class="no-print">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="isiTabel"></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" align="right">TOTAL ANGGARAN:</td>
-                    <td id="totalAnggaran" style="background: #F8F8FF; color: #000;">Rp 0</td>
-                    <td colspan="3"></td>
-                </tr>
-            </tfoot>
-        </table>
+    <div class="box">
+        <div class="table-controls no-print">
+            <input type="text" id="searchInput" class="search-box" placeholder="Cari kegiatan atau lokasi..." oninput="handleSearch()">
+            <div class="pagination" id="pagination"></div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kegiatan</th>
+                        <th>Lokasi</th>
+                        <th>Anggaran</th>
+                        <th>OPD</th>
+                        <th class="no-print">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="isiTabel">
+                    <tr><td colspan="5" align="center">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -435,153 +117,108 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec"; 
     const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
     
-    // Inisialisasi Tampilan
-    if (!userKel) {
-        window.location.href = "index.html";
-    } else {
-        document.getElementById("namaKel").innerText = userKel;
-    }
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const rowsPerPage = 10;
 
-    // Inisialisasi Select2 (Kamus Usulan)
+    if (!userKel) window.location.href = "index.html";
+    document.getElementById("namaKel").innerText = userKel;
+
     $(document).ready(function() {
-        $('.js-select2').select2({
-            placeholder: "-- Cari/Pilih Kegiatan --",
-            allowClear: true,
-            width: '100%'
-        });
+        $('.js-select2').select2({ placeholder: "Pilih Kegiatan", allowClear: true });
+        loadData();
     });
 
-    let dataSheet = [];
-
-    // FUNGSI LOAD DATA UTAMA
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
-            dataSheet = await res.json();
-            
-            const filter = dataSheet.filter(x => x.kelurahan === userKel);
-            
-            let baris = "";
-            let totalAnggaran = 0;
-            let cSarpra = 0, cSosbud = 0, cEkonomi = 0;
+            const data = await res.json();
+            allData = data.filter(x => x["Kelurahan/Lembang"] === userKel).reverse();
+            filteredData = [...allData];
+            renderTable();
+        } catch (e) { alert("Koneksi bermasalah."); }
+    }
 
-            filter.reverse().forEach(d => {
-                const nilaiAnggaran = Number(d.anggaran) || 0;
-                totalAnggaran += nilaiAnggaran;
+    function renderTable() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const paginated = filteredData.slice(start, start + rowsPerPage);
+        let h = "";
+        paginated.forEach(d => {
+            h += `<tr>
+                <td><strong>${d.Kegiatan}</strong><br><small>${d["Bidang Kegiatan"]}</small></td>
+                <td>${d.Lokasi}</td>
+                <td>Rp ${Number(d.Anggaran).toLocaleString('id-ID')}</td>
+                <td>${d.OPD}</td>
+                <td class="no-print"><button class="btn-edit" onclick="editData('${d.Timestamp}')">✏️</button></td>
+            </tr>`;
+        });
+        document.getElementById("isiTabel").innerHTML = h || "<tr><td colspan='5' align='center'>Data tidak ditemukan</td></tr>";
+        renderPagination();
+    }
 
-                // Hitung Rekap Per Bidang
-                const b = (d.bidang || "").toLowerCase();
-                if(b.includes("sarana")) cSarpra++;
-                else if(b.includes("sosial")) cSosbud++;
-                else if(b.includes("ekonomi")) cEkonomi++;
+    function renderPagination() {
+        const count = Math.ceil(filteredData.length / rowsPerPage);
+        let pg = "";
+        for(let i=1; i<=count; i++) {
+            if(i===1 || i===count || (i>=currentPage-1 && i<=currentPage+1)) {
+                pg += `<button class="${i===currentPage?'active':''}" onclick="currentPage=${i};renderTable()">${i}</button>`;
+            }
+        }
+        document.getElementById("pagination").innerHTML = pg;
+    }
 
-                baris += `<tr>
-                    <td><strong>${d.kegiatan}</strong></td>
-                    <td>${d.bidang}</td>
-                    <td>${d.lokasi}</td>
-                    <td>${d.volume}</td>
-                    <td>${nilaiAnggaran.toLocaleString('id-ID')}</td>
-                    <td>${d.opd}</td>
-                    <td>${d.keterangan || "-"}</td>
-                    <td class="no-print">
-                        <button onclick="siapEdit('${d.timestamp}')" class="btn-edit">✎</button>
-                        <button onclick="hapus('${d.timestamp}')" class="btn-hapus">✖</button>
-                    </td>
-                </tr>`;
-            });
+    function handleSearch() {
+        const q = document.getElementById("searchInput").value.toLowerCase();
+        filteredData = allData.filter(d => d.Kegiatan.toLowerCase().includes(q) || d.Lokasi.toLowerCase().includes(q));
+        currentPage = 1; renderTable();
+    }
 
-            // Tampilkan ke HTML
-            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
-            document.getElementById("totalAnggaran").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
-            document.getElementById("countSarpra").innerText = cSarpra;
-            document.getElementById("countSosbud").innerText = cSosbud;
-            document.getElementById("countEkonomi").innerText = cEkonomi;
-
-        } catch (e) {
-            console.error("Gagal load data:", e);
+    function editData(ts) {
+        const d = allData.find(x => x.Timestamp === ts);
+        if(d) {
+            document.getElementById("rowId").value = d.Timestamp;
+            document.getElementById("bidang").value = d["Bidang Kegiatan"];
+            $('#kegiatan').val(d.Kegiatan).trigger('change');
+            document.getElementById("lokasi").value = d.Lokasi;
+            document.getElementById("volume").value = d.Volume;
+            document.getElementById("anggaran").value = d.Anggaran;
+            document.getElementById("opd").value = d.OPD;
+            document.getElementById("keterangan").value = d.Keterangan;
+            document.getElementById("btnProses").innerText = "Update Usulan";
+            document.getElementById("btnProses").style.background = "#f39c12";
+            window.scrollTo(0,0);
         }
     }
 
-    // FUNGSI KIRIM / UPDATE DATA
-    document.getElementById("formUsulan").addEventListener("submit", async (e) => {
+    document.getElementById("formUsulan").onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
         btn.disabled = true; btn.innerText = "Memproses...";
 
         const payload = {
             action: document.getElementById("rowId").value ? "update" : "insert",
-            rowId: document.getElementById("rowId").value,
-            kelurahan: userKel,
-            bidang: document.getElementById("bidang").value,
-            kegiatan: $('#kegiatan').val(),
-            lokasi: document.getElementById("lokasi").value,
-            volume: document.getElementById("volume").value,
-            anggaran: document.getElementById("anggaran").value,
-            opd: document.getElementById("opd").value,
-            keterangan: document.getElementById("keterangan").value
+            timestamp: document.getElementById("rowId").value,
+            "Kelurahan/Lembang": userKel,
+            "Bidang Kegiatan": document.getElementById("bidang").value,
+            "Kegiatan": document.getElementById("kegiatan").value,
+            "Lokasi": document.getElementById("lokasi").value,
+            "Volume": document.getElementById("volume").value,
+            "Anggaran": document.getElementById("anggaran").value,
+            "OPD": document.getElementById("opd").value,
+            "Keterangan": document.getElementById("keterangan").value
         };
 
         try {
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert("Berhasil!");
-            resetForm();
-            loadData();
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+            const result = await res.json();
+            if(result.result === "success") { alert("Berhasil!"); location.reload(); }
         } catch (err) { alert("Gagal mengirim data."); }
-        finally { btn.disabled = false; }
-    });
-
-    // FUNGSI SIAP EDIT
-    function siapEdit(ts) {
-        const d = dataSheet.find(x => x.timestamp == ts);
-        if (d) {
-            document.getElementById("rowId").value = ts;
-            document.getElementById("bidang").value = d.bidang;
-            $('#kegiatan').val(d.kegiatan).trigger('change'); // Update Select2
-            document.getElementById("lokasi").value = d.lokasi;
-            document.getElementById("volume").value = d.volume;
-            document.getElementById("anggaran").value = d.anggaran;
-            document.getElementById("opd").value = d.opd;
-            document.getElementById("keterangan").value = d.keterangan;
-            
-            document.getElementById("btnProses").innerText = "Simpan Perubahan";
-            document.getElementById("btnProses").style.backgroundColor = "#f39c12";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    // FUNGSI HAPUS
-    async function hapus(ts) {
-        if (confirm("Hapus usulan ini?")) {
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "delete", rowId: ts })
-                });
-                alert("Berhasil dihapus!");
-                loadData();
-            } catch (err) { alert("Gagal menghapus."); }
-        }
-    }
-
-    function resetForm() {
-        document.getElementById("formUsulan").reset();
-        document.getElementById("rowId").value = "";
-        $('#kegiatan').val(null).trigger('change');
-        document.getElementById("btnProses").innerText = "Kirim Usulan";
-        document.getElementById("btnProses").style.backgroundColor = "#27ae60";
-    }
-
-    function logout() {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = "index.html";
-    }
-
-    // Load data pertama kali
-    loadData();
+        btn.disabled = false;
+    };
 </script>
 </body>
 </html>
