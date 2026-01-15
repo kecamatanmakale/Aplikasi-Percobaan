@@ -2,30 +2,39 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rekapitulasi Admin</title>
+    <title>Rekapitulasi Musrenbang Makale</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; font-size: 12px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        .filter-area { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; }
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; font-size: 11px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; text-transform: uppercase; margin-bottom: 5px; }
+        .filter-area { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background: #34495e; color: white; }
-        .group-header { background: #e3f2fd; font-weight: bold; color: #1565c0; }
-        .total-akhir { background: #2c3e50; color: white; font-weight: bold; }
-        @media print { .no-print { display: none; } }
+        .group-header { background: #e3f2fd; font-weight: bold; color: #1565c0; font-size: 12px; }
+        .subtotal-row { background: #f1f8e9; font-style: italic; font-weight: bold; }
+        .total-akhir { background: #2c3e50; color: white; font-weight: bold; font-size: 13px; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } .container { box-shadow: none; width: 100%; max-width: none; } }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2 style="text-align:center">Rekapitulasi Usulan Seluruh Wilayah</h2>
+    <h2>Rekapitulasi Usulan Musrenbang</h2>
+    <p style="text-align:center; margin-top:0;">Tahun Anggaran 2026 - Kecamatan Makale</p>
+
     <div class="filter-area no-print">
-        <input type="text" id="cari" placeholder="Cari kegiatan/wilayah..." oninput="applyFilter()" style="padding:8px; width:250px;">
-        <select id="fOpd" onchange="applyFilter()" style="padding:8px;">
+        <strong>Pencarian:</strong>
+        <input type="text" id="cari" placeholder="Cari kegiatan/wilayah..." oninput="applyAdminFilter()" style="padding:8px; width:250px; border:1px solid #ddd; border-radius:4px;">
+        
+        <strong style="margin-left:15px;">OPD Tujuan:</strong>
+        <select id="fOpd" onchange="applyAdminFilter()" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
             <option value="">-- Semua OPD --</option>
             <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-            <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP</option>
+            <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP (Pertanian)</option>
         </select>
-        <button onclick="window.print()" style="padding:8px 15px; background:#3498db; color:white; border:none; cursor:pointer;">🖨️ Cetak PDF</button>
+        
+        <button onclick="window.print()" style="margin-left:auto; padding:8px 15px; cursor:pointer; background:#3498db; color:white; border:none; border-radius:4px; font-weight:bold;">🖨️ Cetak Laporan</button>
     </div>
 
     <table>
@@ -34,65 +43,81 @@
                 <th>Bidang</th>
                 <th>Kegiatan</th>
                 <th>Lokasi</th>
+                <th>Volume</th>
                 <th>Anggaran (Rp)</th>
                 <th>OPD</th>
                 <th>Keterangan</th>
             </tr>
         </thead>
-        <tbody id="isiTabel"></tbody>
+        <tbody id="isiTabel">
+            <tr><td colspan="7" align="center">Sedang menarik data dari Google Sheets...</td></tr>
+        </tbody>
         <tfoot id="footerTabel"></tfoot>
     </table>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec"; // GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA
+    const API = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec""; 
     let dataMaster = [];
 
-    window.onload = async () => {
+    window.onload = loadData;
+
+    async function loadData() {
         try {
             const res = await fetch(API + "?t=" + Date.now());
             dataMaster = await res.json();
-            applyFilter();
-        } catch (e) { console.error(e); }
-    };
+            applyAdminFilter();
+        } catch (e) { 
+            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' align='center'>Gagal memuat data rekap.</td></tr>";
+        }
+    }
 
-    function applyFilter() {
+    function applyAdminFilter() {
         const q = document.getElementById("cari").value.toLowerCase();
         const opd = document.getElementById("fOpd").value;
+
         const filtered = dataMaster.filter(d => {
-            const mText = (d.Kegiatan + d.Lokasi + d["Kelurahan/Lembang"]).toLowerCase().includes(q);
+            const mText = ((d.Kegiatan || "") + (d.Lokasi || "") + (d["Kelurahan/Lembang"] || "")).toLowerCase().includes(q);
             const mOpd = opd === "" || d.OPD === opd;
             return mText && mOpd;
         });
+
         renderGrouping(filtered);
     }
 
     function renderGrouping(data) {
         const groups = data.reduce((acc, item) => {
-            const key = item["Kelurahan/Lembang"] || "Lainnya";
+            const key = item["Kelurahan/Lembang"] || "Tanpa Wilayah";
             if (!acc[key]) acc[key] = [];
             acc[key].push(item);
             return acc;
         }, {});
 
-        let h = "", totalGrand = 0;
+        let h = "";
+        let totalGrand = 0;
+
         for (const kel in groups) {
-            h += `<tr class="group-header"><td colspan="6">📍 KELURAHAN: ${kel.toUpperCase()}</td></tr>`;
+            h += `<tr class="group-header"><td colspan="7">📍 WILAYAH: ${kel.toUpperCase()}</td></tr>`;
+            let subtotal = 0;
             groups[kel].forEach(d => {
                 let ang = Number(d.Anggaran) || 0;
+                subtotal += ang;
                 totalGrand += ang;
                 h += `<tr>
-                    <td>${d["Bidang Kegiatan"]}</td>
-                    <td>${d.Kegiatan}</td>
-                    <td>${d.Lokasi}</td>
+                    <td>${d["Bidang Kegiatan"] || "-"}</td>
+                    <td>${d.Kegiatan || "-"}</td>
+                    <td>${d.Lokasi || "-"}</td>
+                    <td>${d.Volume || "-"}</td>
                     <td>${ang.toLocaleString('id-ID')}</td>
-                    <td>${d.OPD}</td>
+                    <td>${d.OPD || "-"}</td>
                     <td>${d.Keterangan || "-"}</td>
                 </tr>`;
             });
+            h += `<tr class="subtotal-row"><td colspan="4" align="right">Subtotal ${kel}:</td><td colspan="3">Rp ${subtotal.toLocaleString('id-ID')}</td></tr>`;
         }
-        document.getElementById("isiTabel").innerHTML = h || "<tr><td colspan='6' align='center'>Data Kosong</td></tr>";
-        document.getElementById("footerTabel").innerHTML = `<tr class="total-akhir"><td colspan="3" align="right">TOTAL KESELURUHAN:</td><td colspan="3">Rp ${totalGrand.toLocaleString('id-ID')}</td></tr>`;
+
+        document.getElementById("isiTabel").innerHTML = h || "<tr><td colspan='7' align='center'>Data Kosong</td></tr>";
+        document.getElementById("footerTabel").innerHTML = `<tr class="total-akhir"><td colspan="4" align="right">TOTAL ANGGARAN KESELURUHAN (TERFILTER):</td><td colspan="3">Rp ${totalGrand.toLocaleString('id-ID')}</td></tr>`;
     }
 </script>
 </body>

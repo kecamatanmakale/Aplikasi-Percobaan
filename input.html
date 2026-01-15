@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f4f7f6; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
         .container { max-width: 1100px; margin: auto; }
         .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
@@ -16,7 +16,7 @@
         .pagination { display: flex; gap: 5px; }
         .pagination button { padding: 6px 12px; border: 1px solid #3498db; background: white; color: #3498db; cursor: pointer; border-radius: 4px; }
         .pagination button.active { background: #3498db; color: white; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; border-radius: 8px; overflow: hidden; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
         th { background-color: #34495e; color: white; }
         .btn-kirim { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
@@ -25,9 +25,11 @@
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="no-print" style="margin-bottom: 15px;">
         <button onclick="window.location.href='dashboard.html'" style="padding:10px 15px; border-radius:5px; background:#4a5568; color:white; border:none; cursor:pointer;">⬅ Dashboard</button>
+        <button onclick="location.reload()" style="padding:10px 15px; border-radius:5px; background:#3498db; color:white; border:none; cursor:pointer; margin-left: 10px;">🔄 Refresh Data</button>
     </div>
 
     <div class="box no-print">
@@ -49,10 +51,11 @@
                     <select id="opd" required>
                         <option value="">-- Pilih OPD --</option>
                         <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                        <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP</option>
+                        <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP (Pertanian)</option>
                     </select>
                 </div>
             </div>
+
             <label>Nama Kegiatan</label>
             <select id="kegiatan" class="js-select2" required>
                 <option value=""></option>
@@ -61,21 +64,25 @@
                 <option>Pengadaan Ternak Babi</option>
                 <option>Normalisasi Sungai</option>
             </select>
+
             <label>Lokasi Spesifik</label>
-            <input type="text" id="lokasi" required>
+            <input type="text" id="lokasi" required placeholder="Contoh: Lingkungan Mamullu">
+
             <div style="display: flex; gap: 15px;">
-                <div style="flex:1"><label>Volume</label><input type="text" id="volume" required></div>
+                <div style="flex:1"><label>Volume</label><input type="text" id="volume" required placeholder="Contoh: 1 Paket"></div>
                 <div style="flex:1"><label>Anggaran (Rp)</label><input type="number" id="anggaran" required></div>
             </div>
-            <label>Keterangan</label>
+
+            <label>Keterangan Tambahan</label>
             <textarea id="keterangan" rows="2"></textarea>
+
             <button type="submit" id="btnProses" class="btn-kirim">Kirim Usulan</button>
         </form>
     </div>
 
     <div class="box">
         <div class="table-controls no-print">
-            <input type="text" id="searchInput" class="search-box" placeholder="Cari kegiatan..." oninput="handleSearch()">
+            <input type="text" id="searchInput" class="search-box" placeholder="Cari kegiatan atau lokasi..." oninput="handleSearch()">
             <div class="pagination" id="pagination"></div>
         </div>
         <div style="overflow-x: auto;">
@@ -89,7 +96,9 @@
                         <th class="no-print">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="isiTabel"></tbody>
+                <tbody id="isiTabel">
+                    <tr><td colspan="5" align="center">Memuat data usulan...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -97,14 +106,21 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec"; // GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA
-    const userKel = localStorage.getItem("kelurahan") || "Kelurahan Tondon Mamullu";
-    let allData = [], filteredData = [], currentPage = 1, rowsPerPage = 10;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec"; 
+    const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
+    
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const rowsPerPage = 10;
+
+    if (!userKel) window.location.href = "index.html";
+    document.getElementById("namaKel").innerText = userKel;
 
     $(document).ready(function() {
-        $('.js-select2').select2({ placeholder: "Pilih Kegiatan", width: '100%' });
-        document.getElementById("namaKel").innerText = userKel;
+        $('.js-select2').select2({ placeholder: "Pilih Kegiatan", allowClear: true });
         loadData();
     });
 
@@ -112,10 +128,13 @@
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
             const data = await res.json();
+            // Filter berdasarkan kelurahan user
             allData = data.filter(x => x["Kelurahan/Lembang"] === userKel).reverse();
             filteredData = [...allData];
             renderTable();
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='5' align='center'>Koneksi bermasalah.</td></tr>";
+        }
     }
 
     function renderTable() {
@@ -124,11 +143,11 @@
         let h = "";
         paginated.forEach(d => {
             h += `<tr>
-                <td>${d.Kegiatan}</td>
+                <td><strong>${d.Kegiatan}</strong><br><small>${d["Bidang Kegiatan"]}</small></td>
                 <td>${d.Lokasi}</td>
                 <td>Rp ${Number(d.Anggaran).toLocaleString('id-ID')}</td>
                 <td>${d.OPD}</td>
-                <td class="no-print"><button class="btn-edit" onclick="editData('${d.Timestamp}')">✏️</button></td>
+                <td class="no-print"><button class="btn-edit" onclick="editData('${d.Timestamp}')">✏️ Edit</button></td>
             </tr>`;
         });
         document.getElementById("isiTabel").innerHTML = h || "<tr><td colspan='5' align='center'>Data tidak ditemukan</td></tr>";
@@ -139,15 +158,21 @@
         const count = Math.ceil(filteredData.length / rowsPerPage);
         let pg = "";
         for(let i=1; i<=count; i++) {
-            pg += `<button class="${i===currentPage?'active':''}" onclick="currentPage=${i};renderTable()">${i}</button>`;
+            if(i===1 || i===count || (i>=currentPage-1 && i<=currentPage+1)) {
+                pg += `<button class="${i===currentPage?'active':''}" onclick="currentPage=${i};renderTable()">${i}</button>`;
+            }
         }
         document.getElementById("pagination").innerHTML = pg;
     }
 
     function handleSearch() {
         const q = document.getElementById("searchInput").value.toLowerCase();
-        filteredData = allData.filter(d => d.Kegiatan.toLowerCase().includes(q) || d.Lokasi.toLowerCase().includes(q));
-        currentPage = 1; renderTable();
+        filteredData = allData.filter(d => 
+            (d.Kegiatan || "").toLowerCase().includes(q) || 
+            (d.Lokasi || "").toLowerCase().includes(q)
+        );
+        currentPage = 1; 
+        renderTable();
     }
 
     function editData(ts) {
@@ -162,6 +187,7 @@
             document.getElementById("opd").value = d.OPD;
             document.getElementById("keterangan").value = d.Keterangan;
             document.getElementById("btnProses").innerText = "Update Usulan";
+            document.getElementById("btnProses").style.background = "#f39c12";
             window.scrollTo(0,0);
         }
     }
@@ -170,6 +196,7 @@
         e.preventDefault();
         const btn = document.getElementById("btnProses");
         btn.disabled = true; btn.innerText = "Memproses...";
+
         const payload = {
             action: document.getElementById("rowId").value ? "update" : "insert",
             timestamp: document.getElementById("rowId").value,
@@ -182,12 +209,19 @@
             "OPD": document.getElementById("opd").value,
             "Keterangan": document.getElementById("keterangan").value
         };
+
         try {
             const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
             const result = await res.json();
-            if(result.result === "success") { alert("Berhasil!"); location.reload(); }
-        } catch (err) { alert("Gagal mengirim data."); }
+            if(result.result === "success") { 
+                alert("Usulan berhasil diproses!"); 
+                location.reload(); 
+            } else {
+                alert("Gagal: " + result.message);
+            }
+        } catch (err) { alert("Gagal mengirim data. Cek koneksi Anda."); }
         btn.disabled = false;
+        btn.innerText = "Kirim Usulan";
     };
 </script>
 </body>
