@@ -171,14 +171,14 @@
                     }
 
                     h += `<tr>
-                        <td>${d["Kelurahan/Lembang"] || "-"}</td>
-                        <td>${d["Bidang Kegiatan"] || "-"}</td>
-                        <td>${d["Kamus Usulan"] || "-"}</td>
-                        <td>${d["Lokasi Detail"] || "-"}</td>
-                        <td>Rp ${nominal.toLocaleString('id-ID')}</td>
-                        <td>${d["SKPD Pelaksana"] || "-"}</td>
-                        <td>${d["Keterangan"] || "-"}</td>
-                    </tr>`;
+    <td>${d["Kelurahan/Lembang"] || "-"}</td>
+    <td>${d["Bidang Kegiatan"] || "-"}</td>
+    <td>${d["Kegiatan"] || "-"}</td>
+    <td>${d["Lokasi"] || "-"}</td>
+    <td>Rp ${nominal.toLocaleString('id-ID')}</td>
+    <td>${d["OPD"] || "-"}</td>
+    <td>${d["Keterangan"] || "-"}</td>
+</tr>`;
                 });
 
                 document.getElementById("isiTabel").innerHTML = h;
