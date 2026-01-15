@@ -2,40 +2,33 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rekapitulasi Musrenbang Kecamatan</title>
+    <title>Rekapitulasi Admin</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; font-size: 12px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; text-transform: uppercase; margin-bottom: 5px; }
-        .filter-area { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; align-items: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .filter-area { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background: #34495e; color: white; }
         .group-header { background: #e3f2fd; font-weight: bold; color: #1565c0; }
-        .subtotal-row { background: #f1f8e9; font-style: italic; font-weight: bold; }
-        .total-akhir { background: #2c3e50; color: white; font-weight: bold; font-size: 14px; }
-        @media print { .no-print { display: none; } body { background: white; padding: 0; } }
+        .total-akhir { background: #2c3e50; color: white; font-weight: bold; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2>Rekapitulasi Usulan Musrenbang</h2>
-    <p style="text-align:center; margin-top:0;">Kecamatan Makale</p>
-
+    <h2 style="text-align:center">Rekapitulasi Usulan Seluruh Wilayah</h2>
     <div class="filter-area no-print">
-        <strong>Filter:</strong>
-        <input type="text" id="cari" placeholder="Cari kegiatan/wilayah..." oninput="applyAdminFilter()" style="padding:8px; width:200px;">
-        <select id="fOpd" onchange="applyAdminFilter()" style="padding:8px;">
+        <input type="text" id="cari" placeholder="Cari kegiatan/wilayah..." oninput="applyFilter()" style="padding:8px; width:250px;">
+        <select id="fOpd" onchange="applyFilter()" style="padding:8px;">
             <option value="">-- Semua OPD --</option>
             <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-            <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+            <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP</option>
         </select>
-        <button onclick="window.print()" style="padding:8px 15px; cursor:pointer; background:#3498db; color:white; border:none; border-radius:4px;">🖨️ Cetak PDF</button>
-        <span id="stat" style="margin-left:auto; font-weight:bold;">Memuat...</span>
+        <button onclick="window.print()" style="padding:8px 15px; background:#3498db; color:white; border:none; cursor:pointer;">🖨️ Cetak PDF</button>
     </div>
 
-    <table id="tabelRekap">
+    <table>
         <thead>
             <tr>
                 <th>Bidang</th>
@@ -52,29 +45,25 @@
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec"; 
+    const API = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec"; // GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA
     let dataMaster = [];
 
-    window.onload = loadData;
-
-    async function loadData() {
+    window.onload = async () => {
         try {
             const res = await fetch(API + "?t=" + Date.now());
             dataMaster = await res.json();
-            applyAdminFilter();
-        } catch (e) { document.getElementById("stat").innerText = "Gagal memuat."; }
-    }
+            applyFilter();
+        } catch (e) { console.error(e); }
+    };
 
-    function applyAdminFilter() {
+    function applyFilter() {
         const q = document.getElementById("cari").value.toLowerCase();
         const opd = document.getElementById("fOpd").value;
-
         const filtered = dataMaster.filter(d => {
             const mText = (d.Kegiatan + d.Lokasi + d["Kelurahan/Lembang"]).toLowerCase().includes(q);
             const mOpd = opd === "" || d.OPD === opd;
             return mText && mOpd;
         });
-
         renderGrouping(filtered);
     }
 
@@ -86,15 +75,11 @@
             return acc;
         }, {});
 
-        let h = "";
-        let totalGrand = 0;
-
+        let h = "", totalGrand = 0;
         for (const kel in groups) {
-            h += `<tr class="group-header"><td colspan="6">📍 WILAYAH: ${kel.toUpperCase()}</td></tr>`;
-            let subtotal = 0;
+            h += `<tr class="group-header"><td colspan="6">📍 KELURAHAN: ${kel.toUpperCase()}</td></tr>`;
             groups[kel].forEach(d => {
                 let ang = Number(d.Anggaran) || 0;
-                subtotal += ang;
                 totalGrand += ang;
                 h += `<tr>
                     <td>${d["Bidang Kegiatan"]}</td>
@@ -105,12 +90,9 @@
                     <td>${d.Keterangan || "-"}</td>
                 </tr>`;
             });
-            h += `<tr class="subtotal-row"><td colspan="3" align="right">Subtotal ${kel}:</td><td colspan="3">Rp ${subtotal.toLocaleString('id-ID')}</td></tr>`;
         }
-
         document.getElementById("isiTabel").innerHTML = h || "<tr><td colspan='6' align='center'>Data Kosong</td></tr>";
         document.getElementById("footerTabel").innerHTML = `<tr class="total-akhir"><td colspan="3" align="right">TOTAL KESELURUHAN:</td><td colspan="3">Rp ${totalGrand.toLocaleString('id-ID')}</td></tr>`;
-        document.getElementById("stat").innerText = data.length + " Usulan";
     }
 </script>
 </body>
