@@ -2,13 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekapitulasi Admin - Musrenbang Makale</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; }
-        .card-main { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
+        .card-main { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
         
-        /* Kotak Ringkasan Sejajar */
+        /* Kotak Ringkasan Bidang */
         .bidang-container { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
@@ -27,57 +31,58 @@
         .bg-ekonomi { background: #27ae60; } 
         
         .bidang-title { font-size: 11px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px; opacity: 0.9; }
-        .bidang-price { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
+        .bidang-price { font-size: 18px; font-weight: bold; margin-bottom: 3px; }
         .bidang-count { font-size: 12px; font-style: italic; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 3px; display: block; }
 
         /* Style Tabel */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 10px; word-wrap: break-word; }
-        th { background: #2c7be5; color: white; }
-        .footer-total { background: #eee; font-weight: bold; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 11px; word-wrap: break-word; }
+        th { background: #2c7be5; color: white; text-transform: uppercase; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .footer-total { background: #eee; font-weight: bold; font-size: 12px; }
 
-        /* Kop Surat */
+        /* Kop Surat (Hanya muncul saat cetak/PDF) */
         .kop-surat { text-align: center; margin-bottom: 20px; display: none; }
+        .kop-surat hr { border: 1.5px solid black; margin-top: 5px; }
         
-        /* Area Tanda Tangan - Diperbaiki agar tidak terputus */
+        /* Area Tanda Tangan */
         .signature-wrapper { 
             margin-top: 40px; 
             display: flex; 
             justify-content: flex-end; 
-            page-break-inside: avoid; /* Mencegah blok tanda tangan terpisah halaman */
+            display: none; /* Sembunyikan di web, muncul di PDF */
         }
-        .signature-box { 
-            text-align: center; 
-            width: 350px; 
-            font-size: 12px; 
-        }
+        .signature-box { text-align: center; width: 300px; font-size: 13px; }
 
-        /* Tombol */
-        .btn { padding:10px 15px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; margin-right: 5px; }
-        .btn-print { background:#3498db; }
-        .btn-excel { background:#2ecc71; }
-        .btn-back { background:#95a5a6; }
+        /* Tombol Navigasi */
+        .no-print { margin-bottom: 20px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.3s; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-print { background: #3498db; }
+        .btn-excel { background: #27ae60; }
+        .btn-back { background: #7f8c8d; }
+        .btn:hover { opacity: 0.8; }
 
         @media print {
             .no-print { display: none !important; }
-            .kop-surat { display: block; }
+            .kop-surat, .signature-wrapper { display: block !important; }
+            .bidang-container { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+            .bidang-box { color: black !important; border: 1px solid #ccc !important; background: transparent !important; box-shadow: none; }
+            .bidang-price, .bidang-count { color: black; }
             @page { size: landscape; margin: 1cm; }
             body { background: white; padding: 0; }
-            .card-main { box-shadow: none; border: none; padding: 0; }
-            .bidang-box { border: 1px solid #444; color: black !important; background: white !important; box-shadow: none; }
-            .bidang-price, .bidang-count { color: #000; border-top: 1px solid #ccc; }
+            .card-main { box-shadow: none; border: none; }
             th { background-color: #2c7be5 !important; color: white !important; -webkit-print-color-adjust: exact; }
-            tr { page-break-inside: avoid; }
-            thead { display: table-header-group; }
         }
     </style>
 </head>
 <body>
+
     <div class="card-main">
         <div class="no-print">
-            <h3>Rekapitulasi Usulan Kelurahan</h3>
+            <h3 style="margin-top:0">Rekapitulasi Usulan Musrenbang</h3>
             <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
-            <button class="btn btn-excel" onclick="exportToExcel()">Export Excel</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">📊 Export Excel</button>
             <button class="btn btn-back" onclick="location.href='dashboard_admin.html'">Kembali</button>
             <hr>
         </div>
@@ -86,7 +91,7 @@
             <h2 style="margin:0">PEMERINTAH KABUPATEN TANA TORAJA</h2>
             <h2 style="margin:0">KECAMATAN MAKALE</h2>
             <p style="margin:0">Jl. R. A. Kartini No. 5, Bombongan, Telp. 0423-22050, Makale - 91811</p>
-            <hr style="border: 2px solid black">
+            <hr>
             <h4 style="margin-top:10px">REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027</h4>
         </div>
 
@@ -112,16 +117,16 @@
             <thead>
                 <tr>
                     <th style="width: 12%;">Kelurahan</th>
-                    <th style="width: 10%;">Bidang</th>
+                    <th style="width: 12%;">Bidang</th>
                     <th style="width: 18%;">Kegiatan</th>
                     <th style="width: 15%;">Lokasi</th>
-                    <th style="width: 12%;">Anggaran</th>
+                    <th style="width: 13%;">Anggaran</th>
                     <th style="width: 15%;">OPD Tujuan</th>
-                    <th style="width: 18%;">Keterangan</th>
+                    <th style="width: 15%;">Keterangan</th>
                 </tr>
             </thead>
             <tbody id="isiTabel">
-                <tr><td colspan="7" style="text-align:center">Sinkronisasi data...</td></tr>
+                <tr><td colspan="7" style="text-align:center">Memuat data, harap tunggu...</td></tr>
             </tbody>
             <tfoot id="footerTabel"></tfoot>
         </table>
@@ -141,15 +146,15 @@
         const API = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
         let rawData = [];
 
-        async function load() {
+        async function loadData() {
             const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById("tglCetak").innerText = new Date().toLocaleDateString('id-ID', opsi);
 
             try {
-                const r = await fetch(API + "?t=" + Date.now());
-                rawData = await r.json();
+                const response = await fetch(API + "?t=" + Date.now());
+                rawData = await response.json();
                 
-                let h = "";
+                let html = "";
                 let totalSemua = 0;
                 let sumSarpras = 0, sumSosbud = 0, sumEkonomi = 0;
                 let cntSarpras = 0, cntSosbud = 0, cntEkonomi = 0;
@@ -160,28 +165,25 @@
 
                     const bidang = (d["Bidang Kegiatan"] || "").toLowerCase();
                     if (bidang.includes("sarana") || bidang.includes("prasarana")) {
-                        sumSarpras += nominal;
-                        cntSarpras++;
+                        sumSarpras += nominal; cntSarpras++;
                     } else if (bidang.includes("sosial") || bidang.includes("budaya")) {
-                        sumSosbud += nominal;
-                        cntSosbud++;
+                        sumSosbud += nominal; cntSosbud++;
                     } else if (bidang.includes("ekonomi")) {
-                        sumEkonomi += nominal;
-                        cntEkonomi++;
+                        sumEkonomi += nominal; cntEkonomi++;
                     }
 
-                    h += `<tr>
-    <td>${d["Kelurahan/Lembang"] || "-"}</td>
-    <td>${d["Bidang Kegiatan"] || "-"}</td>
-    <td>${d["Kegiatan"] || "-"}</td>
-    <td>${d["Lokasi"] || "-"}</td>
-    <td>Rp ${nominal.toLocaleString('id-ID')}</td>
-    <td>${d["OPD"] || "-"}</td>
-    <td>${d["Keterangan"] || "-"}</td>
-</tr>`;
+                    html += `<tr>
+                        <td>${d["Kelurahan/Lembang"] || "-"}</td>
+                        <td>${d["Bidang Kegiatan"] || "-"}</td>
+                        <td>${d["Kegiatan"] || "-"}</td>
+                        <td>${d["Lokasi"] || "-"}</td>
+                        <td>Rp ${nominal.toLocaleString('id-ID')}</td>
+                        <td>${d["OPD"] || "-"}</td>
+                        <td>${d["Keterangan"] || "-"}</td>
+                    </tr>`;
                 });
 
-                document.getElementById("isiTabel").innerHTML = h;
+                document.getElementById("isiTabel").innerHTML = html;
                 document.getElementById("totalSarpras").innerText = "Rp " + sumSarpras.toLocaleString('id-ID');
                 document.getElementById("countSarpras").innerText = cntSarpras + " Usulan";
                 document.getElementById("totalSosbud").innerText = "Rp " + sumSosbud.toLocaleString('id-ID');
@@ -195,20 +197,103 @@
                         <td colspan="3" style="color: #d35400;">Rp ${totalSemua.toLocaleString('id-ID')}</td>
                     </tr>`;
             } catch (e) {
-                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7'>Gagal memuat data.</td></tr>";
+                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' style='color:red; text-align:center;'>Gagal memuat data. Periksa koneksi internet Anda.</td></tr>";
             }
         }
 
-        function exportToExcel() {
-            if (rawData.length === 0) return alert("Data kosong!");
-            const ws = XLSX.utils.json_to_sheet(rawData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Rekap 2027");
-            XLSX.writeFile(wb, "Rekap_Musrenbang_Makale_2027.xlsx");
+        async function exportToExcel() {
+            if (rawData.length === 0) return alert("Data belum siap!");
+
+            const btn = document.querySelector(".btn-excel");
+            btn.innerText = "⏳ Memproses...";
+            btn.disabled = true;
+
+            try {
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Rekap Musrenbang 2027');
+
+                // Konfigurasi Lebar Kolom
+                worksheet.columns = [
+                    { width: 20 }, { width: 20 }, { width: 35 }, 
+                    { width: 25 }, { width: 20 }, { width: 20 }, { width: 35 }
+                ];
+
+                // Kop Surat
+                const titleRows = [
+                    "PEMERINTAH KABUPATEN TANA TORAJA",
+                    "KECAMATAN MAKALE",
+                    "Jl. R. A. Kartini No. 5, Bombongan, Telp. 0423-22050, Makale - 91811",
+                    "REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027"
+                ];
+                titleRows.forEach((txt, i) => {
+                    const row = worksheet.addRow([txt]);
+                    worksheet.mergeCells(`A${i+1}:G${i+1}`);
+                    row.getCell(1).alignment = { horizontal: 'center' };
+                    row.getCell(1).font = { bold: true, size: i === 3 ? 12 : 11 };
+                });
+                worksheet.addRow([]);
+
+                // Header Tabel
+                const header = worksheet.addRow(["KELURAHAN", "BIDANG", "KEGIATAN", "LOKASI", "ANGGARAN", "OPD TUJUAN", "KETERANGAN"]);
+                header.eachCell((cell) => {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2C7BE5' } };
+                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+                    cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                    cell.alignment = { horizontal: 'center' };
+                });
+
+                // Isi Data
+                let total = 0;
+                rawData.forEach(d => {
+                    const nominal = Number(d["Anggaran"]) || 0;
+                    total += nominal;
+                    const row = worksheet.addRow([
+                        d["Kelurahan/Lembang"], d["Bidang Kegiatan"], d["Kegiatan"], 
+                        d["Lokasi"], "Rp " + nominal.toLocaleString('id-ID'), 
+                        d["OPD"], d["Keterangan"]
+                    ]);
+                    row.eachCell(c => {
+                        c.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                        c.alignment = { wrapText: true, vertical: 'middle' };
+                    });
+                });
+
+                // Footer Total
+                const fRow = worksheet.addRow(["TOTAL ANGGARAN KESELURUHAN", "", "", "", "Rp " + total.toLocaleString('id-ID'), "", ""]);
+                worksheet.mergeCells(`A${fRow.number}:D${fRow.number}`);
+                fRow.getCell(1).alignment = { horizontal: 'right' };
+                fRow.getCell(1).font = { bold: true };
+                fRow.getCell(5).font = { bold: true, color: { argb: 'FFD35400' } };
+
+                // Tanda Tangan
+                worksheet.addRow([]);
+                const tgl = document.getElementById("tglCetak").innerText;
+                const sign = [
+                    ["", "", "", "", "", "Makale, " + tgl],
+                    ["", "", "", "", "", "Camat Makale,"],
+                    [], [],
+                    ["", "", "", "", "", "Benyamin Dengen, S.S., M.M."],
+                    ["", "", "", "", "", "NIP. 197208312007011011"]
+                ];
+                sign.forEach(s => {
+                    const r = worksheet.addRow(s);
+                    r.getCell(6).alignment = { horizontal: 'center' };
+                    if (s[5] && s[5].includes("Benyamin")) r.getCell(6).font = { bold: true, underline: true };
+                });
+
+                // Download
+                const buffer = await workbook.xlsx.writeBuffer();
+                saveAs(new Blob([buffer]), "Rekap_Musrenbang_Makale_2027.xlsx");
+            } catch (err) {
+                alert("Gagal Export: " + err.message);
+            } finally {
+                btn.innerText = "📊 Export Excel";
+                btn.disabled = false;
+            }
         }
 
-        if(localStorage.getItem("role") !== "admin") location.href="index.html";
-        load();
+        // Jalankan load data saat halaman siap
+        window.onload = loadData;
     </script>
 </body>
 </html>
