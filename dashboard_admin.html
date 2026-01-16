@@ -31,13 +31,30 @@ body{
     align-items:center;
 }
 
-/* LOGO */
+/* LOGO RESPONSIVE */
 .logo{
     width:80%;
-    max-width:100px;
+    max-width:100px;   /* ukuran desktop */
     height:auto;
     display:block;
-    margin:0 auto 15px;
+    margin:0 auto 5px;
+}
+
+/* TABLET */
+@media (max-width: 768px){
+    .logo{
+        max-width:90px;
+    }
+}
+
+/* HP */
+@media (max-width: 480px){
+    .logo{
+        max-width:70px;
+        margin-bottom:10px;
+    }
+}
+
 }
 
 /* SIDEBAR TEXT */
