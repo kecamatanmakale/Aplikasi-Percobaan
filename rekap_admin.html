@@ -10,22 +10,25 @@
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
-        .card-main { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
+        .card-main { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1300px; margin: auto; }
         
+        /* Baris Filter & Pencarian */
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .filter-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 12px; font-weight: bold; color: #555; }
+        .filter-input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+
         /* Kotak Ringkasan Bidang */
-        .bidang-container { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 15px; 
-            margin: 20px 0; 
-        }
-        .bidang-box { 
-            padding: 15px; 
-            border-radius: 8px; 
-            color: white; 
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+        .bidang-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .bidang-box { padding: 15px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .bg-sarpras { background: #2980b9; } 
         .bg-sosbud { background: #e67e22; }  
         .bg-ekonomi { background: #27ae60; } 
@@ -37,21 +40,14 @@
         /* Style Tabel */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; background: white; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 11px; word-wrap: break-word; }
-        th { background: #2c7be5; color: white; text-transform: uppercase; }
+        th { background: #2c7be5 !important; color: white !important; text-transform: uppercase; }
         tr:nth-child(even) { background-color: #f9f9f9; }
         .footer-total { background: #eee; font-weight: bold; font-size: 12px; }
 
-        /* Kop Surat (Hanya muncul saat cetak/PDF) */
+        /* Kop Surat & Tanda Tangan */
         .kop-surat { text-align: center; margin-bottom: 20px; display: none; }
         .kop-surat hr { border: 1.5px solid black; margin-top: 5px; }
-        
-        /* Area Tanda Tangan */
-        .signature-wrapper { 
-            margin-top: 40px; 
-            display: flex; 
-            justify-content: flex-end; 
-            display: none; /* Sembunyikan di web, muncul di PDF */
-        }
+        .signature-wrapper { margin-top: 40px; display: none; justify-content: flex-end; }
         .signature-box { text-align: center; width: 300px; font-size: 13px; }
 
         /* Tombol Navigasi */
@@ -61,11 +57,11 @@
         .btn-print { background: #3498db; }
         .btn-excel { background: #27ae60; }
         .btn-back { background: #7f8c8d; }
-        .btn:hover { opacity: 0.8; }
 
         @media print {
-            .no-print { display: none !important; }
-            .kop-surat, .signature-wrapper { display: block !important; }
+            .no-print, .filter-row { display: none !important; }
+            .kop-surat { display: block !important; }
+            /* signature-wrapper dikontrol lewat JS (style.display) */
             .bidang-container { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
             .bidang-box { color: black !important; border: 1px solid #ccc !important; background: transparent !important; box-shadow: none; }
             .bidang-price, .bidang-count { color: black; }
@@ -82,9 +78,22 @@
         <div class="no-print">
             <h3 style="margin-top:0">Rekapitulasi Usulan Musrenbang</h3>
             <button class="btn btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
-            <button class="btn btn-excel" onclick="exportToExcel()">📊 Export Excel</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">📊 Export Excel Terfilter</button>
             <button class="btn btn-back" onclick="location.href='dashboard_admin.html'">Kembali</button>
             <hr>
+        </div>
+
+        <div class="filter-row no-print">
+            <div class="filter-group">
+                <label>Pencarian Global:</label>
+                <input type="text" id="searchInput" class="filter-input" placeholder="Cari kegiatan, lokasi, atau OPD..." onkeyup="filterData()">
+            </div>
+            <div class="filter-group">
+                <label>Filter Kelurahan/Lembang:</label>
+                <select id="kelurahanFilter" class="filter-input" onchange="filterData()">
+                    <option value="">-- Semua Kelurahan (Tampilkan TTD Camat) --</option>
+                </select>
+            </div>
         </div>
 
         <div class="kop-surat">
@@ -117,21 +126,21 @@
             <thead>
                 <tr>
                     <th style="width: 12%;">Kelurahan</th>
-                    <th style="width: 12%;">Bidang</th>
+                    <th style="width: 10%;">Bidang</th>
                     <th style="width: 18%;">Kegiatan</th>
                     <th style="width: 15%;">Lokasi</th>
-                    <th style="width: 13%;">Anggaran</th>
+                    <th style="width: 12%;">Anggaran</th>
                     <th style="width: 15%;">OPD Tujuan</th>
-                    <th style="width: 15%;">Keterangan</th>
+                    <th style="width: 18%;">Keterangan</th>
                 </tr>
             </thead>
             <tbody id="isiTabel">
-                <tr><td colspan="7" style="text-align:center">Memuat data, harap tunggu...</td></tr>
+                <tr><td colspan="7" style="text-align:center">Sinkronisasi data...</td></tr>
             </tbody>
             <tfoot id="footerTabel"></tfoot>
         </table>
 
-        <div class="signature-wrapper">
+        <div class="signature-wrapper" id="sigArea">
             <div class="signature-box">
                 <p>Makale, <span id="tglCetak"></span></p>
                 <p>Camat Makale,</p>
@@ -145,6 +154,7 @@
     <script>
         const API = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
         let rawData = [];
+        let filteredData = [];
 
         async function loadData() {
             const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -153,56 +163,87 @@
             try {
                 const response = await fetch(API + "?t=" + Date.now());
                 rawData = await response.json();
-                
-                let html = "";
-                let totalSemua = 0;
-                let sumSarpras = 0, sumSosbud = 0, sumEkonomi = 0;
-                let cntSarpras = 0, cntSosbud = 0, cntEkonomi = 0;
+                filteredData = [...rawData];
 
-                rawData.forEach(d => {
-                    let nominal = Number(d["Anggaran"]) || 0;
-                    totalSemua += nominal;
-
-                    const bidang = (d["Bidang Kegiatan"] || "").toLowerCase();
-                    if (bidang.includes("sarana") || bidang.includes("prasarana")) {
-                        sumSarpras += nominal; cntSarpras++;
-                    } else if (bidang.includes("sosial") || bidang.includes("budaya")) {
-                        sumSosbud += nominal; cntSosbud++;
-                    } else if (bidang.includes("ekonomi")) {
-                        sumEkonomi += nominal; cntEkonomi++;
-                    }
-
-                    html += `<tr>
-                        <td>${d["Kelurahan/Lembang"] || "-"}</td>
-                        <td>${d["Bidang Kegiatan"] || "-"}</td>
-                        <td>${d["Kegiatan"] || "-"}</td>
-                        <td>${d["Lokasi"] || "-"}</td>
-                        <td>Rp ${nominal.toLocaleString('id-ID')}</td>
-                        <td>${d["OPD"] || "-"}</td>
-                        <td>${d["Keterangan"] || "-"}</td>
-                    </tr>`;
+                // Isi Dropdown Kelurahan Unik
+                const listKel = [...new Set(rawData.map(d => d["Kelurahan/Lembang"]))].sort();
+                const select = document.getElementById("kelurahanFilter");
+                listKel.forEach(k => {
+                    if(k) select.innerHTML += `<option value="${k}">${k}</option>`;
                 });
 
-                document.getElementById("isiTabel").innerHTML = html;
-                document.getElementById("totalSarpras").innerText = "Rp " + sumSarpras.toLocaleString('id-ID');
-                document.getElementById("countSarpras").innerText = cntSarpras + " Usulan";
-                document.getElementById("totalSosbud").innerText = "Rp " + sumSosbud.toLocaleString('id-ID');
-                document.getElementById("countSosbud").innerText = cntSosbud + " Usulan";
-                document.getElementById("totalEkonomi").innerText = "Rp " + sumEkonomi.toLocaleString('id-ID');
-                document.getElementById("countEkonomi").innerText = cntEkonomi + " Usulan";
-
-                document.getElementById("footerTabel").innerHTML = `
-                    <tr class="footer-total">
-                        <td colspan="4" style="text-align:right">TOTAL ANGGARAN KESELURUHAN</td>
-                        <td colspan="3" style="color: #d35400;">Rp ${totalSemua.toLocaleString('id-ID')}</td>
-                    </tr>`;
+                renderTable();
             } catch (e) {
-                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' style='color:red; text-align:center;'>Gagal memuat data. Periksa koneksi internet Anda.</td></tr>";
+                document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7'>Gagal memuat data.</td></tr>";
             }
         }
 
+        function filterData() {
+            const keyword = document.getElementById("searchInput").value.toLowerCase();
+            const filterKel = document.getElementById("kelurahanFilter").value;
+
+            filteredData = rawData.filter(d => {
+                const matchKeyword = (
+                    (d["Kegiatan"] || "").toLowerCase().includes(keyword) ||
+                    (d["Lokasi"] || "").toLowerCase().includes(keyword) ||
+                    (d["OPD"] || "").toLowerCase().includes(keyword) ||
+                    (d["Kelurahan/Lembang"] || "").toLowerCase().includes(keyword)
+                );
+                const matchKel = filterKel === "" || d["Kelurahan/Lembang"] === filterKel;
+                return matchKeyword && matchKel;
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            let html = "";
+            let total = 0, sSar = 0, sSos = 0, sEko = 0;
+            let cSar = 0, cSos = 0, cEko = 0;
+
+            filteredData.forEach(d => {
+                let nom = Number(d["Anggaran"]) || 0;
+                total += nom;
+
+                const b = (d["Bidang Kegiatan"] || "").toLowerCase();
+                if (b.includes("sarana") || b.includes("prasarana")) { sSar += nom; cSar++; }
+                else if (b.includes("sosial") || b.includes("budaya")) { sSos += nom; cSos++; }
+                else if (b.includes("ekonomi")) { sEko += nom; cEko++; }
+
+                html += `<tr>
+                    <td>${d["Kelurahan/Lembang"] || "-"}</td>
+                    <td>${d["Bidang Kegiatan"] || "-"}</td>
+                    <td>${d["Kegiatan"] || "-"}</td>
+                    <td>${d["Lokasi"] || "-"}</td>
+                    <td>Rp ${nom.toLocaleString('id-ID')}</td>
+                    <td>${d["OPD"] || "-"}</td>
+                    <td>${d["Keterangan"] || "-"}</td>
+                </tr>`;
+            });
+
+            document.getElementById("isiTabel").innerHTML = html || "<tr><td colspan='7' style='text-align:center'>Data tidak ditemukan.</td></tr>";
+            
+            // Update Ringkasan
+            document.getElementById("totalSarpras").innerText = "Rp " + sSar.toLocaleString('id-ID');
+            document.getElementById("countSarpras").innerText = cSar + " Usulan";
+            document.getElementById("totalSosbud").innerText = "Rp " + sSos.toLocaleString('id-ID');
+            document.getElementById("countSosbud").innerText = cSos + " Usulan";
+            document.getElementById("totalEkonomi").innerText = "Rp " + sEko.toLocaleString('id-ID');
+            document.getElementById("countEkonomi").innerText = cEko + " Usulan";
+
+            document.getElementById("footerTabel").innerHTML = `
+                <tr class="footer-total">
+                    <td colspan="4" style="text-align:right">TOTAL ANGGARAN TERFILTER</td>
+                    <td colspan="3" style="color: #d35400;">Rp ${total.toLocaleString('id-ID')}</td>
+                </tr>`;
+
+            // LOGIKA TANDA TANGAN: Hanya muncul jika filter kelurahan kosong ("Semua Kelurahan")
+            const filterValue = document.getElementById("kelurahanFilter").value;
+            document.getElementById("sigArea").style.display = (filterValue === "") ? "flex" : "none";
+        }
+
         async function exportToExcel() {
-            if (rawData.length === 0) return alert("Data belum siap!");
+            if (filteredData.length === 0) return alert("Data kosong!");
 
             const btn = document.querySelector(".btn-excel");
             btn.innerText = "⏳ Memproses...";
@@ -210,89 +251,75 @@
 
             try {
                 const workbook = new ExcelJS.Workbook();
-                const worksheet = workbook.addWorksheet('Rekap Musrenbang 2027');
+                const worksheet = workbook.addWorksheet('Rekap Musrenbang');
 
-                // Konfigurasi Lebar Kolom
                 worksheet.columns = [
                     { width: 20 }, { width: 20 }, { width: 35 }, 
-                    { width: 25 }, { width: 20 }, { width: 20 }, { width: 35 }
+                    { width: 25 }, { width: 18 }, { width: 20 }, { width: 35 }
                 ];
 
                 // Kop Surat
-                const titleRows = [
-                    "PEMERINTAH KABUPATEN TANA TORAJA",
-                    "KECAMATAN MAKALE",
-                    "Jl. R. A. Kartini No. 5, Bombongan, Telp. 0423-22050, Makale - 91811",
-                    "REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE T.A. 2027"
-                ];
-                titleRows.forEach((txt, i) => {
-                    const row = worksheet.addRow([txt]);
+                const kop = ["PEMERINTAH KABUPATEN TANA TORAJA", "KECAMATAN MAKALE", "REKAPITULASI USULAN MUSRENBANG T.A. 2027"];
+                kop.forEach((t, i) => {
+                    worksheet.addRow([t]);
                     worksheet.mergeCells(`A${i+1}:G${i+1}`);
-                    row.getCell(1).alignment = { horizontal: 'center' };
-                    row.getCell(1).font = { bold: true, size: i === 3 ? 12 : 11 };
+                    worksheet.getRow(i+1).getCell(1).alignment = { horizontal: 'center' };
+                    worksheet.getRow(i+1).getCell(1).font = { bold: true };
                 });
                 worksheet.addRow([]);
 
                 // Header Tabel
-                const header = worksheet.addRow(["KELURAHAN", "BIDANG", "KEGIATAN", "LOKASI", "ANGGARAN", "OPD TUJUAN", "KETERANGAN"]);
-                header.eachCell((cell) => {
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2C7BE5' } };
-                    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
-                    cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                    cell.alignment = { horizontal: 'center' };
+                const hRow = worksheet.addRow(["KELURAHAN", "BIDANG", "KEGIATAN", "LOKASI", "ANGGARAN", "OPD TUJUAN", "KETERANGAN"]);
+                hRow.eachCell(c => {
+                    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2C7BE5' } };
+                    c.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+                    c.border = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
                 });
 
-                // Isi Data
-                let total = 0;
-                rawData.forEach(d => {
-                    const nominal = Number(d["Anggaran"]) || 0;
-                    total += nominal;
-                    const row = worksheet.addRow([
+                // Data
+                let totalExcel = 0;
+                filteredData.forEach(d => {
+                    const n = Number(d["Anggaran"]) || 0;
+                    totalExcel += n;
+                    const r = worksheet.addRow([
                         d["Kelurahan/Lembang"], d["Bidang Kegiatan"], d["Kegiatan"], 
-                        d["Lokasi"], "Rp " + nominal.toLocaleString('id-ID'), 
-                        d["OPD"], d["Keterangan"]
+                        d["Lokasi"], "Rp " + n.toLocaleString('id-ID'), d["OPD"], d["Keterangan"]
                     ]);
-                    row.eachCell(c => {
-                        c.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                    r.eachCell(c => {
+                        c.border = { top:{style:'thin'}, left:{style:'thin'}, bottom:{style:'thin'}, right:{style:'thin'} };
                         c.alignment = { wrapText: true, vertical: 'middle' };
                     });
                 });
 
                 // Footer Total
-                const fRow = worksheet.addRow(["TOTAL ANGGARAN KESELURUHAN", "", "", "", "Rp " + total.toLocaleString('id-ID'), "", ""]);
+                const fRow = worksheet.addRow(["TOTAL ANGGARAN", "", "", "", "Rp " + totalExcel.toLocaleString('id-ID'), "", ""]);
                 worksheet.mergeCells(`A${fRow.number}:D${fRow.number}`);
-                fRow.getCell(1).alignment = { horizontal: 'right' };
-                fRow.getCell(1).font = { bold: true };
-                fRow.getCell(5).font = { bold: true, color: { argb: 'FFD35400' } };
+                fRow.getCell(5).font = { bold: true };
 
-                // Tanda Tangan
-                worksheet.addRow([]);
-                const tgl = document.getElementById("tglCetak").innerText;
-                const sign = [
-                    ["", "", "", "", "", "Makale, " + tgl],
-                    ["", "", "", "", "", "Camat Makale,"],
-                    [], [],
-                    ["", "", "", "", "", "Benyamin Dengen, S.S., M.M."],
-                    ["", "", "", "", "", "NIP. 197208312007011011"]
-                ];
-                sign.forEach(s => {
-                    const r = worksheet.addRow(s);
-                    r.getCell(6).alignment = { horizontal: 'center' };
-                    if (s[5] && s[5].includes("Benyamin")) r.getCell(6).font = { bold: true, underline: true };
-                });
+                // LOGIKA TANDA TANGAN DI EXCEL
+                const filterVal = document.getElementById("kelurahanFilter").value;
+                if (filterVal === "") {
+                    worksheet.addRow([]);
+                    const tgl = document.getElementById("tglCetak").innerText;
+                    worksheet.addRow(["", "", "", "", "", "Makale, " + tgl]).getCell(6).alignment = { horizontal: 'center' };
+                    worksheet.addRow(["", "", "", "", "", "Camat Makale,"]).getCell(6).alignment = { horizontal: 'center' };
+                    worksheet.addRow([]); worksheet.addRow([]);
+                    const nameRow = worksheet.addRow(["", "", "", "", "", "Benyamin Dengen, S.S., M.M."]);
+                    nameRow.getCell(6).alignment = { horizontal: 'center' };
+                    nameRow.getCell(6).font = { bold: true, underline: true };
+                    worksheet.addRow(["", "", "", "", "", "NIP. 197208312007011011"]).getCell(6).alignment = { horizontal: 'center' };
+                }
 
-                // Download
                 const buffer = await workbook.xlsx.writeBuffer();
-                saveAs(new Blob([buffer]), "Rekap_Musrenbang_Makale_2027.xlsx");
+                saveAs(new Blob([buffer]), "Rekap_Musrenbang_2027.xlsx");
             } catch (err) {
-                alert("Gagal Export: " + err.message);
+                alert("Gagal: " + err.message);
             } finally {
-                btn.innerText = "📊 Export Excel";
+                btn.innerText = "📊 Export Excel Terfilter";
                 btn.disabled = false;
             }
         }
 
-        // Jalankan load data saat halaman siap
         window.onload = loadData;
     </script>
 </body>
