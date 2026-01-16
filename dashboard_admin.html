@@ -1,353 +1,170 @@
-
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin Musrenbang Makale</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-    /* ===== GLOBAL ===== */
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        background: #f4f7f6;
-        display: flex;
-    }
+<meta charset="UTF-8">
+<title>Dashboard Admin Musrenbang Makale</title>
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-        width: 250px;
-        background: #1a5bb8;
-        height: 100vh;
-        position: fixed;
-        color: white;
-        padding: 25px;
-        box-sizing: border-box;
-        overflow: hidden;
-    }
+<!-- ChartJS (defer agar tidak blocking) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-    .sidebar h3 {
-        margin-top: 0;
-    }
-
-    .sidebar p {
-        margin-top: -10px;
-        font-size: 13px;
-        opacity: 0.9;
-    }
-
-    /* ===== FOOTER SIDEBAR ===== */
-    .sidebar-footer {
-        position: absolute;
-        bottom: 300px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 12px;
-        color: #dbe9ff;
-        line-height: 1.6;
-    }
-
-    .sidebar-footer strong {
-        color: #ffffff;
-    }
-
-    /* ===== MAIN CONTENT ===== */
-    .main-content {
-        margin-left: 270px;
-        padding: 30px;
-        width: calc(100% - 270px);
-    }
-
-    /* ===== DASHBOARD GRID ===== */
-    .grid-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1.2fr;
-        gap: 20px;
-        margin-bottom: 25px;
-    }
-
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        text-align: center;
-    }
-
-    .stat-value {
-        font-size: 32px;
-        font-weight: bold;
-        color: #1a5bb8;
-        margin: 10px 0;
-    }
-
-    /* ===== CHART & LEGEND ===== */
-    .chart-flex {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 10px;
-    }
-
-    .chart-container {
-        height: 160px;
-        width: 160px;
-        flex-shrink: 0;
-    }
-
-    .chart-legend {
-        text-align: left;
-        font-size: 11px;
-        flex-grow: 1;
-    }
-
-    .legend-item {
-        margin-bottom: 10px;
-        padding-left: 6px;
-        border-left: 4px solid transparent;
-    }
-
-    .legend-label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .legend-data {
-        color: #666;
-        font-size: 10px;
-        display: block;
-    }
-
-    /* ===== TABEL REKAP ===== */
-    .rekap-kelurahan {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    .rekap-kelurahan h3 {
-        margin-top: 0;
-        border-bottom: 2px solid #1a5bb8;
-        padding-bottom: 10px;
-        color: #333;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-    table th,
-    table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-
-    table th {
-        background: #f8f9fa;
-        color: #1a5bb8;
-        font-weight: bold;
-    }
-
-    /* ===== BUTTON ===== */
-    .btn-nav {
-        background: #1a5bb8;
-        color: white;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-        font-weight: bold;
-        text-align: left;
-    }
-
-    .btn-nav:hover {
-        background: #174ea6;
-    }
-
-    .btn-logout {
-        background: #c0392b;
-        color: white;
-        border: none;
-        padding: 10px;
-        width: 100%;
-        margin-top: 30px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
+<style>
+body{
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    margin:0;background:#f4f7f6;display:flex
+}
+.sidebar{
+    width:250px;background:#1a5bb8;height:100vh;position:fixed;
+    color:#fff;padding:25px;box-sizing:border-box
+}
+.sidebar img{width:100%;margin-bottom:10px}
+.sidebar p{font-size:13px;margin-top:-8px}
+.sidebar-footer{
+    position:absolute;bottom:20px;width:100%;
+    font-size:12px;text-align:center;line-height:1.6;color:#dbe9ff
+}
+.main-content{
+    margin-left:270px;padding:30px;width:calc(100% - 270px)
+}
+.grid-container{
+    display:grid;grid-template-columns:1fr 1fr 1.2fr;
+    gap:20px;margin-bottom:25px
+}
+.card{
+    background:#fff;padding:20px;border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);text-align:center
+}
+.stat-value{font-size:32px;font-weight:bold;color:#1a5bb8}
+.chart-flex{display:flex;gap:15px;align-items:center}
+.chart-container{width:160px;height:160px}
+.legend-item{margin-bottom:8px;font-size:11px}
+.rekap-kelurahan{
+    background:#fff;padding:25px;border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05)
+}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:12px;border-bottom:1px solid #eee}
+th{background:#f8f9fa;color:#1a5bb8}
+.btn-nav,.btn-logout{
+    width:100%;padding:12px;border:none;border-radius:5px;
+    font-weight:bold;margin-top:10px;cursor:pointer
+}
+.btn-nav{background:#1a5bb8;color:#fff;text-align:left}
+.btn-logout{background:#c0392b;color:#fff;margin-top:30px}
 </style>
-
 </head>
-<body>
-    <div class="sidebar">
-            <img src="logo-makale.png" alt="Logo Kecamatan Makale">
-    <h3>ADMIN PANEL</h3>
-    <p>Kecamatan Makale</p>
-    <hr>
-        <button class="btn-nav" onclick="location.href='dashboard_admin.html'">🏠 Dashboard</button>
-        <button class="btn-nav" onclick="location.href='rekap_admin.html'">📊 Rekap Usulan</button>
-        <button class="btn-logout" onclick="localStorage.clear(); location.href='index.html'">LOGOUT</button>
-    </div>
-<div class="sidebar">
-    <h3>ADMIN PANEL</h3>
-    <p>Kecamatan Makale</p>
-    <hr>
 
+<body>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <img src="logo-makale.png" alt="Logo Makale">
+    <h3>ADMIN PANEL</h3>
+    <p>Kecamatan Makale</p>
+    <hr>
     <button class="btn-nav" onclick="location.href='dashboard_admin.html'">🏠 Dashboard</button>
     <button class="btn-nav" onclick="location.href='rekap_admin.html'">📊 Rekap Usulan</button>
+    <button class="btn-logout" onclick="localStorage.clear();location.href='index.html'">LOGOUT</button>
 
-    <button class="btn-logout" onclick="localStorage.clear(); location.href='index.html'">LOGOUT</button>
-
-    <!-- IDENTITAS PEMBUAT (HARUS DI SINI) -->
     <div class="sidebar-footer">
         Aplikasi Dikembangkan Oleh<br>
         <strong>Tim IT Kecamatan Makale</strong><br>
-        <span>Versi 1.0.5 • © 2026</span>
+        Versi 1.0.5 • © 2026
     </div>
 </div>
 
-</div>
+<!-- MAIN -->
+<div class="main-content">
+<h1>Dashboard Monitoring T.A. 2027</h1>
 
-    <div class="main-content">
-        <h1>Dashboard Monitoring T.A. 2027</h1>
-        
-        <div class="grid-container">
-            <div class="card">
-                <h4>Total Usulan</h4>
-                <div class="stat-value" id="totalUsulan">...</div>
-                <p>Usulan Masuk</p>
-            </div>
-            <div class="card">
-                <h4>Total Anggaran</h4>
-                <div class="stat-value" id="totalAnggaran" style="color: #27ae60;">Rp 0</div>
-                <p>Seluruh Bidang</p>
-            </div>
-            <div class="card">
-                <h4>Statistik Per Bidang</h4>
-                <div class="chart-flex">
-                    <div class="chart-container"><canvas id="chartBidang"></canvas></div>
-                    <div class="chart-legend" id="js-legend">
-                        <div class="legend-item" style="border-color: #3498db;">
-                            <span class="legend-label">Sarpras</span>
-                            <span class="legend-data" id="leg-sarpras">Rp 0 (0)</span>
-                        </div>
-                        <div class="legend-item" style="border-color: #e74c3c;">
-                            <span class="legend-label">Sosbud</span>
-                            <span class="legend-data" id="leg-sosbud">Rp 0 (0)</span>
-                        </div>
-                        <div class="legend-item" style="border-color: #f1c40f;">
-                            <span class="legend-label">Ekonomi</span>
-                            <span class="legend-data" id="leg-ekonomi">Rp 0 (0)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="rekap-kelurahan">
-            <h3>Rekapitulasi Per Kelurahan / Lembang</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Kelurahan / Lembang</th>
-                        <th style="text-align: center;">Jumlah Usulan</th>
-                        <th style="text-align: right;">Total Anggaran</th>
-                    </tr>
-                </thead>
-                <tbody id="bodyKelurahan"></tbody>
-            </table>
-        </div>
+<div class="grid-container">
+    <div class="card">
+        <h4>Total Usulan</h4>
+        <div class="stat-value" id="totalUsulan">0</div>
+        <p>Usulan Masuk</p>
     </div>
 
-    <script>
-        async function loadDashboard() {
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
-            
-            try {
-                const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
-                const data = await res.json();
-                
-                document.getElementById("totalUsulan").innerText = data.length;
-                
-                let totalGlobal = 0;
-                // Objek untuk menyimpan nominal dan jumlah usulan
-                const bidangStats = {
-                    "Bidang Sarana dan Prasarana": { ang: 0, jml: 0 },
-                    "Bidang Sosial Budaya": { ang: 0, jml: 0 },
-                    "Bidang Ekonomi": { ang: 0, jml: 0 }
-                };
-                const kelurahanData = {};
+    <div class="card">
+        <h4>Total Anggaran</h4>
+        <div class="stat-value" id="totalAnggaran" style="color:#27ae60">Rp 0</div>
+        <p>Seluruh Bidang</p>
+    </div>
 
-                data.forEach(item => {
-                    let ang = parseFloat((item["Anggaran"] || "0").toString().replace(/[^0-9.-]+/g, "")) || 0;
-                    totalGlobal += ang;
+    <div class="card">
+        <h4>Statistik Per Bidang</h4>
+        <div class="chart-flex">
+            <div class="chart-container">
+                <canvas id="chartBidang"></canvas>
+            </div>
+            <div>
+                <div class="legend-item">Sarpras<br><small id="leg-sarpras"></small></div>
+                <div class="legend-item">Sosbud<br><small id="leg-sosbud"></small></div>
+                <div class="legend-item">Ekonomi<br><small id="leg-ekonomi"></small></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    // Hitung Bidang
-                    const b = item["Bidang Kegiatan"];
-                    if(bidangStats.hasOwnProperty(b)) {
-                        bidangStats[b].ang += ang;
-                        bidangStats[b].jml += 1;
-                    }
+<div class="rekap-kelurahan">
+<h3>Rekapitulasi Per Kelurahan / Lembang</h3>
+<table>
+<thead>
+<tr>
+<th>Kelurahan / Lembang</th>
+<th style="text-align:center">Jumlah Usulan</th>
+<th style="text-align:right">Total Anggaran</th>
+</tr>
+</thead>
+<tbody id="bodyKelurahan"></tbody>
+</table>
+</div>
+</div>
 
-                    // Hitung Kelurahan
-                    let kel = item["Kelurahan/Lembang"] || "Lainnya";
-                    if(!kelurahanData[kel]) kelurahanData[kel] = { jml: 0, total: 0 };
-                    kelurahanData[kel].jml++;
-                    kelurahanData[kel].total += ang;
-                });
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+const URL="https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
+const res=await fetch(URL);
+const data=await res.json();
 
-                document.getElementById("totalAnggaran").innerText = "Rp " + totalGlobal.toLocaleString('id-ID');
+let total=0;
+const bidang={
+sarpras:{ang:0,jml:0},
+sosbud:{ang:0,jml:0},
+ekonomi:{ang:0,jml:0}
+};
+const kel={};
 
-                // Update Legend Text
-                document.getElementById("leg-sarpras").innerText = `Rp ${bidangStats["Bidang Sarana dan Prasarana"].ang.toLocaleString('id-ID')} (${bidangStats["Bidang Sarana dan Prasarana"].jml})`;
-                document.getElementById("leg-sosbud").innerText = `Rp ${bidangStats["Bidang Sosial Budaya"].ang.toLocaleString('id-ID')} (${bidangStats["Bidang Sosial Budaya"].jml})`;
-                document.getElementById("leg-ekonomi").innerText = `Rp ${bidangStats["Bidang Ekonomi"].ang.toLocaleString('id-ID')} (${bidangStats["Bidang Ekonomi"].jml})`;
+data.forEach(d=>{
+const ang=Number(d.Anggaran?.toString().replace(/\D/g,''))||0;
+total+=ang;
 
-                // Render Tabel Kelurahan
-                let htmlKel = "";
-                Object.keys(kelurahanData).sort().forEach(k => {
-                    htmlKel += `<tr>
-                        <td><strong>${k}</strong></td>
-                        <td style="text-align: center;">${kelurahanData[k].jml} Usulan</td>
-                        <td style="text-align: right; font-weight: bold; color: #2c3e50;">Rp ${kelurahanData[k].total.toLocaleString('id-ID')}</td>
-                    </tr>`;
-                });
-                document.getElementById("bodyKelurahan").innerHTML = htmlKel;
+if(d["Bidang Kegiatan"]==="Bidang Sarana dan Prasarana"){bidang.sarpras.ang+=ang;bidang.sarpras.jml++}
+if(d["Bidang Kegiatan"]==="Bidang Sosial Budaya"){bidang.sosbud.ang+=ang;bidang.sosbud.jml++}
+if(d["Bidang Kegiatan"]==="Bidang Ekonomi"){bidang.ekonomi.ang+=ang;bidang.ekonomi.jml++}
 
-                // Render Chart
-                new Chart(document.getElementById('chartBidang'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ["Sarpras", "Sosbud", "Ekonomi"],
-                        datasets: [{ 
-                            data: [
-                                bidangStats["Bidang Sarana dan Prasarana"].ang, 
-                                bidangStats["Bidang Sosial Budaya"].ang, 
-                                bidangStats["Bidang Ekonomi"].ang
-                            ], 
-                            backgroundColor: ['#3498db', '#e74c3c', '#f1c40f'],
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: { 
-                        cutout: '65%',
-                        plugins: { legend: { display: false } } 
-                    }
-                });
+const k=d["Kelurahan/Lembang"]||"Lainnya";
+if(!kel[k]) kel[k]={jml:0,total:0};
+kel[k].jml++;kel[k].total+=ang;
+});
 
-            } catch (error) { console.error(error); }
-        }
-        loadDashboard();
-    </script>
+totalUsulan.innerText=data.length;
+totalAnggaran.innerText="Rp "+total.toLocaleString("id-ID");
+leg-sarpras.innerText=`Rp ${bidang.sarpras.ang.toLocaleString()} (${bidang.sarpras.jml})`;
+leg-sosbud.innerText=`Rp ${bidang.sosbud.ang.toLocaleString()} (${bidang.sosbud.jml})`;
+leg-ekonomi.innerText=`Rp ${bidang.ekonomi.ang.toLocaleString()} (${bidang.ekonomi.jml})`;
+
+bodyKelurahan.innerHTML=Object.keys(kel).sort().map(k=>`
+<tr>
+<td><strong>${k}</strong></td>
+<td style="text-align:center">${kel[k].jml}</td>
+<td style="text-align:right;font-weight:bold">Rp ${kel[k].total.toLocaleString()}</td>
+</tr>`).join("");
+
+new Chart(chartBidang,{
+type:"doughnut",
+data:{datasets:[{data:[bidang.sarpras.ang,bidang.sosbud.ang,bidang.ekonomi.ang],
+backgroundColor:["#3498db","#e74c3c","#f1c40f"]}]},
+options:{cutout:"65%",animation:false,plugins:{legend:{display:false}}}
+});
+});
+</script>
 </body>
 </html>
