@@ -120,50 +120,83 @@ th{background:#f8f9fa;color:#1a5bb8}
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-const URL="https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
-const res=await fetch(URL);
-const data=await res.json();
+  const URL = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
 
-let total=0;
-const bidang={
-sarpras:{ang:0,jml:0},
-sosbud:{ang:0,jml:0},
-ekonomi:{ang:0,jml:0}
-};
-const kel={};
+  try {
+    const res = await fetch(URL);
+    const data = await res.json();
 
-data.forEach(d=>{
-const ang=Number(d.Anggaran?.toString().replace(/\D/g,''))||0;
-total+=ang;
+    let total = 0;
+    const bidang = {
+      sarpras: { ang: 0, jml: 0 },
+      sosbud: { ang: 0, jml: 0 },
+      ekonomi: { ang: 0, jml: 0 }
+    };
+    const kel = {};
 
-if(d["Bidang Kegiatan"]==="Bidang Sarana dan Prasarana"){bidang.sarpras.ang+=ang;bidang.sarpras.jml++}
-if(d["Bidang Kegiatan"]==="Bidang Sosial Budaya"){bidang.sosbud.ang+=ang;bidang.sosbud.jml++}
-if(d["Bidang Kegiatan"]==="Bidang Ekonomi"){bidang.ekonomi.ang+=ang;bidang.ekonomi.jml++}
+    data.forEach(d => {
+      const ang = Number((d["Anggaran"] || "0").toString().replace(/\D/g, "")) || 0;
+      total += ang;
 
-const k=d["Kelurahan/Lembang"]||"Lainnya";
-if(!kel[k]) kel[k]={jml:0,total:0};
-kel[k].jml++;kel[k].total+=ang;
-});
+      if (d["Bidang Kegiatan"] === "Bidang Sarana dan Prasarana") {
+        bidang.sarpras.ang += ang; bidang.sarpras.jml++;
+      }
+      if (d["Bidang Kegiatan"] === "Bidang Sosial Budaya") {
+        bidang.sosbud.ang += ang; bidang.sosbud.jml++;
+      }
+      if (d["Bidang Kegiatan"] === "Bidang Ekonomi") {
+        bidang.ekonomi.ang += ang; bidang.ekonomi.jml++;
+      }
 
-totalUsulan.innerText=data.length;
-totalAnggaran.innerText="Rp "+total.toLocaleString("id-ID");
-leg-sarpras.innerText=`Rp ${bidang.sarpras.ang.toLocaleString()} (${bidang.sarpras.jml})`;
-leg-sosbud.innerText=`Rp ${bidang.sosbud.ang.toLocaleString()} (${bidang.sosbud.jml})`;
-leg-ekonomi.innerText=`Rp ${bidang.ekonomi.ang.toLocaleString()} (${bidang.ekonomi.jml})`;
+      const k = d["Kelurahan/Lembang"] || "Lainnya";
+      if (!kel[k]) kel[k] = { jml: 0, total: 0 };
+      kel[k].jml++; kel[k].total += ang;
+    });
 
-bodyKelurahan.innerHTML=Object.keys(kel).sort().map(k=>`
-<tr>
-<td><strong>${k}</strong></td>
-<td style="text-align:center">${kel[k].jml}</td>
-<td style="text-align:right;font-weight:bold">Rp ${kel[k].total.toLocaleString()}</td>
-</tr>`).join("");
+    // ==== UPDATE UI ====
+    document.getElementById("totalUsulan").innerText = data.length;
+    document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString("id-ID");
 
-new Chart(chartBidang,{
-type:"doughnut",
-data:{datasets:[{data:[bidang.sarpras.ang,bidang.sosbud.ang,bidang.ekonomi.ang],
-backgroundColor:["#3498db","#e74c3c","#f1c40f"]}]},
-options:{cutout:"65%",animation:false,plugins:{legend:{display:false}}}
-});
+    document.getElementById("leg-sarpras").innerText =
+      `Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
+    document.getElementById("leg-sosbud").innerText =
+      `Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
+    document.getElementById("leg-ekonomi").innerText =
+      `Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
+
+    document.getElementById("bodyKelurahan").innerHTML =
+      Object.keys(kel).sort().map(k => `
+        <tr>
+          <td><strong>${k}</strong></td>
+          <td style="text-align:center">${kel[k].jml}</td>
+          <td style="text-align:right;font-weight:bold">
+            Rp ${kel[k].total.toLocaleString("id-ID")}
+          </td>
+        </tr>`).join("");
+
+    // ==== CHART ====
+    new Chart(document.getElementById("chartBidang"), {
+      type: "doughnut",
+      data: {
+        datasets: [{
+          data: [
+            bidang.sarpras.ang,
+            bidang.sosbud.ang,
+            bidang.ekonomi.ang
+          ],
+          backgroundColor: ["#3498db", "#e74c3c", "#f1c40f"]
+        }]
+      },
+      options: {
+        cutout: "65%",
+        animation: false,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+  } catch (e) {
+    console.error("Gagal load dashboard:", e);
+  }
 });
 </script>
 </body>
