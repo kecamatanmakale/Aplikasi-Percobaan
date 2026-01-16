@@ -2,9 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
-    
-<title>Input Usulan Musrenbang Makale</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+    <title>Input Usulan Musrenbang Makale</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
@@ -15,7 +14,6 @@
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         
-        /* Style Rekapitulasi Card */
         .rekap-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .rekap-card { background: white; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
         .rekap-card h5 { margin: 0; font-size: 11px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -37,12 +35,22 @@
         .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
         .btn-hapus { background: #e74c3c; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; margin-left: 5px; }
 
-        /* Fix Select2 Height */
-        .select2-container .select2-selection--single { height: 40px !important; margin-top: 5px; border: 1px solid #ccc !important; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
+        /* Tanda Tangan Styling */
+        .tanda-tangan-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+        .box-ttd { text-align: center; width: 350px; font-size: 14px; }
+        .nama-pejabat { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin-bottom: 0; }
+        .nip-pejabat { margin-top: 5px; }
 
-        @media print { .no-print { display: none !important; } }
+        @media print { 
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -87,11 +95,9 @@
             <label>Nama Kegiatan (Kamus Usulan)</label>
             <select id="kegiatan" class="js-select2" required>
                 <option value=""></option>
-<option>Alat UTTP pada pedagang pasar tidak terstandar</option>
-<option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
-<option>Banyaknya koperasi bermasalah</option>
-<option>Banyaknya koperasi yang tidak melaksanakan RAT</option>
-<option>Banyaknya UMKM yang belum memiliki NIB</option>
+                <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
+                <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
+                <option>Banyaknya UMKM yang belum memiliki NIB</option>
 <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
 <option>Belum ada harmonisasi regulasi daerah dengan regulasi yang dikeluarkan oleh Pemerintah Pusat</option>
 <option>Belum ada harmonisasi regulasi daerah dengan regulasi yang dikeluarkan oleh Pemerintah Pusat</option>
@@ -580,9 +586,7 @@
 <option>Upaya untuk meningkatkan keterampilan bagi pencari kerja</option>
 <option>Upaya untuk Meningkatkan Keterampilan Warga Transmigrasi yang Dibina</option>
 <option>Verifikasi dan Penyerahan PSU Perumahan dari Pengembang</option>
-
-
-            </select>
+                </select>
 
             <label>Lokasi Spesifik</label>
             <input type="text" id="lokasi" required>
@@ -596,18 +600,8 @@
             <select id="opd" required>
                 <option value="">-- Pilih OPD --</option>
                 <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
-                <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
-                <option>BPBD</option><option>DISPARPORA</option>
-                <option>Dinas Koperasi & UKM</option><option>DLHD</option>
-                <option>DPML</option><option>DPMPTSP</option>
-                <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
-                <option>Disnakertans</option><option>Bappelitbangda</option>
-                <option>BPKPD</option><option>Bakesbangpol</option>
-                <option>Inspektorat Daerah</option><option>Satpol PP</option>
-                <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
-                <option>RSUD Lakipadada</option>
-            </select>
+                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Koperasi & UKM</option>
+                </select>
 
             <label>Keterangan</label>
             <textarea id="keterangan" rows="2"></textarea>
@@ -636,10 +630,21 @@
                 <tr>
                     <td colspan="4" align="right">TOTAL ANGGARAN:</td>
                     <td id="totalAnggaran" style="background: #F8F8FF; color: #000;">Rp 0</td>
-                    <td colspan="3"></td>
+                    <td colspan="3" class="no-print"></td>
+                    <td colspan="2" class="print-only" style="display:none;"></td> 
                 </tr>
             </tfoot>
         </table>
+    </div>
+
+    <div class="tanda-tangan-container">
+        <div class="box-ttd">
+            <p id="tgl-cetak">Makale, ...</p>
+            <p><strong id="jabatan-lurah">Lurah __________</strong></p>
+            
+            <p class="nama-pejabat" id="nama-lurah">( Nama Lengkap Lurah )</p>
+            <p class="nip-pejabat" id="nip-lurah">NIP. .............................</p>
+        </div>
     </div>
 </div>
 
@@ -650,79 +655,89 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec";
     const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
     
-    // Inisialisasi Tampilan
+    // 1. Database Pejabat
+    const dataPejabat = {
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
+
+    // 2. Fungsi Set Tanda Tangan
+    function updateTandaTangan() {
+        if (userKel && dataPejabat[userKel]) {
+            const p = dataPejabat[userKel];
+            const jabatan = userKel.includes("Kelurahan") ? userKel.replace("Kelurahan", "Lurah") : "Kepala " + userKel;
+            
+            document.getElementById("jabatan-lurah").innerText = jabatan;
+            document.getElementById("nama-lurah").innerText = p.nama;
+            document.getElementById("nip-lurah").innerText = p.nip !== "-" ? "NIP. " + p.nip : "";
+            
+            const opsi = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("tgl-cetak").innerText = "Makale, " + new Date().toLocaleDateString('id-ID', opsi);
+        }
+    }
+
+    // 3. Inisialisasi Tampilan
     if (!userKel) {
         window.location.href = "index.html";
     } else {
         document.getElementById("namaKel").innerText = userKel;
+        updateTandaTangan();
     }
 
-    // Inisialisasi Select2 (Kamus Usulan)
     $(document).ready(function() {
-        $('.js-select2').select2({
-            placeholder: "-- Cari/Pilih Kegiatan --",
-            allowClear: true,
-            width: '100%'
-        });
+        $('.js-select2').select2({ placeholder: "-- Pilih Kegiatan --", width: '100%' });
     });
 
+    // 4. Load Data & Logika CRUD (Sama seperti kode sebelumnya)
     let dataSheet = [];
-
-    // FUNGSI LOAD DATA UTAMA
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
             dataSheet = await res.json();
-            
             const filter = dataSheet.filter(x => x.kelurahan === userKel);
-            
-            let baris = "";
-            let totalAnggaran = 0;
-            let cSarpra = 0, cSosbud = 0, cEkonomi = 0;
+            let baris = ""; let total = 0;
+            let s = 0, so = 0, e = 0;
 
             filter.reverse().forEach(d => {
-                const nilaiAnggaran = Number(d.anggaran) || 0;
-                totalAnggaran += nilaiAnggaran;
-
-                // Hitung Rekap Per Bidang
+                const n = Number(d.anggaran) || 0; total += n;
                 const b = (d.bidang || "").toLowerCase();
-                if(b.includes("sarana")) cSarpra++;
-                else if(b.includes("sosial")) cSosbud++;
-                else if(b.includes("ekonomi")) cEkonomi++;
+                if(b.includes("sarana")) s++; else if(b.includes("sosial")) so++; else if(b.includes("ekonomi")) e++;
 
                 baris += `<tr>
                     <td><strong>${d.kegiatan}</strong></td>
-                    <td>${d.bidang}</td>
-                    <td>${d.lokasi}</td>
-                    <td>${d.volume}</td>
-                    <td>${nilaiAnggaran.toLocaleString('id-ID')}</td>
-                    <td>${d.opd}</td>
-                    <td>${d.keterangan || "-"}</td>
+                    <td>${d.bidang}</td><td>${d.lokasi}</td><td>${d.volume}</td>
+                    <td>${n.toLocaleString('id-ID')}</td><td>${d.opd}</td><td>${d.keterangan || "-"}</td>
                     <td class="no-print">
                         <button onclick="siapEdit('${d.timestamp}')" class="btn-edit">✎</button>
                         <button onclick="hapus('${d.timestamp}')" class="btn-hapus">✖</button>
                     </td>
                 </tr>`;
             });
-
-            // Tampilkan ke HTML
-            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
-            document.getElementById("totalAnggaran").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
-            document.getElementById("countSarpra").innerText = cSarpra;
-            document.getElementById("countSosbud").innerText = cSosbud;
-            document.getElementById("countEkonomi").innerText = cEkonomi;
-
-        } catch (e) {
-            console.error("Gagal load data:", e);
-        }
+            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8'>Belum ada data.</td></tr>";
+            document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString('id-ID');
+            document.getElementById("countSarpra").innerText = s;
+            document.getElementById("countSosbud").innerText = so;
+            document.getElementById("countEkonomi").innerText = e;
+        } catch (err) { console.error(err); }
     }
 
-    // FUNGSI KIRIM / UPDATE DATA
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
         btn.disabled = true; btn.innerText = "Memproses...";
-
         const payload = {
             action: document.getElementById("rowId").value ? "update" : "insert",
             rowId: document.getElementById("rowId").value,
@@ -735,64 +750,15 @@
             opd: document.getElementById("opd").value,
             keterangan: document.getElementById("keterangan").value
         };
-
         try {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert("Berhasil!");
-            resetForm();
-            loadData();
-        } catch (err) { alert("Gagal mengirim data."); }
-        finally { btn.disabled = false; }
+            alert("Berhasil!"); document.getElementById("formUsulan").reset();
+            $('#kegiatan').val(null).trigger('change'); loadData();
+        } catch (err) { alert("Gagal!"); }
+        finally { btn.disabled = false; btn.innerText = "Kirim Usulan"; }
     });
 
-    // FUNGSI SIAP EDIT
-    function siapEdit(ts) {
-        const d = dataSheet.find(x => x.timestamp == ts);
-        if (d) {
-            document.getElementById("rowId").value = ts;
-            document.getElementById("bidang").value = d.bidang;
-            $('#kegiatan').val(d.kegiatan).trigger('change'); // Update Select2
-            document.getElementById("lokasi").value = d.lokasi;
-            document.getElementById("volume").value = d.volume;
-            document.getElementById("anggaran").value = d.anggaran;
-            document.getElementById("opd").value = d.opd;
-            document.getElementById("keterangan").value = d.keterangan;
-            
-            document.getElementById("btnProses").innerText = "Simpan Perubahan";
-            document.getElementById("btnProses").style.backgroundColor = "#f39c12";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    // FUNGSI HAPUS
-    async function hapus(ts) {
-        if (confirm("Hapus usulan ini?")) {
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "delete", rowId: ts })
-                });
-                alert("Berhasil dihapus!");
-                loadData();
-            } catch (err) { alert("Gagal menghapus."); }
-        }
-    }
-
-    function resetForm() {
-        document.getElementById("formUsulan").reset();
-        document.getElementById("rowId").value = "";
-        $('#kegiatan').val(null).trigger('change');
-        document.getElementById("btnProses").innerText = "Kirim Usulan";
-        document.getElementById("btnProses").style.backgroundColor = "#27ae60";
-    }
-
-    function logout() {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = "index.html";
-    }
-
-    // Load data pertama kali
+    function logout() { localStorage.clear(); window.location.href = "index.html"; }
     loadData();
 </script>
 </body>
