@@ -435,85 +435,104 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec";
-    const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
+    // Pastikan URL ini adalah URL Web App terbaru Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6rrNwvbFyGLs1IpKUtN0x4VF2BBp4O6jVXEmJIv8DDEhuVHnWaamP-np7lIkXN3WN/exec";
     
-    // Inisialisasi Tampilan
-    if (!userKel) {
-        window.location.href = "index.html";
-    } else {
-        document.getElementById("namaKel").innerText = userKel;
-    }
-
-    // Inisialisasi Select2 (Kamus Usulan)
-    $(document).ready(function() {
-        $('.js-select2').select2({
-            placeholder: "-- Cari/Pilih Kegiatan --",
-            allowClear: true,
-            width: '100%'
-        });
-    });
+    // Kelurahan otomatis (sesuaikan jika ada sistem login)
+    const userKel = "Manggau"; 
+    document.getElementById("labelKel").innerText = userKel;
 
     let dataSheet = [];
 
-    // FUNGSI LOAD DATA UTAMA
+    $(document).ready(function() {
+        // Inisialisasi Select2 untuk Kamus Usulan
+        $('.js-select2').select2({ placeholder: "Cari atau Pilih Kegiatan", width: '100%' });
+        loadData();
+    });
+
+    // FUNGSI LOAD DATA
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
-            dataSheet = await res.json();
+            const json = await res.json();
+            dataSheet = json.data;
             
-            const filter = dataSheet.filter(x => x.kelurahan === userKel);
+            // Filter berdasarkan kelurahan
+            const filter = dataSheet.filter(d => (d.kelurahan || d.Kelurahan) === userKel);
             
-            let baris = "";
+            let html = "";
+            let s = 0, so = 0, e = 0;
             let totalAnggaran = 0;
-            let cSarpra = 0, cSosbud = 0, cEkonomi = 0;
 
             filter.reverse().forEach(d => {
-                const nilaiAnggaran = Number(d.anggaran) || 0;
-                totalAnggaran += nilaiAnggaran;
+                const bidangData = d.bidang || d.Bidang || "";
+                const anggaranData = Number(d.anggaran || d.Anggaran) || 0;
 
-                // Hitung Rekap Per Bidang
-                const b = (d.bidang || "").toLowerCase();
-                if(b.includes("sarana")) cSarpra++;
-                else if(b.includes("sosial")) cSosbud++;
-                else if(b.includes("ekonomi")) cEkonomi++;
+                // Hitung Rekap Bidang
+                if(bidangData.toLowerCase().includes("sarana")) s++;
+                else if(bidangData.toLowerCase().includes("sosial")) so++;
+                else if(bidangData.toLowerCase().includes("ekonomi")) e++;
 
-                baris += `<tr>
-                    <td><strong>${d.kegiatan}</strong></td>
-                    <td>${d.bidang}</td>
-                    <td>${d.lokasi}</td>
-                    <td>${d.volume}</td>
-                    <td>${nilaiAnggaran.toLocaleString('id-ID')}</td>
-                    <td>${d.opd}</td>
-                    <td>${d.keterangan || "-"}</td>
+                totalAnggaran += anggaranData;
+
+                html += `<tr>
+                    <td><strong>${d.kegiatan || d.Kegiatan}</strong></td>
+                    <td>${bidangData}</td>
+                    <td>${d.lokasi || d.Lokasi}</td>
+                    <td>${d.volume || d.Volume}</td>
+                    <td>Rp ${anggaranData.toLocaleString('id-ID')}</td>
+                    <td>${d.opd || d.OPD}</td>
+                    <td>${d.keterangan || ""}</td>
                     <td class="no-print">
-                        <button onclick="siapEdit('${d.timestamp}')" class="btn-edit">✎</button>
-                        <button onclick="hapus('${d.timestamp}')" class="btn-hapus">✖</button>
+                        <button class="btn-edit" onclick="siapEdit('${d.rowId}')">✎</button>
+                        <button class="btn-hapus" onclick="hapus('${d.rowId}')">✖</button>
                     </td>
                 </tr>`;
             });
 
-            // Tampilkan ke HTML
-            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
-            document.getElementById("totalAnggaran").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
-            document.getElementById("countSarpra").innerText = cSarpra;
-            document.getElementById("countSosbud").innerText = cSosbud;
-            document.getElementById("countEkonomi").innerText = cEkonomi;
+            document.getElementById("isiTabel").innerHTML = html || "<tr><td colspan='8' align='center'>Data tidak ditemukan</td></tr>";
+            document.getElementById("countSarpra").innerText = s;
+            document.getElementById("countSosbud").innerText = so;
+            document.getElementById("countEkonomi").innerText = e;
+            document.getElementById("totalAnggaranTabel").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
 
-        } catch (e) {
-            console.error("Gagal load data:", e);
+        } catch (err) {
+            console.error("Gagal memuat data:", err);
         }
     }
 
-    // FUNGSI KIRIM / UPDATE DATA
+    // FUNGSI EDIT
+    function siapEdit(id) {
+        const item = dataSheet.find(d => d.rowId == id);
+        if(item) {
+            document.getElementById("rowId").value = id;
+            document.getElementById("bidang").value = item.bidang || item.Bidang || "";
+            $('#kegiatan').val(item.kegiatan || item.Kegiatan || "").trigger('change');
+            document.getElementById("lokasi").value = item.lokasi || item.Lokasi || "";
+            document.getElementById("volume").value = item.volume || item.Volume || "";
+            document.getElementById("anggaran").value = item.anggaran || item.Anggaran || 0;
+            document.getElementById("opd").value = item.opd || item.OPD || "";
+            document.getElementById("keterangan").value = item.keterangan || item.Keterangan || "";
+            
+            const btn = document.getElementById("btnProses");
+            btn.innerText = "Simpan Perubahan";
+            btn.classList.replace("btn-kirim", "btn-edit-mode"); // Opsional: ganti warna
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // FUNGSI SUBMIT (INSERT / UPDATE)
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
-        btn.disabled = true; btn.innerText = "Memproses...";
+        const idData = document.getElementById("rowId").value;
+        
+        btn.disabled = true;
+        btn.innerText = "Memproses...";
 
         const payload = {
-            action: document.getElementById("rowId").value ? "update" : "insert",
-            rowId: document.getElementById("rowId").value,
+            action: idData ? "update" : "insert",
+            rowId: idData,
             kelurahan: userKel,
             bidang: document.getElementById("bidang").value,
             kegiatan: $('#kegiatan').val(),
@@ -525,63 +544,41 @@
         };
 
         try {
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert("Berhasil!");
-            resetForm();
-            loadData();
-        } catch (err) { alert("Gagal mengirim data."); }
-        finally { btn.disabled = false; }
+            const response = await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert("Data berhasil disimpan!");
+                location.reload(); // Refresh untuk melihat perubahan
+            } else {
+                alert("Gagal mengirim data: " + result.data);
+            }
+        } catch (err) {
+            alert("Terjadi kesalahan koneksi ke server.");
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = idData ? "Simpan Perubahan" : "Kirim Usulan";
+        }
     });
 
-    // FUNGSI SIAP EDIT
-    function siapEdit(ts) {
-        const d = dataSheet.find(x => x.timestamp == ts);
-        if (d) {
-            document.getElementById("rowId").value = ts;
-            document.getElementById("bidang").value = d.bidang;
-            $('#kegiatan').val(d.kegiatan).trigger('change'); // Update Select2
-            document.getElementById("lokasi").value = d.lokasi;
-            document.getElementById("volume").value = d.volume;
-            document.getElementById("anggaran").value = d.anggaran;
-            document.getElementById("opd").value = d.opd;
-            document.getElementById("keterangan").value = d.keterangan;
-            
-            document.getElementById("btnProses").innerText = "Simpan Perubahan";
-            document.getElementById("btnProses").style.backgroundColor = "#f39c12";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
     // FUNGSI HAPUS
-    async function hapus(ts) {
-        if (confirm("Hapus usulan ini?")) {
+    async function hapus(id) {
+        if(confirm("Yakin ingin menghapus data ini?")) {
             try {
                 await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ action: "delete", rowId: ts })
+                    body: JSON.stringify({ action: "delete", rowId: id })
                 });
-                alert("Berhasil dihapus!");
                 loadData();
-            } catch (err) { alert("Gagal menghapus."); }
+            } catch (err) {
+                alert("Gagal menghapus data.");
+            }
         }
     }
-
-    function resetForm() {
-        document.getElementById("formUsulan").reset();
-        document.getElementById("rowId").value = "";
-        $('#kegiatan').val(null).trigger('change');
-        document.getElementById("btnProses").innerText = "Kirim Usulan";
-        document.getElementById("btnProses").style.backgroundColor = "#27ae60";
-    }
-
-    function logout() {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = "index.html";
-    }
-
-    // Load data pertama kali
-    loadData();
 </script>
 </body>
 </html>
