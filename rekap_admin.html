@@ -1,227 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Rekap Usulan Musrenbang - Admin</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-    margin:0;
-    font-family: Arial, Helvetica, sans-serif;
-    background:#f4f6f9;
-}
-header{
-    background:#1a5bb8;
-    color:white;
-    padding:15px 25px;
-    font-size:20px;
-    font-weight:bold;
-}
-.container{
-    padding:20px;
-}
-.card{
-    background:white;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 3px 10px rgba(0,0,0,.1);
-}
-.topbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:15px;
-}
-input,select{
-    padding:8px 10px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-th{
-    background:#1a5bb8;
-    color:white;
-    padding:10px;
-    font-size:13px;
-}
-td{
-    padding:9px;
-    font-size:13px;
-    border-bottom:1px solid #ddd;
-}
-tr:hover{
-    background:#eef4ff;
-}
-.footer{
-    margin-top:10px;
-    font-size:13px;
-    color:#444;
-}
-.loading{
-    text-align:center;
-    padding:30px;
-    font-weight:bold;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Usulan Musrenbang</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; }
+        .header { background-color: #1a5bb8; color: white; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 1000; }
+        .container { padding: 20px; }
+        .filter-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+        th { background-color: #f8f9fa; color: #1a5bb8; position: sticky; top: 0; }
+        tr:hover { background-color: #f1f4f9; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .bg-sarpras { background: #e3f2fd; color: #1976d2; }
+        .bg-sosbud { background: #fbe9e7; color: #d84315; }
+        .bg-ekonomi { background: #fff8e1; color: #f57f17; }
+    </style>
 </head>
-
 <body>
 
-<header>
-REKAP USULAN MUSRENBANG – ADMIN KECAMATAN
-</header>
+<div class="header">
+    <h2>REKAP USULAN MUSRENBANG – ADMIN KECAMATAN</h2>
+</div>
 
 <div class="container">
-<div class="card">
+    <div class="filter-section">
+        <input type="text" id="searchInput" placeholder="Cari kegiatan/lokasi..." style="flex: 2;">
+        <select id="filterKelurahan" style="flex: 1;"><option value="">Semua Kelurahan</option></select>
+        <select id="filterBidang" style="flex: 1;"><option value="">Semua Bidang</option></select>
+    </div>
 
-<div class="topbar">
-    <input type="text" id="search" placeholder="🔍 Cari usulan...">
-
-    <select id="filterKelurahan">
-        <option value="">Semua Kelurahan</option>
-    </select>
-
-    <select id="filterBidang">
-        <option value="">Semua Bidang</option>
-    </select>
-</div>
-
-<div id="loading" class="loading">Memuat data...</div>
-
-<table id="tabel" style="display:none">
-<thead>
-<tr>
-    <th>No</th>
-    <th>Kelurahan</th>
-    <th>Bidang</th>
-    <th>Kegiatan</th>
-    <th>Lokasi</th>
-    <th>Volume</th>
-    <th>Anggaran</th>
-    <th>OPD</th>
-    <th>Keterangan</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
-<div class="footer" id="info"></div>
-
-</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kelurahan</th>
+                    <th>Bidang</th>
+                    <th>Kegiatan</th>
+                    <th>Lokasi</th>
+                    <th>Volume</th>
+                    <th>Anggaran</th>
+                    <th>OPD Penanggung Jawab</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbw84uzy4-2LwUJG23VyvdjFi7sJvm1FUkS56nEDRNn0SrTjTHt0jGdBvjkTvYeP6bq3/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyvqtju9l-9MPRRMW_WH6s-QZjW6kYfLWXYYpDRhl3Oqm5sxGop5eM1-p3mVDdeA-yI/exec";
+    let allData = [];
 
-let allData = [];
+    async function fetchData() {
+        try {
+            const response = await fetch(API_URL);
+            const result = await response.json();
+            
+            // Mengambil properti 'data' dari response JSON Apps Script Anda
+            allData = result.data;
 
-fetch(API_URL)
-.then(res => res.json())
-.then(res => {
-    if(res.status !== "success"){
-        alert("Gagal membaca data");
-        return;
+            populateFilters(allData);
+            renderTable(allData);
+        } catch (error) {
+            console.error("Gagal:", error);
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">Gagal membaca data dari server.</td></tr>';
+        }
     }
-    allData = res.data;
-    buildFilter(allData);
-    renderTable(allData);
-})
-.catch(() => alert("Koneksi ke server gagal"));
 
-function rupiah(n){
-    return "Rp " + Number(n).toLocaleString("id-ID");
-}
+    function populateFilters(data) {
+        const kelurahan = [...new Set(data.map(item => item.kelurahan))].sort();
+        const bidang = [...new Set(data.map(item => item.bidang))].sort();
 
-function getAnggaran(val){
-    if(!val) return 0;
-    return Number(val.toString().replace(/[^0-9]/g,""));
-}
+        const kelSelect = document.getElementById('filterKelurahan');
+        kelurahan.forEach(k => kelSelect.innerHTML += `<option value="${k}">${k}</option>`);
 
-function buildFilter(data){
-    const kelSet = new Set();
-    const bidSet = new Set();
+        const bidSelect = document.getElementById('filterBidang');
+        bidang.forEach(b => bidSelect.innerHTML += `<option value="${b}">${b}</option>`);
+    }
 
-    data.forEach(d=>{
-        if(d.kelurahan) kelSet.add(d.kelurahan);
-        if(d.bidang) bidSet.add(d.bidang);
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = data.map((item, index) => {
+            // Logika warna badge bidang
+            let badgeClass = "";
+            const b = (item.bidang || "").toLowerCase();
+            if(b.includes("sarana")) badgeClass = "bg-sarpras";
+            else if(b.includes("sosial")) badgeClass = "bg-sosbud";
+            else if(b.includes("ekonomi")) badgeClass = "bg-ekonomi";
+
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${item.kelurahan || '-'}</strong></td>
+                    <td><span class="badge ${badgeClass}">${item.bidang || '-'}</span></td>
+                    <td>${item.kegiatan || '-'}</td>
+                    <td>${item.lokasi || '-'}</td>
+                    <td>${item.volume || '-'}</td>
+                    <td><strong>Rp ${Number(item.anggaran).toLocaleString('id-ID')}</strong></td>
+                    <td>${item.opd || '-'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Fungsi Pencarian & Filter
+    document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('input', () => {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const kel = document.getElementById('filterKelurahan').value;
+            const bid = document.getElementById('filterBidang').value;
+
+            const filtered = allData.filter(d => {
+                const matchSearch = (d.kegiatan + d.lokasi).toLowerCase().includes(search);
+                const matchKel = kel === "" || d.kelurahan === kel;
+                const matchBid = bid === "" || d.bidang === bid;
+                return matchSearch && matchKel && matchBid;
+            });
+            renderTable(filtered);
+        });
     });
 
-    kelSet.forEach(k=>{
-        let o=document.createElement("option");
-        o.value=k; o.textContent=k;
-        filterKelurahan.appendChild(o);
-    });
-
-    bidSet.forEach(b=>{
-        let o=document.createElement("option");
-        o.value=b; o.textContent=b;
-        filterBidang.appendChild(o);
-    });
-}
-
-function renderTable(data){
-    const tbody=document.getElementById("tbody");
-    tbody.innerHTML="";
-
-    let totalAnggaran=0;
-
-    data.forEach((row,i)=>{
-        let nilai=getAnggaran(row.anggaran);
-        totalAnggaran+=nilai;
-
-        let tr=document.createElement("tr");
-        tr.innerHTML=`
-            <td>${i+1}</td>
-            <td>${row.kelurahan||""}</td>
-            <td>${row.bidang||""}</td>
-            <td>${row.kegiatan||""}</td>
-            <td>${row.lokasi||""}</td>
-            <td>${row.volume||""}</td>
-            <td>${rupiah(nilai)}</td>
-            <td>${row.opd||""}</td>
-            <td>${row.keterangan||""}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    document.getElementById("loading").style.display="none";
-    document.getElementById("tabel").style.display="table";
-
-    document.getElementById("info").innerHTML =
-        "Total Usulan: <b>"+data.length+
-        "</b> | Total Anggaran: <b>"+rupiah(totalAnggaran)+"</b>";
-}
-
-// SEARCH
-document.getElementById("search").addEventListener("keyup",()=>{
-    applyFilter();
-});
-
-// FILTER
-document.getElementById("filterKelurahan").addEventListener("change",applyFilter);
-document.getElementById("filterBidang").addEventListener("change",applyFilter);
-
-function applyFilter(){
-    let s=document.getElementById("search").value.toLowerCase();
-    let k=document.getElementById("filterKelurahan").value;
-    let b=document.getElementById("filterBidang").value;
-
-    let filtered = allData.filter(r=>{
-        let teks = Object.values(r).join(" ").toLowerCase();
-        if(s && !teks.includes(s)) return false;
-        if(k && r.kelurahan!==k) return false;
-        if(b && r.bidang!==b) return false;
-        return true;
-    });
-
-    renderTable(filtered);
-}
+    fetchData();
 </script>
 
 </body>
