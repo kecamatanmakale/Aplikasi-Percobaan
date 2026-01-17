@@ -9,12 +9,15 @@
         .header { background-color: #1a5bb8; color: white; padding: 15px; text-align: center; }
         .container { padding: 20px; }
 
-        /* Statistik Bidang Sejajar */
+        /* Statistik Bidang Sejajar di Bawah Judul */
         .stat-bidang-container {
-            display: flex; justify-content: center; gap: 20px; margin: 15px 0;
-            background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-around; gap: 10px; margin: 10px 0 20px 0;
+            background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 8px;
         }
-        .stat-item { font-size: 13px; font-weight: bold; border-left: 3px solid #1a5bb8; padding-left: 10px; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 11px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .stat-value { font-size: 13px; font-weight: bold; color: #000; }
+        .stat-count { font-size: 11px; color: #666; font-weight: normal; }
 
         /* Filter Section - Sembunyikan saat cetak */
         .filter-section { 
@@ -41,7 +44,6 @@
             .signature-area { display: flex; }
             body { background: white; }
             .table-container { box-shadow: none; border: none; }
-            .stat-bidang-container { border: 1px solid #ccc; }
         }
         .sig-box { width: 250px; font-size: 12px; }
     </style>
@@ -53,12 +55,6 @@
 </div>
 
 <div class="container">
-    <div class="stat-bidang-container" id="statBidang">
-        <div class="stat-item">Sarana Prasarana: <span id="statSarpras">Rp 0</span></div>
-        <div class="stat-item" style="border-color: #e74c3c;">Sosial Budaya: <span id="statSosbud">Rp 0</span></div>
-        <div class="stat-item" style="border-color: #f1c40f;">Ekonomi: <span id="statEkonomi">Rp 0</span></div>
-    </div>
-
     <div class="filter-section">
         <input type="text" id="searchInput" placeholder="Cari kegiatan...">
         <select id="filterKelurahan"><option value="">Semua Kelurahan/Lembang</option></select>
@@ -66,7 +62,26 @@
     </div>
 
     <div class="table-container">
-        <h3 style="text-align: center; margin-bottom: 15px;">DAFTAR USULAN MUSRENBANG T.A. 2027</h3>
+        <h3 style="text-align: center; margin-bottom: 5px;">DAFTAR USULAN MUSRENBANG T.A. 2027</h3>
+        
+        <div class="stat-bidang-container" id="statBidang">
+            <div class="stat-item">
+                <span class="stat-label">Bidang Sarana Prasarana</span>
+                <div class="stat-value" id="statSarpras">Rp 0</div>
+                <div class="stat-count" id="countSarpras">0 Usulan</div>
+            </div>
+            <div class="stat-item" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc;">
+                <span class="stat-label">Bidang Sosial Budaya</span>
+                <div class="stat-value" id="statSosbud">Rp 0</div>
+                <div class="stat-count" id="countSosbud">0 Usulan</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Bidang Ekonomi</span>
+                <div class="stat-value" id="statEkonomi">Rp 0</div>
+                <div class="stat-count" id="countEkonomi">0 Usulan</div>
+            </div>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -78,14 +93,15 @@
                     <th>Vol</th>
                     <th>Anggaran</th>
                     <th>OPD</th>
-                    <th>Keterangan</th> </tr>
+                    <th>Keterangan</th>
+                </tr>
             </thead>
             <tbody id="tableBody">
                 <tr><td colspan="9" style="text-align:center;">Memuat data...</td></tr>
             </tbody>
             <tfoot>
                 <tr class="total-row">
-                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN:</td>
+                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN KESELURUHAN:</td>
                     <td id="grandTotal">Rp 0</td>
                     <td colspan="2"></td>
                 </tr>
@@ -94,11 +110,11 @@
 
         <div class="signature-area">
             <div class="sig-box">
-                <p>Makale, ________________ 2026</p>
+                <p>Makale, ____________________ 2026</p>
                 <p><strong>Camat Makale,</strong></p>
                 <br><br><br><br>
-                <p><strong>Benyamin Dengen, S.S., M.M</strong></p>
-                <p>NIP. 197208312007011011</p>
+                <p><strong>Benyamin Dengen, S.S., M.M.</strong></p>
+                <p>NIP.197208312007011011</p>
             </div>
         </div>
     </div>
@@ -114,7 +130,6 @@
             const result = await response.json();
             allData = result.data || result;
             
-            // Populate Dropdown Kelurahan
             const kels = [...new Set(allData.map(d => d.kelurahan))].filter(Boolean).sort();
             const sel = document.getElementById('filterKelurahan');
             kels.forEach(k => {
@@ -125,24 +140,25 @@
 
             renderTable(allData);
         } catch (e) { 
-            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">Gagal memuat data dari server.</td></tr>`;
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">Gagal memuat data.</td></tr>`;
         }
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         let total = 0;
-        let sarp = 0, sosb = 0, ekon = 0;
+        let sarpAng = 0, sarpJml = 0;
+        let sosbAng = 0, sosbJml = 0;
+        let ekonAng = 0, ekonJml = 0;
 
         tbody.innerHTML = data.map((item, index) => {
             const ang = Number(item.anggaran) || 0;
             total += ang;
 
-            // Hitung per bidang
             const b = (item.bidang || "").toLowerCase();
-            if(b.includes("sarana")) sarp += ang;
-            else if(b.includes("sosial")) sosb += ang;
-            else if(b.includes("ekonomi")) ekon += ang;
+            if(b.includes("sarana")) { sarpAng += ang; sarpJml++; }
+            else if(b.includes("sosial")) { sosbAng += ang; sosbJml++; }
+            else if(b.includes("ekonomi")) { ekonAng += ang; ekonJml++; }
 
             return `
                 <tr>
@@ -159,14 +175,20 @@
             `;
         }).join('');
 
-        // Update Totals
+        // Update Tabel Total
         document.getElementById('grandTotal').innerText = "Rp " + total.toLocaleString('id-ID');
-        document.getElementById('statSarpras').innerText = "Rp " + sarp.toLocaleString('id-ID');
-        document.getElementById('statSosbud').innerText = "Rp " + sosb.toLocaleString('id-ID');
-        document.getElementById('statEkonomi').innerText = "Rp " + ekon.toLocaleString('id-ID');
+        
+        // Update Statistik Bidang Sejajar
+        document.getElementById('statSarpras').innerText = "Rp " + sarpAng.toLocaleString('id-ID');
+        document.getElementById('countSarpras').innerText = sarpJml + " Usulan";
+        
+        document.getElementById('statSosbud').innerText = "Rp " + sosbAng.toLocaleString('id-ID');
+        document.getElementById('countSosbud').innerText = sosbJml + " Usulan";
+        
+        document.getElementById('statEkonomi').innerText = "Rp " + ekonAng.toLocaleString('id-ID');
+        document.getElementById('countEkonomi').innerText = ekonJml + " Usulan";
     }
 
-    // Filter Logic
     document.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('input', () => {
             const search = document.getElementById('searchInput').value.toLowerCase();
