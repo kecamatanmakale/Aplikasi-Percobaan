@@ -18,7 +18,6 @@
         .bg-sarpras { background: #e3f2fd; color: #1976d2; }
         .bg-sosbud { background: #fbe9e7; color: #d84315; }
         .bg-ekonomi { background: #fff8e1; color: #f57f17; }
-        .error-msg { color: red; text-align: center; padding: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -49,14 +48,14 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="8" style="text-align:center;">Sedang mengambil data dari server...</td></tr>
+                <tr><td colspan="8" style="text-align:center;">Mengambil data dari spreadsheet...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // URL API dari Deployment "Anyone"
+    // URL API dari Web App Anda (Pastikan Deployment "Anyone")
     const API_URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
     let allData = [];
 
@@ -64,21 +63,24 @@
         const tbody = document.getElementById('tableBody');
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error("Gagal terhubung ke server");
-            
             const result = await response.json();
             
-            // Mengambil properti 'data' dari Apps Script
-            if (result.status === "success" || Array.isArray(result.data)) {
-                allData = result.data;
-                populateFilters(allData);
-                renderTable(allData);
-            } else {
-                throw new Error("Format data tidak dikenali");
+            // Penanganan jika data dibungkus dalam properti 'data' atau dikirim langsung sebagai array
+            allData = result.data || result;
+
+            if (!Array.isArray(allData)) {
+                throw new Error("Data bukan berbentuk daftar (array)");
             }
+
+            populateFilters(allData);
+            renderTable(allData);
         } catch (error) {
-            console.error("Error Detail:", error);
-            tbody.innerHTML = `<tr><td colspan="8" class="error-msg">Gagal memuat data: ${error.message}. Pastikan koneksi internet stabil dan Deployment Apps Script sudah benar.</td></tr>`;
+            console.error("Fetch error:", error);
+            tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center; padding:20px;">
+                <strong>Gagal memuat data!</strong><br>
+                Detail: ${error.message}<br>
+                Pastikan Deployment Apps Script sudah diatur ke "Anyone".
+            </td></tr>`;
         }
     }
 
@@ -88,32 +90,27 @@
 
         const kelSelect = document.getElementById('filterKelurahan');
         kelurahanList.forEach(k => {
-            const option = document.createElement('option');
-            option.value = k; option.textContent = k;
-            kelSelect.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = k; opt.textContent = k;
+            kelSelect.appendChild(opt);
         });
 
         const bidSelect = document.getElementById('filterBidang');
         bidangList.forEach(b => {
-            const option = document.createElement('option');
-            option.value = b; option.textContent = b;
-            bidSelect.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = b; opt.textContent = b;
+            bidSelect.appendChild(opt);
         });
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Data tidak ditemukan.</td></tr>';
-            return;
-        }
-
         tbody.innerHTML = data.map((item, index) => {
-            // Logika Warna Berdasarkan Bidang
+            // Logika badge warna bidang
             let badgeClass = "bg-sarpras";
             const b = (item.bidang || "").toLowerCase();
-            if(b.includes("sosial")) badgeClass = "bg-sosbud";
-            else if(b.includes("ekonomi")) badgeClass = "bg-ekonomi";
+            if (b.includes("sosial")) badgeClass = "bg-sosbud";
+            else if (b.includes("ekonomi")) badgeClass = "bg-ekonomi";
 
             return `
                 <tr>
@@ -130,7 +127,7 @@
         }).join('');
     }
 
-    // Fungsi Filter Otomatis
+    // Event listener untuk filter dan pencarian
     document.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('input', () => {
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -138,9 +135,9 @@
             const bid = document.getElementById('filterBidang').value;
 
             const filtered = allData.filter(d => {
-                const matchSearch = (d.kegiatan + d.lokasi + d.opd).toLowerCase().includes(search);
-                const matchKel = kel === "" || d.kelurahan === kel;
-                const matchBid = bid === "" || d.bidang === bid;
+                const matchSearch = (d.kegiatan + d.lokasi).toLowerCase().includes(search);
+                const matchKel = !kel || d.kelurahan === kel;
+                const matchBid = !bid || d.bidang === bid;
                 return matchSearch && matchKel && matchBid;
             });
             renderTable(filtered);
@@ -149,6 +146,5 @@
 
     fetchData();
 </script>
-
 </body>
 </html>
