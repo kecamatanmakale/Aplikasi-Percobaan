@@ -5,9 +5,9 @@
     <title>Dashboard Admin Musrenbang Makale</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body{ font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f6; display:flex; }
+        body{ font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; background:#f4f7f6; display:flex; }
         .sidebar{ width:250px; background:#1a5bb8; height:100vh; position:fixed; color:#fff; padding:25px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
-        .logo{ width:80px; margin-bottom:10px; }
+        .logo{ width:80px; height:auto; margin-bottom:10px; }
         .btn-nav, .btn-logout{ width:100%; padding:12px; border:none; border-radius:5px; font-weight:bold; margin-top:10px; cursor:pointer; }
         .btn-nav{ background:#1a5bb8; color:#fff; text-align:left; }
         .btn-nav:hover{ background:#174ea6; }
@@ -75,7 +75,7 @@
                 </tr>
             </thead>
             <tbody id="bodyKelurahan">
-                <tr><td colspan="3" style="text-align:center">Memuat data...</td></tr>
+                <tr><td colspan="3" style="text-align:center">Memuat data terbaru...</td></tr>
             </tbody>
         </table>
     </div>
@@ -83,15 +83,15 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-    // URL API dari Apps Script terbaru Anda
-    const URL = "https://script.google.com/macros/s/AKfycbyvqtju9l-9MPRRMW_WH6s-QZjW6kYfLWXYYpDRhl3Oqm5sxGop5eM1-p3mVDdeA-yI/exec";
+    // URL Web App terbaru yang Anda berikan
+    const URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
     
     try {
         const res = await fetch(URL);
         const result = await res.json();
         
-        // Memastikan data diambil dari properti 'data'
-        const data = result.data; 
+        // Mengakses data dari properti 'data'
+        const rawData = result.data || result; 
 
         let totalRupiah = 0;
         const bidang = {
@@ -101,35 +101,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         const kel = {};
 
-        data.forEach(d => {
-            // Konversi nilai anggaran dari spreadsheet
+        rawData.forEach(d => {
+            // Konversi nilai anggaran ke angka
             const ang = Number(d.anggaran) || 0; 
             totalRupiah += ang;
 
-            // Klasifikasi berdasarkan kolom 'bidang' (lowercase dari Apps Script)
+            // Klasifikasi Bidang (Sesuai header lowercase dari Apps Script)
             const b = (d.bidang || "").toLowerCase();
             if (b.includes("sarana")) { bidang.sarpras.ang += ang; bidang.sarpras.jml++; }
             else if (b.includes("sosial")) { bidang.sosbud.ang += ang; bidang.sosbud.jml++; }
             else if (b.includes("ekonomi")) { bidang.ekonomi.ang += ang; bidang.ekonomi.jml++; }
 
-            // Kelompokkan berdasarkan 'kelurahan'
+            // Rekap Per Kelurahan
             const namaKel = d.kelurahan || "Lainnya";
             if (!kel[namaKel]) kel[namaKel] = { jml: 0, total: 0 };
             kel[namaKel].jml++;
             kel[namaKel].total += ang;
         });
 
-        // Update Widget Utama
-        document.getElementById("totalUsulan").innerText = data.length;
+        // Update Elemen Teks
+        document.getElementById("totalUsulan").innerText = rawData.length;
         document.getElementById("totalAnggaran").innerText = "Rp " + totalRupiah.toLocaleString("id-ID");
         
-        // Update Legend Statistik
         document.getElementById("leg-sarpras").innerText = `Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
         document.getElementById("leg-sosbud").innerText = `Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
         document.getElementById("leg-ekonomi").innerText = `Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
 
-        // Render Tabel Per Kelurahan
-        document.getElementById("bodyKelurahan").innerHTML = Object.keys(kel).sort().map(k => `
+        // Render Tabel Kelurahan
+        const bodyKel = document.getElementById("bodyKelurahan");
+        bodyKel.innerHTML = Object.keys(kel).sort().map(k => `
             <tr>
                 <td><strong>${k}</strong></td>
                 <td style="text-align:center">${kel[k].jml}</td>
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </tr>
         `).join("");
 
-        // Render Grafik Lingkaran
+        // Render Grafik Lingkaran (Doughnut)
         new Chart(document.getElementById("chartBidang"), {
             type: "doughnut",
             data: {
@@ -150,8 +150,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     } catch (e) {
-        console.error("Kesalahan Fetch:", e);
-        document.getElementById("bodyKelurahan").innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data dari server. Silakan refresh halaman.</td></tr>';
+        console.error("Fetch error:", e);
+        document.getElementById("bodyKelurahan").innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data. Periksa koneksi atau URL API.</td></tr>';
     }
 });
 </script>
