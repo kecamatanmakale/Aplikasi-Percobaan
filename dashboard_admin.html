@@ -5,7 +5,6 @@
     <title>Dashboard Admin Musrenbang Makale</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* (Gunakan CSS yang sama dengan milik Anda sebelumnya) */
         body{ font-family:'Segoe UI',sans-serif; margin:0; background:#f4f7f6; display:flex; }
         .sidebar{ width:250px; background:#1a5bb8; height:100vh; position:fixed; color:#fff; padding:25px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
         .logo{ width:80px; margin-bottom:10px; }
@@ -80,7 +79,7 @@
                 </tr>
             </thead>
             <tbody id="bodyKelurahan">
-                <tr><td colspan="3" style="text-align:center">Memuat data...</td></tr>
+                <tr><td colspan="3" style="text-align:center">Memuat data dari sistem...</td></tr>
             </tbody>
         </table>
     </div>
@@ -88,13 +87,14 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+    // URL Web App dari Apps Script Anda
     const URL = "https://script.google.com/macros/s/AKfycbwHHk4z9oTff9HMEuQicn3F1z-6vPaB-z_0goWKX4J7L3FUokCQigXkpKgbjLg94Yfb/exec";
     
     try {
         const res = await fetch(URL);
         const result = await res.json();
         
-        // Karena Apps Script membungkus data dalam properti 'data'
+        // Mengakses array data di dalam properti 'data' JSON
         const rawData = result.data; 
 
         let totalRupiah = 0;
@@ -106,33 +106,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         const kel = {};
 
         rawData.forEach(d => {
-            // Bersihkan format mata uang dari kolom 'anggaran'
+            // Ambil angka dari kolom 'anggaran' (sudah lowercase dari Apps Script)
             const ang = Number(d.anggaran.toString().replace(/\D/g, "")) || 0;
             totalRupiah += ang;
 
-            // Logika klasifikasi Bidang (menggunakan lowercase sesuai Apps Script)
+            // Klasifikasi berdasarkan kolom 'bidang' (sudah lowercase)
             const b = (d.bidang || "").toLowerCase();
             if (b.includes("sarana")) { bidang.sarpras.ang += ang; bidang.sarpras.jml++; }
             else if (b.includes("sosial")) { bidang.sosbud.ang += ang; bidang.sosbud.jml++; }
             else if (b.includes("ekonomi")) { bidang.ekonomi.ang += ang; bidang.ekonomi.jml++; }
 
-            // Logika Rekap Kelurahan
-            const namaKel = d.kelurahan || "Tidak Diketahui";
+            // Rekap Per Kelurahan (sudah lowercase)
+            const namaKel = d.kelurahan || "Lainnya";
             if (!kel[namaKel]) kel[namaKel] = { jml: 0, total: 0 };
             kel[namaKel].jml++;
             kel[namaKel].total += ang;
         });
 
-        // Update UI Widget
+        // Update Tampilan Utama
         document.getElementById("totalUsulan").innerText = rawData.length;
         document.getElementById("totalAnggaran").innerText = "Rp " + totalRupiah.toLocaleString("id-ID");
 
-        // Update Legend
+        // Update Legend Bidang
         document.getElementById("leg-sarpras").innerText = `Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
         document.getElementById("leg-sosbud").innerText = `Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
         document.getElementById("leg-ekonomi").innerText = `Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
 
-        // Render Tabel
+        // Update Tabel Kelurahan
         const tableBody = document.getElementById("bodyKelurahan");
         tableBody.innerHTML = Object.keys(kel).sort().map(k => `
             <tr>
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </tr>
         `).join("");
 
-        // Render Chart
+        // Render Grafik
         new Chart(document.getElementById("chartBidang"), {
             type: "doughnut",
             data: {
@@ -151,12 +151,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     backgroundColor: ["#3498db", "#e74c3c", "#f1c40f"]
                 }]
             },
-            options: { cutout: "70%", plugins: { legend: { display: false } } }
+            options: { cutout: "70%", animation: { duration: 500 }, plugins: { legend: { display: false } } }
         });
 
     } catch (e) {
-        console.error("Gagal memuat data:", e);
-        document.getElementById("bodyKelurahan").innerHTML = `<tr><td colspan="3" style="color:red; text-align:center">Error: Gagal mengambil data dari server.</td></tr>`;
+        console.error("Gagal memproses data:", e);
+        document.getElementById("bodyKelurahan").innerHTML = `<tr><td colspan="3" style="color:red; text-align:center">Gagal memuat data. Periksa koneksi atau URL Apps Script.</td></tr>`;
     }
 });
 </script>
