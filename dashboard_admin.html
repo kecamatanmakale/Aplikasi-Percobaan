@@ -1,291 +1,164 @@
-
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard Admin Musrenbang Makale</title>
-
-<!-- ChartJS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
-<style>
-/* ===== GLOBAL ===== */
-body{
-    font-family:'Segoe UI',Tahoma,sans-serif;
-    margin:0;
-    background:#f4f7f6;
-    display:flex;
-}
-
-/* ===== SIDEBAR ===== */
-.sidebar{
-    width:250px;
-    background:#1a5bb8;
-    height:100vh;
-    position:fixed;
-    color:#fff;
-    padding:25px;
-    box-sizing:border-box;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-/* LOGO RESPONSIVE */
-.logo{
-    width:80%;
-    max-width:100px;   /* ukuran desktop */
-    height:auto;
-    display:block;
-    margin:0 auto 5px;
-}
-
-/* TABLET */
-@media (max-width: 768px){
-    .logo{
-        max-width:90px;
-    }
-}
-
-/* HP */
-@media (max-width: 480px){
-    .logo{
-        max-width:70px;
-        margin-bottom:10px;
-    }
-}
-
-}
-
-/* SIDEBAR TEXT */
-.sidebar h3,
-.sidebar p{
-    text-align:center;
-}
-.sidebar p{
-    font-size:13px;
-    margin-top:-8px;
-    opacity:.9;
-}
-
-/* BUTTON */
-.btn-nav,
-.btn-logout{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:5px;
-    font-weight:bold;
-    margin-top:10px;
-    cursor:pointer;
-}
-.btn-nav{
-    background:#1a5bb8;
-    color:#fff;
-    text-align:left;
-}
-.btn-nav:hover{background:#174ea6}
-.btn-logout{
-    background:#c0392b;
-    color:#fff;
-    margin-top:30px;
-}
-
-/* FOOTER SIDEBAR */
-.sidebar-footer{
-    margin-top:auto;
-    text-align:center;
-    font-size:12px;
-    line-height:1.6;
-    color:#dbe9ff;
-}
-.sidebar-footer strong{color:#fff}
-
-/* ===== MAIN CONTENT ===== */
-.main-content{
-    margin-left:270px;
-    padding:30px;
-    width:calc(100% - 270px);
-}
-
-/* ===== DASHBOARD GRID ===== */
-.grid-container{
-    display:grid;
-    grid-template-columns:1fr 1fr 1.2fr;
-    gap:20px;
-    margin-bottom:25px;
-}
-.card{
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05);
-    text-align:center;
-}
-.stat-value{
-    font-size:32px;
-    font-weight:bold;
-    color:#1a5bb8;
-    margin:10px 0;
-}
-
-/* ===== CHART ===== */
-.chart-flex{
-    display:flex;
-    gap:15px;
-    align-items:center;
-    justify-content:center;
-}
-.chart-container{
-    width:160px;
-    height:160px;
-}
-.legend-item{
-    font-size:11px;
-    margin-bottom:8px;
-}
-
-/* ===== TABLE ===== */
-.rekap-kelurahan{
-    background:#fff;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05);
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-}
-th,td{
-    padding:12px;
-    border-bottom:1px solid #eee;
-}
-th{
-    background:#f8f9fa;
-    color:#1a5bb8;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin Musrenbang Makale</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* (Gunakan CSS yang sama dengan milik Anda sebelumnya) */
+        body{ font-family:'Segoe UI',sans-serif; margin:0; background:#f4f7f6; display:flex; }
+        .sidebar{ width:250px; background:#1a5bb8; height:100vh; position:fixed; color:#fff; padding:25px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
+        .logo{ width:80px; margin-bottom:10px; }
+        .btn-nav, .btn-logout{ width:100%; padding:12px; border:none; border-radius:5px; font-weight:bold; margin-top:10px; cursor:pointer; }
+        .btn-nav{ background:#1a5bb8; color:#fff; text-align:left; }
+        .btn-nav:hover{ background:#174ea6; }
+        .btn-logout{ background:#c0392b; color:#fff; margin-top:30px; }
+        .main-content{ margin-left:270px; padding:30px; width:calc(100% - 270px); }
+        .grid-container{ display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:20px; margin-bottom:25px; }
+        .card{ background:#fff; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); text-align:center; }
+        .stat-value{ font-size:32px; font-weight:bold; color:#1a5bb8; margin:10px 0; }
+        .chart-flex{ display:flex; gap:15px; align-items:center; justify-content:center; }
+        .chart-container{ width:150px; height:150px; }
+        .legend-item{ font-size:11px; margin-bottom:8px; text-align: left; }
+        .rekap-kelurahan{ background:#fff; padding:25px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+        table{ width:100%; border-collapse:collapse; margin-top:15px; }
+        th,td{ padding:12px; border-bottom:1px solid #eee; }
+        th{ background:#f8f9fa; color:#1a5bb8; }
+        .sidebar-footer{ margin-top:auto; text-align:center; font-size:11px; opacity: 0.8; }
+    </style>
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-    <img src="./logo-makale.png" alt="Logo Kecamatan Makale" class="logo">
-
+    <img src="./logo-makale.png" alt="Logo" class="logo">
     <h3>ADMIN PANEL</h3>
     <p>Kecamatan Makale</p>
     <hr style="width:100%">
-
     <button class="btn-nav" onclick="location.href='dashboard_admin.html'">🏠 Dashboard</button>
     <button class="btn-nav" onclick="location.href='rekap_admin.html'">📊 Rekap Usulan</button>
     <button class="btn-logout" onclick="localStorage.clear();location.href='index.html'">LOGOUT</button>
-
     <div class="sidebar-footer">
-        Aplikasi Dikembangkan Oleh<br>
-        <strong>Tim IT Kecamatan Makale</strong><br>
-        Versi 1.0.5 • © 2026
+        Aplikasi Dikembangkan Oleh<br><strong>Tim IT Kecamatan Makale</strong><br>Versi 1.0.5 • © 2026
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main-content">
-<h1>Dashboard Monitoring T.A. 2027</h1>
+    <h1>Dashboard Monitoring T.A. 2027</h1>
 
-<div class="grid-container">
-    <div class="card">
-        <h4>Total Usulan</h4>
-        <div class="stat-value" id="totalUsulan">0</div>
-        <p>Usulan Masuk</p>
-    </div>
-
-    <div class="card">
-        <h4>Total Anggaran</h4>
-        <div class="stat-value" id="totalAnggaran" style="color:#27ae60">Rp 0</div>
-        <p>Seluruh Bidang</p>
-    </div>
-
-    <div class="card">
-        <h4>Statistik Per Bidang</h4>
-        <div class="chart-flex">
-            <div class="chart-container">
-                <canvas id="chartBidang"></canvas>
-            </div>
-            <div>
-                <div class="legend-item">Sarpras<br><small id="leg-sarpras"></small></div>
-                <div class="legend-item">Sosbud<br><small id="leg-sosbud"></small></div>
-                <div class="legend-item">Ekonomi<br><small id="leg-ekonomi"></small></div>
+    <div class="grid-container">
+        <div class="card">
+            <h4>Total Usulan</h4>
+            <div class="stat-value" id="totalUsulan">0</div>
+            <p>Usulan Masuk</p>
+        </div>
+        <div class="card">
+            <h4>Total Anggaran</h4>
+            <div class="stat-value" id="totalAnggaran" style="color:#27ae60">Rp 0</div>
+            <p>Seluruh Bidang</p>
+        </div>
+        <div class="card">
+            <h4>Statistik Per Bidang</h4>
+            <div class="chart-flex">
+                <div class="chart-container"><canvas id="chartBidang"></canvas></div>
+                <div>
+                    <div class="legend-item">🔵 Sarpras: <br><strong id="leg-sarpras">Rp 0</strong></div>
+                    <div class="legend-item">🔴 Sosbud: <br><strong id="leg-sosbud">Rp 0</strong></div>
+                    <div class="legend-item">🟡 Ekonomi: <br><strong id="leg-ekonomi">Rp 0</strong></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="rekap-kelurahan">
-<h3>Rekapitulasi Per Kelurahan / Lembang</h3>
-<table>
-<thead>
-<tr>
-<th>Kelurahan / Lembang</th>
-<th style="text-align:center">Jumlah Usulan</th>
-<th style="text-align:right">Total Anggaran</th>
-</tr>
-</thead>
-<tbody id="bodyKelurahan"></tbody>
-</table>
-</div>
+    <div class="rekap-kelurahan">
+        <h3>Rekapitulasi Per Kelurahan / Lembang</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kelurahan / Lembang</th>
+                    <th style="text-align:center">Jumlah Usulan</th>
+                    <th style="text-align:right">Total Anggaran</th>
+                </tr>
+            </thead>
+            <tbody id="bodyKelurahan">
+                <tr><td colspan="3" style="text-align:center">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-const URL="https://script.google.com/macros/s/AKfycbwHHk4z9oTff9HMEuQicn3F1z-6vPaB-z_0goWKX4J7L3FUokCQigXkpKgbjLg94Yfb/exec";
-try{
-const res=await fetch(URL);
-const data=await res.json();
+    const URL = "https://script.google.com/macros/s/AKfycbwHHk4z9oTff9HMEuQicn3F1z-6vPaB-z_0goWKX4J7L3FUokCQigXkpKgbjLg94Yfb/exec";
+    
+    try {
+        const res = await fetch(URL);
+        const result = await res.json();
+        
+        // Karena Apps Script membungkus data dalam properti 'data'
+        const rawData = result.data; 
 
-let total=0;
-const bidang={sarpras:{ang:0,jml:0},sosbud:{ang:0,jml:0},ekonomi:{ang:0,jml:0}};
-const kel={};
+        let totalRupiah = 0;
+        const bidang = {
+            sarpras: { ang: 0, jml: 0 },
+            sosbud: { ang: 0, jml: 0 },
+            ekonomi: { ang: 0, jml: 0 }
+        };
+        const kel = {};
 
-data.forEach(d=>{
-const ang=Number((d.Anggaran||"0").toString().replace(/\D/g,""))||0;
-total+=ang;
+        rawData.forEach(d => {
+            // Bersihkan format mata uang dari kolom 'anggaran'
+            const ang = Number(d.anggaran.toString().replace(/\D/g, "")) || 0;
+            totalRupiah += ang;
 
-if(d["Bidang Kegiatan"]==="Bidang Sarana dan Prasarana"){bidang.sarpras.ang+=ang;bidang.sarpras.jml++}
-if(d["Bidang Kegiatan"]==="Bidang Sosial Budaya"){bidang.sosbud.ang+=ang;bidang.sosbud.jml++}
-if(d["Bidang Kegiatan"]==="Bidang Ekonomi"){bidang.ekonomi.ang+=ang;bidang.ekonomi.jml++}
+            // Logika klasifikasi Bidang (menggunakan lowercase sesuai Apps Script)
+            const b = (d.bidang || "").toLowerCase();
+            if (b.includes("sarana")) { bidang.sarpras.ang += ang; bidang.sarpras.jml++; }
+            else if (b.includes("sosial")) { bidang.sosbud.ang += ang; bidang.sosbud.jml++; }
+            else if (b.includes("ekonomi")) { bidang.ekonomi.ang += ang; bidang.ekonomi.jml++; }
 
-const k=d["Kelurahan/Lembang"]||"Lainnya";
-if(!kel[k]) kel[k]={jml:0,total:0};
-kel[k].jml++;kel[k].total+=ang;
-});
+            // Logika Rekap Kelurahan
+            const namaKel = d.kelurahan || "Tidak Diketahui";
+            if (!kel[namaKel]) kel[namaKel] = { jml: 0, total: 0 };
+            kel[namaKel].jml++;
+            kel[namaKel].total += ang;
+        });
 
-document.getElementById("totalUsulan").innerText=data.length;
-document.getElementById("totalAnggaran").innerText="Rp "+total.toLocaleString("id-ID");
+        // Update UI Widget
+        document.getElementById("totalUsulan").innerText = rawData.length;
+        document.getElementById("totalAnggaran").innerText = "Rp " + totalRupiah.toLocaleString("id-ID");
 
-document.getElementById("leg-sarpras").innerText=`Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
-document.getElementById("leg-sosbud").innerText=`Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
-document.getElementById("leg-ekonomi").innerText=`Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
+        // Update Legend
+        document.getElementById("leg-sarpras").innerText = `Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
+        document.getElementById("leg-sosbud").innerText = `Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
+        document.getElementById("leg-ekonomi").innerText = `Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
 
-document.getElementById("bodyKelurahan").innerHTML=
-Object.keys(kel).sort().map(k=>`
-<tr>
-<td><strong>${k}</strong></td>
-<td style="text-align:center">${kel[k].jml}</td>
-<td style="text-align:right;font-weight:bold">Rp ${kel[k].total.toLocaleString("id-ID")}</td>
-</tr>`).join("");
+        // Render Tabel
+        const tableBody = document.getElementById("bodyKelurahan");
+        tableBody.innerHTML = Object.keys(kel).sort().map(k => `
+            <tr>
+                <td><strong>${k}</strong></td>
+                <td style="text-align:center">${kel[k].jml}</td>
+                <td style="text-align:right;font-weight:bold">Rp ${kel[k].total.toLocaleString("id-ID")}</td>
+            </tr>
+        `).join("");
 
-new Chart(document.getElementById("chartBidang"),{
-type:"doughnut",
-data:{datasets:[{data:[bidang.sarpras.ang,bidang.sosbud.ang,bidang.ekonomi.ang],
-backgroundColor:["#3498db","#e74c3c","#f1c40f"]}]},
-options:{cutout:"65%",animation:false,plugins:{legend:{display:false}}}
-});
-}catch(e){console.error(e)}
+        // Render Chart
+        new Chart(document.getElementById("chartBidang"), {
+            type: "doughnut",
+            data: {
+                datasets: [{
+                    data: [bidang.sarpras.ang, bidang.sosbud.ang, bidang.ekonomi.ang],
+                    backgroundColor: ["#3498db", "#e74c3c", "#f1c40f"]
+                }]
+            },
+            options: { cutout: "70%", plugins: { legend: { display: false } } }
+        });
+
+    } catch (e) {
+        console.error("Gagal memuat data:", e);
+        document.getElementById("bodyKelurahan").innerHTML = `<tr><td colspan="3" style="color:red; text-align:center">Error: Gagal mengambil data dari server.</td></tr>`;
+    }
 });
 </script>
-
 </body>
 </html>
