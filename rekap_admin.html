@@ -23,7 +23,6 @@
         .btn-nav { background: rgba(255,255,255,0.1); color: #fff; }
         .btn-logout { background: #e74c3c; color: #fff; text-align: center; margin-top: 15px; }
         
-        /* FOOTER SIDEBAR TETAP DI BAWAH */
         .sidebar-footer {
             margin-top: auto; text-align: center; font-size: 11px;
             line-height: 1.5; color: #dbe9ff; width: 100%; padding: 15px 0;
@@ -37,10 +36,12 @@
         .stat-value { font-size: 32px; font-weight: bold; color: #1a5bb8; margin: 5px 0; }
         .chart-flex { display: flex; gap: 15px; align-items: center; justify-content: center; }
         .chart-container { width: 130px; height: 130px; }
+        .legend-item { font-size: 11px; text-align: left; margin-bottom: 5px; }
+        
         .rekap-box { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f8f9fa; color: #1a5bb8; }
+        th { background: #f8f9fa; color: #1a5bb8; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -78,15 +79,27 @@
                 <h4>Statistik Per Bidang</h4>
                 <div class="chart-flex">
                     <div class="chart-container"><canvas id="chartBidang"></canvas></div>
-                    <div id="chartLegend"></div>
+                    <div>
+                        <div class="legend-item">Sarpras: <br><strong id="leg-sarpras">Rp 0 (0)</strong></div>
+                        <div class="legend-item">Sosbud: <br><strong id="leg-sosbud">Rp 0 (0)</strong></div>
+                        <div class="legend-item">Ekonomi: <br><strong id="leg-ekonomi">Rp 0 (0)</strong></div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="rekap-box">
             <h3>Rekapitulasi Per Kelurahan / Lembang</h3>
             <table>
-                <thead><tr><th>Kelurahan / Lembang</th><th>Jumlah Usulan</th><th>Total Anggaran</th></tr></thead>
-                <tbody id="bodyKelurahan"><tr><td colspan="3" style="text-align:center">Memuat data...</td></tr></tbody>
+                <thead>
+                    <tr>
+                        <th>Kelurahan / Lembang</th>
+                        <th style="text-align:center">Jumlah Usulan</th>
+                        <th style="text-align:right">Total Anggaran</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyKelurahan">
+                    <tr><td colspan="3" style="text-align:center">Menunggu data dari server...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -99,51 +112,72 @@
                 const result = await res.json();
                 const dataArr = result.data || result;
                 
-                if (!dataArr || !Array.isArray(dataArr)) return;
+                if (!dataArr || !Array.isArray(dataArr)) {
+                    document.getElementById("bodyKelurahan").innerHTML = "<tr><td colspan='3' style='text-align:center'>Data kosong</td></tr>";
+                    return;
+                }
 
                 let grandTotal = 0;
                 const statsBidang = { sarpras: { a: 0, j: 0 }, sosbud: { a: 0, j: 0 }, ekonomi: { a: 0, j: 0 } };
                 const kelMap = {};
 
                 dataArr.forEach(d => {
-                    // Normalisasi Key (Menghilangkan spasi dan huruf kecil)
+                    // --- NORMALISASI KUNCI DATA ---
                     const cleanObj = {};
-                    Object.keys(d).forEach(k => cleanObj[k.trim().toLowerCase()] = d[k]);
+                    Object.keys(d).forEach(k => { cleanObj[k.trim().toLowerCase()] = d[k]; });
 
-                    // Ambil Anggaran
+                    // 1. Ambil Anggaran
                     const rawAng = cleanObj["anggaran"] || "0";
                     const ang = parseInt(rawAng.toString().replace(/[^0-9]/g, "")) || 0;
                     grandTotal += ang;
 
-                    // Ambil Bidang
+                    // 2. Ambil Bidang
                     const b = (cleanObj["bidang"] || cleanObj["bidang kegiatan"] || "").toLowerCase();
                     if (b.includes("sarana") || b.includes("sarpras")) { statsBidang.sarpras.a += ang; statsBidang.sarpras.j++; }
                     else if (b.includes("sosial") || b.includes("sosbud")) { statsBidang.sosbud.a += ang; statsBidang.sosbud.j++; }
                     else if (b.includes("ekonomi")) { statsBidang.ekonomi.a += ang; statsBidang.ekonomi.j++; }
 
-                    // Ambil Kelurahan
+                    // 3. Ambil Kelurahan
                     const k = cleanObj["kelurahan"] || cleanObj["kelurahan/lembang"] || "Lainnya";
                     if (!kelMap[k]) kelMap[k] = { j: 0, t: 0 };
                     kelMap[k].j++;
                     kelMap[k].t += ang;
                 });
 
+                // Update UI Summary
                 document.getElementById("totalUsulan").innerText = dataArr.length;
                 document.getElementById("totalAnggaran").innerText = "Rp " + grandTotal.toLocaleString("id-ID");
-                
+                document.getElementById("leg-sarpras").innerText = `Rp ${statsBidang.sarpras.a.toLocaleString("id-ID")} (${statsBidang.sarpras.j})`;
+                document.getElementById("leg-sosbud").innerText = `Rp ${statsBidang.sosbud.a.toLocaleString("id-ID")} (${statsBidang.sosbud.j})`;
+                document.getElementById("leg-ekonomi").innerText = `Rp ${statsBidang.ekonomi.a.toLocaleString("id-ID")} (${statsBidang.ekonomi.j})`;
+
+                // Render Tabel
                 document.getElementById("bodyKelurahan").innerHTML = Object.keys(kelMap).sort().map(k => `
-                    <tr><td><strong>${k}</strong></td><td style="text-align:center">${kelMap[k].j}</td><td style="text-align:right">Rp ${kelMap[k].t.toLocaleString("id-ID")}</td></tr>
+                    <tr>
+                        <td><strong>${k}</strong></td>
+                        <td style="text-align:center">${kelMap[k].j}</td>
+                        <td style="text-align:right; font-weight:bold">Rp ${kelMap[k].t.toLocaleString("id-ID")}</td>
+                    </tr>
                 `).join("");
 
+                // Render Chart
                 new Chart(document.getElementById("chartBidang"), {
                     type: 'doughnut',
                     data: {
                         labels: ['Sarpras', 'Sosbud', 'Ekonomi'],
-                        datasets: [{ data: [statsBidang.sarpras.a, statsBidang.sosbud.a, statsBidang.ekonomi.a], backgroundColor: ['#3498db', '#e74c3c', '#f1c40f'] }]
+                        datasets: [{ 
+                            data: [statsBidang.sarpras.a, statsBidang.sosbud.a, statsBidang.ekonomi.a], 
+                            backgroundColor: ['#3498db', '#e74c3c', '#f1c40f'],
+                            borderWidth: 0
+                        }]
                     },
                     options: { cutout: '70%', plugins: { legend: { display: false } } }
                 });
-            } catch (e) { console.error(e); }
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById("bodyKelurahan").innerHTML = "<tr><td colspan='3' style='text-align:center; color:red'>Error memuat data</td></tr>";
+            }
         });
     </script>
 </body>
