@@ -14,43 +14,33 @@
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         
+        /* Rekap Card */
         .rekap-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .rekap-card { background: white; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
         .rekap-card h5 { margin: 0; font-size: 11px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
         .rekap-card p { margin: 5px 0 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
 
+        /* Buttons */
         .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn-kirim { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-kirim:hover { background-color: #219150; }
+        .btn-kirim { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
         .btn-excel { background-color: #1f8a50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
         .btn-pdf { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
         .btn-logout { background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; font-size: 12px; }
-        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        th { background-color: #34495e; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tfoot { font-weight: bold; background-color: #ecf0f1; font-size: 14px; }
-
         .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
         .btn-hapus { background: #e74c3c; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; margin-left: 5px; }
 
-        /* Tanda Tangan Styling */
-        .tanda-tangan-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 50px;
-            page-break-inside: avoid;
-        }
-        .box-ttd { text-align: center; width: 350px; font-size: 14px; }
-        .nama-pejabat { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin-bottom: 0; }
-        .nip-pejabat { margin-top: 5px; }
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; font-size: 12px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background-color: #34495e; color: white; }
+        tfoot { font-weight: bold; background-color: #ecf0f1; }
 
-        @media print { 
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .container { max-width: 100%; }
-        }
+        /* Tanda Tangan */
+        .tanda-tangan-container { display: flex; justify-content: flex-end; margin-top: 50px; page-break-inside: avoid; }
+        .box-ttd { text-align: center; width: 300px; font-size: 14px; }
+        .nama-pejabat { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
@@ -66,23 +56,14 @@
     <h3>Usulan: <span id="namaKel">-</span></h3>
 
     <div class="rekap-container">
-        <div class="rekap-card" style="border-left-color: #3498db;">
-            <h5>Sarana Prasarana</h5>
-            <p id="countSarpra">0</p>
-        </div>
-        <div class="rekap-card" style="border-left-color: #e67e22;">
-            <h5>Sosial Budaya</h5>
-            <p id="countSosbud">0</p>
-        </div>
-        <div class="rekap-card" style="border-left-color: #2ecc71;">
-            <h5>Ekonomi</h5>
-            <p id="countEkonomi">0</p>
-        </div>
+        <div class="rekap-card" style="border-left-color: #3498db;"><h5>Sarana Prasarana</h5><p id="countSarpra">0</p></div>
+        <div class="rekap-card" style="border-left-color: #e67e22;"><h5>Sosial Budaya</h5><p id="countSosbud">0</p></div>
+        <div class="rekap-card" style="border-left-color: #2ecc71;"><h5>Ekonomi</h5><p id="countEkonomi">0</p></div>
     </div>
 
     <div class="box no-print">
         <form id="formUsulan">
-            <input type="hidden" id="rowId">
+            <input type="hidden" id="rowId" name="rowId">
             
             <label>Bidang</label>
             <select id="bidang" required>
@@ -586,7 +567,7 @@
 <option>Upaya untuk meningkatkan keterampilan bagi pencari kerja</option>
 <option>Upaya untuk Meningkatkan Keterampilan Warga Transmigrasi yang Dibina</option>
 <option>Verifikasi dan Penyerahan PSU Perumahan dari Pengembang</option>
-                </select>
+            </select>
 
             <label>Lokasi Spesifik</label>
             <input type="text" id="lokasi" required>
@@ -598,7 +579,7 @@
 
             <label>OPD Tujuan</label>
             <select id="opd" required>
-                <option value="">-- Pilih OPD Tujuan --</option>
+                <option value="">-- Pilih OPD --</option>
                 <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
                 <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
                 <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
@@ -611,7 +592,7 @@
                 <option>Inspektorat Daerah</option><option>Satpol PP</option>
                 <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
                 <option>RSUD Lakipadada</option>
-                </select>
+            </select>
 
             <label>Keterangan</label>
             <textarea id="keterangan" rows="2"></textarea>
@@ -639,9 +620,8 @@
             <tfoot>
                 <tr>
                     <td colspan="4" align="right">TOTAL ANGGARAN:</td>
-                    <td id="totalAnggaran" style="background: #F8F8FF; color: #000;">Rp 0</td>
-                    <td colspan="3" class="no-print"></td>
-                    <td colspan="2" class="print-only" style="display:none;"></td> 
+                    <td id="totalAnggaran">Rp 0</td>
+                    <td colspan="3"></td>
                 </tr>
             </tfoot>
         </table>
@@ -649,11 +629,10 @@
 
     <div class="tanda-tangan-container">
         <div class="box-ttd">
-            <p id="tgl-cetak">Makale, ...</p>
+            <p><span id="tgl-wilayah">............</span>, ............................ 2026</p>
             <p><strong id="jabatan-lurah">Lurah __________</strong></p>
-            
-            <p class="nama-pejabat" id="nama-lurah">( Nama Lengkap Lurah )</p>
-            <p class="nip-pejabat" id="nip-lurah">NIP. .............................</p>
+            <p class="nama-pejabat" id="nama-lurah">( Nama Lengkap )</p>
+            <p id="nip-lurah">NIP. .............................</p>
         </div>
     </div>
 </div>
@@ -662,10 +641,11 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlSeHojS2ZnrYCSP702Yu5kVrC2dLXTDxxfmuB1EEDaPJCnsZAXuAOfSucoHixdchU/exec";
+    const SCRIPT_URL = "URL_WEB_APP_ANDA_DISINI"; // Ganti dengan URL Deployment Anda
     const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
-    
-    // 1. Database Pejabat
+    let dataSheet = [];
+
+    // DATABASE PEJABAT
     const dataPejabat = {
         "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
         "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
@@ -684,39 +664,36 @@
         "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
     };
 
-    // 2. Fungsi Set Tanda Tangan
-    function updateTandaTangan() {
-        if (userKel && dataPejabat[userKel]) {
-            const p = dataPejabat[userKel];
-            const jabatan = userKel.includes("Kelurahan") ? userKel.replace("Kelurahan", "Lurah") : "Kepala " + userKel;
-            
-            document.getElementById("jabatan-lurah").innerText = jabatan;
-            document.getElementById("nama-lurah").innerText = p.nama;
-            document.getElementById("nip-lurah").innerText = p.nip !== "-" ? "NIP. " + p.nip : "";
-            
-            const opsi = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById("tgl-cetak").innerText = "Makale, " + new Date().toLocaleDateString('id-ID', opsi);
-        }
-    }
-
-    // 3. Inisialisasi Tampilan
+    // INISIALISASI HALAMAN
     if (!userKel) {
         window.location.href = "index.html";
     } else {
         document.getElementById("namaKel").innerText = userKel;
-        updateTandaTangan();
+        initTandaTangan();
+    }
+
+    function initTandaTangan() {
+        const p = dataPejabat[userKel];
+        if (p) {
+            const murni = userKel.replace("Kelurahan ", "").replace("Lembang ", "");
+            document.getElementById("tgl-wilayah").innerText = murni;
+            document.getElementById("jabatan-lurah").innerText = userKel.includes("Kelurahan") ? userKel.replace("Kelurahan", "Lurah") : "Kepala " + userKel;
+            document.getElementById("nama-lurah").innerText = p.nama;
+            document.getElementById("nip-lurah").innerText = p.nip !== "-" ? "NIP. " + p.nip : "";
+        }
     }
 
     $(document).ready(function() {
         $('.js-select2').select2({ placeholder: "-- Pilih Kegiatan --", width: '100%' });
     });
 
-    // 4. Load Data & Logika CRUD (Sama seperti kode sebelumnya)
-    let dataSheet = [];
+    // LOAD DATA UTAMA
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
-            dataSheet = await res.json();
+            const json = await res.json();
+            dataSheet = json.data; // Mengambil array data dari format JSON backend Anda
+            
             const filter = dataSheet.filter(x => x.kelurahan === userKel);
             let baris = ""; let total = 0;
             let s = 0, so = 0, e = 0;
@@ -726,17 +703,18 @@
                 const b = (d.bidang || "").toLowerCase();
                 if(b.includes("sarana")) s++; else if(b.includes("sosial")) so++; else if(b.includes("ekonomi")) e++;
 
+                const idData = d.rowId || d.timestamp; // Mendukung ID-xxxx
                 baris += `<tr>
                     <td><strong>${d.kegiatan}</strong></td>
                     <td>${d.bidang}</td><td>${d.lokasi}</td><td>${d.volume}</td>
                     <td>${n.toLocaleString('id-ID')}</td><td>${d.opd}</td><td>${d.keterangan || "-"}</td>
                     <td class="no-print">
-                        <button onclick="siapEdit('${d.timestamp}')" class="btn-edit">✎</button>
-                        <button onclick="hapus('${d.timestamp}')" class="btn-hapus">✖</button>
+                        <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
+                        <button onclick="hapus('${idData}')" class="btn-hapus">✖</button>
                     </td>
                 </tr>`;
             });
-            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8'>Belum ada data.</td></tr>";
+            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
             document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString('id-ID');
             document.getElementById("countSarpra").innerText = s;
             document.getElementById("countSosbud").innerText = so;
@@ -744,13 +722,36 @@
         } catch (err) { console.error(err); }
     }
 
+    // FUNGSI SIAP EDIT
+    function siapEdit(id) {
+        const item = dataSheet.find(d => (d.rowId || d.timestamp) === id);
+        if (item) {
+            document.getElementById("rowId").value = id;
+            document.getElementById("bidang").value = item.bidang;
+            $('#kegiatan').val(item.kegiatan).trigger('change');
+            document.getElementById("lokasi").value = item.lokasi;
+            document.getElementById("volume").value = item.volume;
+            document.getElementById("anggaran").value = item.anggaran;
+            document.getElementById("opd").value = item.opd;
+            document.getElementById("keterangan").value = item.keterangan;
+
+            const btn = document.getElementById("btnProses");
+            btn.innerText = "💾 Simpan Perubahan";
+            btn.style.backgroundColor = "#f39c12";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // SUBMIT DATA (INSERT/UPDATE)
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
+        const idSesi = document.getElementById("rowId").value;
         btn.disabled = true; btn.innerText = "Memproses...";
+
         const payload = {
-            action: document.getElementById("rowId").value ? "update" : "insert",
-            rowId: document.getElementById("rowId").value,
+            action: idSesi ? "update" : "insert",
+            rowId: idSesi,
             kelurahan: userKel,
             bidang: document.getElementById("bidang").value,
             kegiatan: $('#kegiatan').val(),
@@ -760,13 +761,33 @@
             opd: document.getElementById("opd").value,
             keterangan: document.getElementById("keterangan").value
         };
+
         try {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert("Berhasil!"); document.getElementById("formUsulan").reset();
-            $('#kegiatan').val(null).trigger('change'); loadData();
+            alert(idSesi ? "Berhasil diperbarui!" : "Berhasil dikirim!");
+            resetForm();
+            loadData();
         } catch (err) { alert("Gagal!"); }
-        finally { btn.disabled = false; btn.innerText = "Kirim Usulan"; }
+        finally { btn.disabled = false; }
     });
+
+    async function hapus(id) {
+        if(confirm("Hapus usulan ini?")) {
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", rowId: id }) });
+                loadData();
+            } catch (err) { alert("Gagal hapus"); }
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("formUsulan").reset();
+        document.getElementById("rowId").value = "";
+        $('#kegiatan').val(null).trigger('change');
+        const btn = document.getElementById("btnProses");
+        btn.innerText = "Kirim Usulan";
+        btn.style.backgroundColor = "#27ae60";
+    }
 
     function logout() { localStorage.clear(); window.location.href = "index.html"; }
     loadData();
