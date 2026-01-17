@@ -3,97 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Usulan Musrenbang</title>
+    <title>Rekap Usulan Musrenbang - Admin</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #f4f7f6; color: #000; }
-        .header { background-color: #1a5bb8; color: white; padding: 15px; text-align: center; }
+        /* Gaya Dasar */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; color: #000; }
+        .header { background-color: #1a5bb8; color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .container { padding: 20px; }
 
-        /* Statistik Bidang Sejajar */
-        .stat-bidang-container {
-            display: flex; justify-content: space-around; gap: 10px; margin: 10px 0 20px 0;
-            background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 8px;
-        }
-        .stat-item { text-align: center; flex: 1; }
-        .stat-label { font-size: 11px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; text-transform: uppercase; }
-        .stat-value { font-size: 13px; font-weight: bold; color: #000; }
-        .stat-count { font-size: 11px; color: #666; }
-
-        /* Filter Section */
+        /* Filter Section - Sembunyikan saat cetak */
         .filter-section { 
             background: white; padding: 15px; border-radius: 8px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; 
             display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
+        input, select, .btn-print { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .btn-print { background: #27ae60; color: white; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; }
+        .btn-print:hover { background: #219150; }
 
-        input, select, .btn-print { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-print { background: #27ae60; color: white; font-weight: bold; cursor: pointer; border: none; }
+        /* Area Tabel dan Konten Laporan */
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; padding: 20px; }
+        h3 { text-align: center; margin-top: 0; margin-bottom: 10px; text-transform: uppercase; }
 
-        /* Tabel Utama */
-        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; padding: 15px; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; } /* Layout fixed agar tidak meluber */
-        th, td { padding: 6px; text-align: left; border: 1px solid #000; font-size: 11px; word-wrap: break-word; }
-        th { background-color: #f2f2f2; }
+        /* Statistik Bidang Sejajar di Bawah Judul */
+        .stat-bidang-container {
+            display: flex; justify-content: space-around; gap: 10px; margin-bottom: 20px;
+            background: #fff; padding: 15px; border: 1px solid #000; border-radius: 4px;
+        }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 11px; font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        .stat-value { font-size: 14px; font-weight: bold; color: #000; display: block; }
+        .stat-count { font-size: 11px; color: #555; font-style: italic; }
+
+        /* Pengaturan Tabel */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #000; font-size: 11px; word-wrap: break-word; vertical-align: top; }
+        th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
         
-        /* Lebar Kolom Spesifik agar Proporsional */
-        .col-no { width: 30px; }
+        /* Lebar Kolom agar Proporsional */
+        .col-no { width: 30px; text-align: center; }
         .col-kel { width: 100px; }
         .col-bid { width: 100px; }
-        .col-keg { width: 200px; }
+        .col-keg { width: 220px; }
         .col-lok { width: 150px; }
-        .col-vol { width: 60px; }
-        .col-ang { width: 100px; }
+        .col-vol { width: 60px; text-align: center; }
+        .col-ang { width: 110px; }
         .col-opd { width: 120px; }
-        .col-ket { width: auto; } /* Keterangan mengambil sisa ruang */
+        .col-ket { width: auto; }
 
-        .total-row { background: #eee; font-weight: bold; }
+        .total-row { background: #f9f9f9; font-weight: bold; }
         .signature-area { margin-top: 30px; display: none; justify-content: flex-end; text-align: center; }
+        .sig-box { width: 250px; font-size: 12px; }
 
-        /* --- PENGATURAN PRINT PDF AGAR TIDAK TERPOTONG --- */
+        /* --- PENGATURAN PRINT PDF --- */
         @media print {
-            @page { size: A4 landscape; margin: 1cm; } /* Paksa kertas Landscape */
-            body { background: white; font-size: 9px; }
-            .filter-section, .btn-print, .header { display: none !important; }
+            @page { size: A4 landscape; margin: 1cm; }
+            body { background: white; }
+            .filter-section, .header { display: none !important; }
             .container { padding: 0; }
             .table-container { box-shadow: none; padding: 0; width: 100%; }
-            table { width: 100%; border: 1px solid #000; }
-            th, td { font-size: 9px; padding: 4px; } /* Perkecil font saat cetak */
-            .signature-area { display: flex; page-break-inside: avoid; }
-            .stat-bidang-container { margin: 10px 0; padding: 10px; border: 1px solid #000; }
+            th { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+            .signature-area { display: flex; }
+            .stat-bidang-container { border: 1px solid #000 !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h2 style="margin:0;">REKAP USULAN MUSRENBANG – KECAMATAN MAKALE</h2>
+    <h2 style="margin:0;">PANEL ADMIN - REKAP USULAN MUSRENBANG</h2>
 </div>
 
 <div class="container">
     <div class="filter-section">
-        <input type="text" id="searchInput" placeholder="Cari kegiatan...">
+        <input type="text" id="searchInput" placeholder="Cari kegiatan atau lokasi...">
         <select id="filterKelurahan"><option value="">Semua Kelurahan/Lembang</option></select>
         <button class="btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
     </div>
 
     <div class="table-container">
-        <h3 style="text-align: center; margin-bottom: 5px;">DAFTAR USULAN MUSRENBANG T.A. 2027</h3>
+        <h3>DAFTAR USULAN MUSRENBANG T.A. 2027</h3>
         
         <div class="stat-bidang-container" id="statBidang">
             <div class="stat-item">
-                <span class="stat-label">Bidang Sarana Prasarana</span>
-                <div class="stat-value" id="statSarpras">Rp 0</div>
-                <div class="stat-count" id="countSarpras">0 Usulan</div>
+                <span class="stat-label">BIDANG SARANA PRASARANA</span>
+                <span class="stat-value" id="statSarpras">Rp 0</span>
+                <span class="stat-count" id="countSarpras">0 Usulan</span>
             </div>
-            <div class="stat-item" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc;">
-                <span class="stat-label">Bidang Sosial Budaya</span>
-                <div class="stat-value" id="statSosbud">Rp 0</div>
-                <div class="stat-count" id="countSosbud">0 Usulan</div>
+            <div class="stat-item" style="border-left: 1px solid #000; border-right: 1px solid #000;">
+                <span class="stat-label">BIDANG SOSIAL BUDAYA</span>
+                <span class="stat-value" id="statSosbud">Rp 0</span>
+                <span class="stat-count" id="countSosbud">0 Usulan</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Bidang Ekonomi</span>
-                <div class="stat-value" id="statEkonomi">Rp 0</div>
-                <div class="stat-count" id="countEkonomi">0 Usulan</div>
+                <span class="stat-label">BIDANG EKONOMI</span>
+                <span class="stat-value" id="statEkonomi">Rp 0</span>
+                <span class="stat-count" id="countEkonomi">0 Usulan</span>
             </div>
         </div>
 
@@ -108,14 +112,15 @@
                     <th class="col-vol">Vol</th>
                     <th class="col-ang">Anggaran</th>
                     <th class="col-opd">OPD</th>
-                    <th class="col-ket">Keterangan</th> </tr>
+                    <th class="col-ket">Keterangan</th>
+                </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="9" style="text-align:center;">Memuat data...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding: 20px;">Menghubungkan ke database...</td></tr>
             </tbody>
             <tfoot>
                 <tr class="total-row">
-                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN:</td>
+                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN SELURUHNYA:</td>
                     <td id="grandTotal" colspan="3">Rp 0</td>
                 </tr>
             </tfoot>
@@ -125,7 +130,7 @@
             <div class="sig-box">
                 <p>Makale, ________________ 2026</p>
                 <p><strong>Camat Makale,</strong></p>
-                <br><br><br>
+                <br><br><br><br>
                 <p><strong>Benyamin Dengen, S.S., M.M</strong></p>
                 <p>NIP.197208312007011011</p>
             </div>
@@ -134,6 +139,7 @@
 </div>
 
 <script>
+    // Ganti dengan URL Web App Apps Script Anda yang sudah di-deploy sebagai "Anyone"
     const API_URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
     let allData = [];
 
@@ -143,6 +149,7 @@
             const result = await response.json();
             allData = result.data || result;
             
+            // Isi dropdown Kelurahan secara otomatis
             const kels = [...new Set(allData.map(d => d.kelurahan))].filter(Boolean).sort();
             const sel = document.getElementById('filterKelurahan');
             kels.forEach(k => {
@@ -153,30 +160,38 @@
 
             renderTable(allData);
         } catch (e) { 
-            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9">Gagal memuat data.</td></tr>`;
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">Gagal mengambil data. Pastikan koneksi internet aktif dan Apps Script sudah benar.</td></tr>`;
         }
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
-        let total = 0, sarpA = 0, sarpJ = 0, sosbA = 0, sosbJ = 0, ekonA = 0, ekonJ = 0;
+        let total = 0;
+        let sarpA = 0, sarpC = 0, sosbA = 0, sosbC = 0, ekonA = 0, ekonC = 0;
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Tidak ada data ditemukan.</td></tr>`;
+            return;
+        }
 
         tbody.innerHTML = data.map((item, index) => {
             const ang = Number(item.anggaran) || 0;
             total += ang;
+
+            // Logika hitung rekap per bidang
             const b = (item.bidang || "").toLowerCase();
-            if(b.includes("sarana")) { sarpA += ang; sarpJ++; }
-            else if(b.includes("sosial")) { sosbA += ang; sosbJ++; }
-            else if(b.includes("ekonomi")) { ekonA += ang; ekonJ++; }
+            if(b.includes("sarana")) { sarpA += ang; sarpC++; }
+            else if(b.includes("sosial")) { sosbA += ang; sosbC++; }
+            else if(b.includes("ekonomi")) { ekonA += ang; ekonC++; }
 
             return `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td style="text-align:center;">${index + 1}</td>
                     <td>${item.kelurahan || '-'}</td>
                     <td>${item.bidang || '-'}</td>
                     <td>${item.kegiatan || '-'}</td>
                     <td>${item.lokasi || '-'}</td>
-                    <td>${item.volume || '-'}</td>
+                    <td style="text-align:center;">${item.volume || '-'}</td>
                     <td>Rp ${ang.toLocaleString('id-ID')}</td>
                     <td>${item.opd || '-'}</td>
                     <td>${item.keterangan || '-'}</td>
@@ -184,26 +199,35 @@
             `;
         }).join('');
 
+        // Update Total Keseluruhan
         document.getElementById('grandTotal').innerText = "Rp " + total.toLocaleString('id-ID');
+        
+        // Update Kotak Statistik Bidang
         document.getElementById('statSarpras').innerText = "Rp " + sarpA.toLocaleString('id-ID');
-        document.getElementById('countSarpras').innerText = sarpJ + " Usulan";
+        document.getElementById('countSarpras').innerText = sarpC + " Usulan";
+        
         document.getElementById('statSosbud').innerText = "Rp " + sosbA.toLocaleString('id-ID');
-        document.getElementById('countSosbud').innerText = sosbJ + " Usulan";
+        document.getElementById('countSosbud').innerText = sosbC + " Usulan";
+        
         document.getElementById('statEkonomi').innerText = "Rp " + ekonA.toLocaleString('id-ID');
-        document.getElementById('countEkonomi').innerText = ekonJ + " Usulan";
+        document.getElementById('countEkonomi').innerText = ekonC + " Usulan";
     }
 
+    // Fungsi Filter Pencarian & Dropdown
     document.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('input', () => {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const kel = document.getElementById('filterKelurahan').value;
             const filtered = allData.filter(d => {
-                return (d.kegiatan || "").toLowerCase().includes(search) && (!kel || d.kelurahan === kel);
+                const matchSearch = (d.kegiatan || "").toLowerCase().includes(search) || (d.lokasi || "").toLowerCase().includes(search);
+                const matchKel = !kel || d.kelurahan === kel;
+                return matchSearch && matchKel;
             });
             renderTable(filtered);
         });
     });
 
+    // Jalankan pengambilan data saat halaman dibuka
     fetchData();
 </script>
 </body>
