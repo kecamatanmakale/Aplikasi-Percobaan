@@ -23,6 +23,23 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #f8f9fa; color: #1a5bb8; }
+.sidebar-footer {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #dbe7ff;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar-footer span {
+    display: block;
+    font-weight: bold;
+    color: #ffffff;
+}
+
     </style>
 </head>
 <body>
@@ -33,6 +50,12 @@
             <button class="btn-nav" onclick="location.href='dashboard_admin.html'">🏠 Dashboard</button>
             <button class="btn-nav" onclick="location.href='rekap_admin.html'">📊 Rekap Usulan</button>
             <button class="btn-logout" onclick="localStorage.clear();location.href='index.html'">LOGOUT</button>
+<div class="sidebar-footer">
+    <span>Aplikasi Dikembangkan Oleh</span>
+    Tim IT Kecamatan Makale<br>
+    Versi 1.0.5 • © 2026
+</div>
+
         </div>
     </div>
 
@@ -94,6 +117,69 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Tampilkan ke layar
         document.getElementById("totalUsulan").innerText = dataArr.length;
         document.getElementById("totalAnggaran").innerText = "Rp " + grandTotal.toLocaleString("id-ID");
+// ==================== CHART BIDANG ====================
+
+const ctx = document.getElementById("chartBidang").getContext("2d");
+
+const chartData = [
+    bidangMap.sarpras,
+    bidangMap.sosbud,
+    bidangMap.ekonomi
+];
+
+const chartLabels = [
+    "Sarana & Prasarana",
+    "Sosial Budaya",
+    "Ekonomi"
+];
+
+// Buat Chart Donut
+new Chart(ctx, {
+    type: "doughnut",
+    data: {
+        labels: chartLabels,
+        datasets: [{
+            data: chartData,
+            backgroundColor: [
+                "#3498db",
+                "#e67e22",
+                "#2ecc71"
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let val = context.raw || 0;
+                        return context.label + ": Rp " + val.toLocaleString("id-ID");
+                    }
+                }
+            }
+        },
+        cutout: "65%"
+    }
+});
+
+// ==================== LEGEND CUSTOM ====================
+
+let legendHTML = "";
+chartLabels.forEach((lbl, i) => {
+    legendHTML += `
+        <div style="display:flex;align-items:center;margin-bottom:6px;">
+            <span style="width:12px;height:12px;background:${["#3498db","#e67e22","#2ecc71"][i]};display:inline-block;margin-right:6px;border-radius:3px"></span>
+            ${lbl}
+        </div>
+    `;
+});
+
+document.getElementById("legendBidang").innerHTML = legendHTML;
 
         // Isi Tabel Kelurahan
         document.getElementById("bodyKelurahan").innerHTML = Object.keys(kelMap).sort().map(k => `
@@ -112,4 +198,3 @@ document.addEventListener("DOMContentLoaded", async () => {
 </script>
 </body>
 </html>
-
