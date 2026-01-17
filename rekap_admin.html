@@ -9,7 +9,7 @@
         .header { background-color: #1a5bb8; color: white; padding: 15px; text-align: center; }
         .container { padding: 20px; }
 
-        /* Statistik Bidang Sejajar di Bawah Judul */
+        /* Statistik Bidang Sejajar */
         .stat-bidang-container {
             display: flex; justify-content: space-around; gap: 10px; margin: 10px 0 20px 0;
             background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 8px;
@@ -17,35 +17,50 @@
         .stat-item { text-align: center; flex: 1; }
         .stat-label { font-size: 11px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; text-transform: uppercase; }
         .stat-value { font-size: 13px; font-weight: bold; color: #000; }
-        .stat-count { font-size: 11px; color: #666; font-weight: normal; }
+        .stat-count { font-size: 11px; color: #666; }
 
-        /* Filter Section - Sembunyikan saat cetak */
+        /* Filter Section */
         .filter-section { 
             background: white; padding: 15px; border-radius: 8px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; 
             display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
-        @media print { .filter-section, .btn-print, .header { display: none !important; } }
 
         input, select, .btn-print { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         .btn-print { background: #27ae60; color: white; font-weight: bold; cursor: pointer; border: none; }
 
-        /* Tabel */
+        /* Tabel Utama */
         .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; padding: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th, td { padding: 8px; text-align: left; border: 1px solid #ccc; font-size: 11px; color: #000; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; } /* Layout fixed agar tidak meluber */
+        th, td { padding: 6px; text-align: left; border: 1px solid #000; font-size: 11px; word-wrap: break-word; }
         th { background-color: #f2f2f2; }
         
-        .total-row { background: #eee; font-weight: bold; }
+        /* Lebar Kolom Spesifik agar Proporsional */
+        .col-no { width: 30px; }
+        .col-kel { width: 100px; }
+        .col-bid { width: 100px; }
+        .col-keg { width: 200px; }
+        .col-lok { width: 150px; }
+        .col-vol { width: 60px; }
+        .col-ang { width: 100px; }
+        .col-opd { width: 120px; }
+        .col-ket { width: auto; } /* Keterangan mengambil sisa ruang */
 
-        /* Area Tanda Tangan */
+        .total-row { background: #eee; font-weight: bold; }
         .signature-area { margin-top: 30px; display: none; justify-content: flex-end; text-align: center; }
-        @media print { 
-            .signature-area { display: flex; }
-            body { background: white; }
-            .table-container { box-shadow: none; border: none; }
+
+        /* --- PENGATURAN PRINT PDF AGAR TIDAK TERPOTONG --- */
+        @media print {
+            @page { size: A4 landscape; margin: 1cm; } /* Paksa kertas Landscape */
+            body { background: white; font-size: 9px; }
+            .filter-section, .btn-print, .header { display: none !important; }
+            .container { padding: 0; }
+            .table-container { box-shadow: none; padding: 0; width: 100%; }
+            table { width: 100%; border: 1px solid #000; }
+            th, td { font-size: 9px; padding: 4px; } /* Perkecil font saat cetak */
+            .signature-area { display: flex; page-break-inside: avoid; }
+            .stat-bidang-container { margin: 10px 0; padding: 10px; border: 1px solid #000; }
         }
-        .sig-box { width: 250px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -58,7 +73,7 @@
     <div class="filter-section">
         <input type="text" id="searchInput" placeholder="Cari kegiatan...">
         <select id="filterKelurahan"><option value="">Semua Kelurahan/Lembang</option></select>
-        <button class="btn-print" onclick="window.print()">🖨️ Print PDF</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Cetak PDF (Landscape)</button>
     </div>
 
     <div class="table-container">
@@ -85,35 +100,33 @@
         <table>
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Kelurahan</th>
-                    <th>Bidang</th>
-                    <th>Kegiatan</th>
-                    <th>Lokasi</th>
-                    <th>Vol</th>
-                    <th>Anggaran</th>
-                    <th>OPD</th>
-                    <th>Keterangan</th>
-                </tr>
+                    <th class="col-no">No</th>
+                    <th class="col-kel">Kelurahan</th>
+                    <th class="col-bid">Bidang</th>
+                    <th class="col-keg">Kegiatan</th>
+                    <th class="col-lok">Lokasi</th>
+                    <th class="col-vol">Vol</th>
+                    <th class="col-ang">Anggaran</th>
+                    <th class="col-opd">OPD</th>
+                    <th class="col-ket">Keterangan</th> </tr>
             </thead>
             <tbody id="tableBody">
                 <tr><td colspan="9" style="text-align:center;">Memuat data...</td></tr>
             </tbody>
             <tfoot>
                 <tr class="total-row">
-                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN KESELURUHAN:</td>
-                    <td id="grandTotal">Rp 0</td>
-                    <td colspan="2"></td>
+                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN:</td>
+                    <td id="grandTotal" colspan="3">Rp 0</td>
                 </tr>
             </tfoot>
         </table>
 
         <div class="signature-area">
             <div class="sig-box">
-                <p>Makale, ____________________ 2026</p>
+                <p>Makale, ________________ 2026</p>
                 <p><strong>Camat Makale,</strong></p>
-                <br><br><br><br>
-                <p><strong>Benyamin Dengen, S.S., M.M.</strong></p>
+                <br><br><br>
+                <p><strong>Benyamin Dengen, S.S., M.M</strong></p>
                 <p>NIP.197208312007011011</p>
             </div>
         </div>
@@ -140,25 +153,21 @@
 
             renderTable(allData);
         } catch (e) { 
-            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">Gagal memuat data.</td></tr>`;
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="9">Gagal memuat data.</td></tr>`;
         }
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
-        let total = 0;
-        let sarpAng = 0, sarpJml = 0;
-        let sosbAng = 0, sosbJml = 0;
-        let ekonAng = 0, ekonJml = 0;
+        let total = 0, sarpA = 0, sarpJ = 0, sosbA = 0, sosbJ = 0, ekonA = 0, ekonJ = 0;
 
         tbody.innerHTML = data.map((item, index) => {
             const ang = Number(item.anggaran) || 0;
             total += ang;
-
             const b = (item.bidang || "").toLowerCase();
-            if(b.includes("sarana")) { sarpAng += ang; sarpJml++; }
-            else if(b.includes("sosial")) { sosbAng += ang; sosbJml++; }
-            else if(b.includes("ekonomi")) { ekonAng += ang; ekonJml++; }
+            if(b.includes("sarana")) { sarpA += ang; sarpJ++; }
+            else if(b.includes("sosial")) { sosbA += ang; sosbJ++; }
+            else if(b.includes("ekonomi")) { ekonA += ang; ekonJ++; }
 
             return `
                 <tr>
@@ -175,18 +184,13 @@
             `;
         }).join('');
 
-        // Update Tabel Total
         document.getElementById('grandTotal').innerText = "Rp " + total.toLocaleString('id-ID');
-        
-        // Update Statistik Bidang Sejajar
-        document.getElementById('statSarpras').innerText = "Rp " + sarpAng.toLocaleString('id-ID');
-        document.getElementById('countSarpras').innerText = sarpJml + " Usulan";
-        
-        document.getElementById('statSosbud').innerText = "Rp " + sosbAng.toLocaleString('id-ID');
-        document.getElementById('countSosbud').innerText = sosbJml + " Usulan";
-        
-        document.getElementById('statEkonomi').innerText = "Rp " + ekonAng.toLocaleString('id-ID');
-        document.getElementById('countEkonomi').innerText = ekonJml + " Usulan";
+        document.getElementById('statSarpras').innerText = "Rp " + sarpA.toLocaleString('id-ID');
+        document.getElementById('countSarpras').innerText = sarpJ + " Usulan";
+        document.getElementById('statSosbud').innerText = "Rp " + sosbA.toLocaleString('id-ID');
+        document.getElementById('countSosbud').innerText = sosbJ + " Usulan";
+        document.getElementById('statEkonomi').innerText = "Rp " + ekonA.toLocaleString('id-ID');
+        document.getElementById('countEkonomi').innerText = ekonJ + " Usulan";
     }
 
     document.querySelectorAll('input, select').forEach(el => {
@@ -194,9 +198,7 @@
             const search = document.getElementById('searchInput').value.toLowerCase();
             const kel = document.getElementById('filterKelurahan').value;
             const filtered = allData.filter(d => {
-                const matchSearch = (d.kegiatan || "").toLowerCase().includes(search);
-                const matchKel = !kel || d.kelurahan === kel;
-                return matchSearch && matchKel;
+                return (d.kegiatan || "").toLowerCase().includes(search) && (!kel || d.kelurahan === kel);
             });
             renderTable(filtered);
         });
