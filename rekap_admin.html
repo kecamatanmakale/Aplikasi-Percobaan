@@ -6,77 +6,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-    margin: 0;
+body{
+    margin:0;
     font-family: Arial, Helvetica, sans-serif;
-    background: #f4f6f9;
+    background:#f4f6f9;
 }
-
-header {
-    background: #1a5bb8;
-    color: white;
-    padding: 15px 25px;
-    font-size: 20px;
-    font-weight: bold;
+header{
+    background:#1a5bb8;
+    color:white;
+    padding:15px 25px;
+    font-size:20px;
+    font-weight:bold;
 }
-
-.container {
-    padding: 20px;
+.container{
+    padding:20px;
 }
-
-.card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.card{
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
 }
-
-.top-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+.topbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:15px;
 }
-
-input, select {
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+input,select{
+    padding:8px 10px;
+    border-radius:6px;
+    border:1px solid #ccc;
 }
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
 }
-
-th {
-    background: #1a5bb8;
-    color: white;
-    padding: 10px;
-    font-size: 14px;
+th{
+    background:#1a5bb8;
+    color:white;
+    padding:10px;
+    font-size:13px;
 }
-
-td {
-    padding: 9px;
-    border-bottom: 1px solid #ddd;
-    font-size: 13px;
+td{
+    padding:9px;
+    font-size:13px;
+    border-bottom:1px solid #ddd;
 }
-
-tr:hover {
-    background: #f1f6ff;
+tr:hover{
+    background:#eef4ff;
 }
-
-.footer {
-    margin-top: 15px;
-    font-size: 13px;
-    color: #555;
+.footer{
+    margin-top:10px;
+    font-size:13px;
+    color:#444;
 }
-
-.loading {
-    text-align: center;
-    padding: 30px;
-    font-weight: bold;
+.loading{
+    text-align:center;
+    padding:30px;
+    font-weight:bold;
 }
 </style>
 </head>
@@ -84,126 +73,154 @@ tr:hover {
 <body>
 
 <header>
-    REKAP USULAN MUSRENBANG – ADMIN KELURAHAN
+REKAP USULAN MUSRENBANG – ADMIN KECAMATAN
 </header>
 
 <div class="container">
-    <div class="card">
+<div class="card">
 
-        <div class="top-bar">
-            <input type="text" id="search" placeholder="🔍 Cari data...">
-            <select id="filterBidang">
-                <option value="">Semua Bidang</option>
-            </select>
-        </div>
+<div class="topbar">
+    <input type="text" id="search" placeholder="🔍 Cari usulan...">
 
-        <div id="loading" class="loading">Memuat data...</div>
+    <select id="filterKelurahan">
+        <option value="">Semua Kelurahan</option>
+    </select>
 
-        <table id="tabel" style="display:none">
-            <thead>
-                <tr id="thead"></tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
+    <select id="filterBidang">
+        <option value="">Semua Bidang</option>
+    </select>
+</div>
 
-        <div class="footer" id="totalData"></div>
+<div id="loading" class="loading">Memuat data...</div>
 
-    </div>
+<table id="tabel" style="display:none">
+<thead>
+<tr>
+    <th>No</th>
+    <th>Kelurahan</th>
+    <th>Bidang</th>
+    <th>Kegiatan</th>
+    <th>Lokasi</th>
+    <th>Volume</th>
+    <th>Anggaran</th>
+    <th>OPD</th>
+    <th>Keterangan</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<div class="footer" id="info"></div>
+
+</div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzIzL_RN4G792x99gfTRwDiNOnqBj_MMbG6fhA3w791BSOCjHxAuxFT5rLGgdvBRuf/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzIzI__RN4G792x99gfTRwDiNOnqBj_MMbG6fhA3w791BSOcjHxAuxFT5rLGgdvBRuf/exec";
 
 let allData = [];
 
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
-    if (res.status !== "success") {
-        alert("Gagal memuat data");
+    if(res.status !== "success"){
+        alert("Gagal membaca data");
         return;
     }
-
     allData = res.data;
-    buildTable(allData);
     buildFilter(allData);
+    renderTable(allData);
 })
-.catch(err => {
-    alert("Koneksi gagal");
-    console.error(err);
-});
+.catch(() => alert("Koneksi ke server gagal"));
 
-function buildTable(data) {
-    const thead = document.getElementById("thead");
-    const tbody = document.getElementById("tbody");
+function rupiah(n){
+    return "Rp " + Number(n).toLocaleString("id-ID");
+}
 
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
+function getAnggaran(val){
+    if(!val) return 0;
+    return Number(val.toString().replace(/[^0-9]/g,""));
+}
 
-    if (data.length === 0) return;
+function buildFilter(data){
+    const kelSet = new Set();
+    const bidSet = new Set();
 
-    // header otomatis
-    Object.keys(data[0]).forEach(key => {
-        const th = document.createElement("th");
-        th.textContent = key.toUpperCase();
-        thead.appendChild(th);
+    data.forEach(d=>{
+        if(d.kelurahan) kelSet.add(d.kelurahan);
+        if(d.bidang) bidSet.add(d.bidang);
     });
 
-    data.forEach(row => {
-        const tr = document.createElement("tr");
-        Object.values(row).forEach(val => {
-            const td = document.createElement("td");
-            td.textContent = val;
-            tr.appendChild(td);
-        });
+    kelSet.forEach(k=>{
+        let o=document.createElement("option");
+        o.value=k; o.textContent=k;
+        filterKelurahan.appendChild(o);
+    });
+
+    bidSet.forEach(b=>{
+        let o=document.createElement("option");
+        o.value=b; o.textContent=b;
+        filterBidang.appendChild(o);
+    });
+}
+
+function renderTable(data){
+    const tbody=document.getElementById("tbody");
+    tbody.innerHTML="";
+
+    let totalAnggaran=0;
+
+    data.forEach((row,i)=>{
+        let nilai=getAnggaran(row.anggaran);
+        totalAnggaran+=nilai;
+
+        let tr=document.createElement("tr");
+        tr.innerHTML=`
+            <td>${i+1}</td>
+            <td>${row.kelurahan||""}</td>
+            <td>${row.bidang||""}</td>
+            <td>${row.kegiatan||""}</td>
+            <td>${row.lokasi||""}</td>
+            <td>${row.volume||""}</td>
+            <td>${rupiah(nilai)}</td>
+            <td>${row.opd||""}</td>
+            <td>${row.keterangan||""}</td>
+        `;
         tbody.appendChild(tr);
     });
 
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("tabel").style.display = "table";
-    document.getElementById("totalData").innerText =
-        "Total Data: " + data.length;
-}
+    document.getElementById("loading").style.display="none";
+    document.getElementById("tabel").style.display="table";
 
-function buildFilter(data) {
-    const filter = document.getElementById("filterBidang");
-    const bidangSet = new Set();
-
-    data.forEach(d => {
-        if (d.bidang) bidangSet.add(d.bidang);
-    });
-
-    bidangSet.forEach(b => {
-        const opt = document.createElement("option");
-        opt.value = b;
-        opt.textContent = b;
-        filter.appendChild(opt);
-    });
+    document.getElementById("info").innerHTML =
+        "Total Usulan: <b>"+data.length+
+        "</b> | Total Anggaran: <b>"+rupiah(totalAnggaran)+"</b>";
 }
 
 // SEARCH
-document.getElementById("search").addEventListener("keyup", function () {
-    const keyword = this.value.toLowerCase();
-
-    const filtered = allData.filter(row =>
-        Object.values(row).join(" ").toLowerCase().includes(keyword)
-    );
-
-    buildTable(filtered);
+document.getElementById("search").addEventListener("keyup",()=>{
+    applyFilter();
 });
 
-// FILTER BIDANG
-document.getElementById("filterBidang").addEventListener("change", function () {
-    const val = this.value;
+// FILTER
+document.getElementById("filterKelurahan").addEventListener("change",applyFilter);
+document.getElementById("filterBidang").addEventListener("change",applyFilter);
 
-    let filtered = allData;
+function applyFilter(){
+    let s=document.getElementById("search").value.toLowerCase();
+    let k=document.getElementById("filterKelurahan").value;
+    let b=document.getElementById("filterBidang").value;
 
-    if (val !== "") {
-        filtered = allData.filter(d => d.bidang == val);
-    }
+    let filtered = allData.filter(r=>{
+        let teks = Object.values(r).join(" ").toLowerCase();
+        if(s && !teks.includes(s)) return false;
+        if(k && r.kelurahan!==k) return false;
+        if(b && r.bidang!==b) return false;
+        return true;
+    });
 
-    buildTable(filtered);
-});
+    renderTable(filtered);
+}
 </script>
 
 </body>
