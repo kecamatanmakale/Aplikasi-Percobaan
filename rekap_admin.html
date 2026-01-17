@@ -176,9 +176,9 @@
                         <canvas id="chartBidang"></canvas>
                     </div>
                     <div>
-                        <div class="legend-item">Sarpras: <br><strong id="leg-sarpras">Rp 0</strong></div>
-                        <div class="legend-item">Sosbud: <br><strong id="leg-sosbud">Rp 0</strong></div>
-                        <div class="legend-item">Ekonomi: <br><strong id="leg-ekonomi">Rp 0</strong></div>
+                        <div class="legend-item">Sarpras: <br><strong id="leg-sarpras">Rp 0 (0)</strong></div>
+                        <div class="legend-item">Sosbud: <br><strong id="leg-sosbud">Rp 0 (0)</strong></div>
+                        <div class="legend-item">Ekonomi: <br><strong id="leg-ekonomi">Rp 0 (0)</strong></div>
                     </div>
                 </div>
             </div>
@@ -195,7 +195,7 @@
                     </tr>
                 </thead>
                 <tbody id="bodyKelurahan">
-                    <tr><td colspan="3" style="text-align:center">Sedang memproses data...</td></tr>
+                    <tr><td colspan="3" style="text-align:center">Memuat data dari Google Sheets...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -208,9 +208,14 @@
             try {
                 const res = await fetch(URL);
                 const result = await res.json();
-                const dataArr = result.data; 
+                
+                // Mengakses result.data (Pastikan script .gs menggunakan status & data)
+                const dataArr = result.data || result; 
 
-                if (!dataArr) return;
+                if (!dataArr || !Array.isArray(dataArr)) {
+                    document.getElementById("bodyKelurahan").innerHTML = "<tr><td colspan='3' style='text-align:center'>Data tidak ditemukan atau error server</td></tr>";
+                    return;
+                }
 
                 let grandTotal = 0;
                 const statsBidang = {
@@ -221,25 +226,28 @@
                 const kelMap = {};
 
                 dataArr.forEach(d => {
-                    // Ambil Anggaran & bersihkan (Support huruf kecil/besar)
-                    const angRaw = d.Anggaran || d.anggaran || "0";
+                    // 1. Pembersihan Anggaran (Support nama kolom Anggaran/anggaran)
+                    const angRaw = d["Anggaran"] || d["anggaran"] || "0";
                     const ang = Number(angRaw.toString().replace(/\D/g, "")) || 0;
                     grandTotal += ang;
 
-                    // Ambil Bidang & Kelurahan dengan pengecekan berbagai variasi nama kolom
-                    const bidangName = (d.Bidang || d.bidang || d["Bidang Kegiatan"] || "").toLowerCase();
-                    const kelName = d.Kelurahan || d.kelurahan || d["Kelurahan/Lembang"] || d["kelurahanLembang"] || "Lainnya";
-
-                    // Hitung Statistik Bidang
-                    if (bidangName.includes("sarana") || bidangName.includes("sarpras")) {
+                    // 2. Identifikasi Bidang (Support Bidang/bidang/Bidang Kegiatan)
+                    const bRaw = (d["Bidang"] || d["bidang"] || d["Bidang Kegiatan"] || "").toLowerCase();
+                    if (bRaw.includes("sarana") || bRaw.includes("sarpras")) {
                         statsBidang.sarpras.ang += ang; statsBidang.sarpras.jml++;
-                    } else if (bidangName.includes("sosial") || bidangName.includes("sosbud")) {
+                    } else if (bRaw.includes("sosial") || bRaw.includes("sosbud")) {
                         statsBidang.sosbud.ang += ang; statsBidang.sosbud.jml++;
-                    } else if (bidangName.includes("ekonomi")) {
+                    } else if (bRaw.includes("ekonomi")) {
                         statsBidang.ekonomi.ang += ang; statsBidang.ekonomi.jml++;
                     }
 
-                    // Rekap Per Kelurahan
+                    // 3. Identifikasi Kelurahan (SOLUSI UNTUK MASALAH "LAINNYA")
+                    // Mencari properti kelurahan di dalam objek tanpa peduli huruf besar/kecil
+                    let kelName = "Lainnya";
+                    const keys = Object.keys(d);
+                    const kelKey = keys.find(key => key.toLowerCase().includes("kelurahan") || key.toLowerCase().includes("lembang"));
+                    if (kelKey) kelName = d[kelKey];
+
                     if (!kelMap[kelName]) kelMap[kelName] = { jml: 0, total: 0 };
                     kelMap[kelName].jml++;
                     kelMap[kelName].total += ang;
@@ -263,8 +271,9 @@
                     </tr>
                 `).join("");
 
-                // Render Grafik
-                new Chart(document.getElementById("chartBidang"), {
+                // Render Grafik Doughnut
+                const ctx = document.getElementById("chartBidang").getContext("2d");
+                new Chart(ctx, {
                     type: "doughnut",
                     data: {
                         labels: ["Sarpras", "Sosbud", "Ekonomi"],
@@ -274,12 +283,16 @@
                             borderWidth: 0
                         }]
                     },
-                    options: { cutout: "70%", plugins: { legend: { display: false } } }
+                    options: { 
+                        cutout: "70%", 
+                        plugins: { legend: { display: false } },
+                        animation: { duration: 800 } 
+                    }
                 });
 
             } catch (e) {
-                console.error("Error:", e);
-                document.getElementById("bodyKelurahan").innerHTML = "<tr><td colspan='3' style='text-align:center; color:red'>Gagal memuat data dari server.</td></tr>";
+                console.error("Error Fetching Data:", e);
+                document.getElementById("bodyKelurahan").innerHTML = "<tr><td colspan='3' style='text-align:center; color:red'>Gagal terhubung ke Google Sheets. Periksa koneksi internet.</td></tr>";
             }
         });
     </script>
