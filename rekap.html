@@ -2,156 +2,153 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rekap Usulan Musrenbang</title>
+    <title>Rekap Musrenbang Kecamatan Makale</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 30px; background: #fff; }
-        .no-print { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; color: #fff; }
-        .btn-back { background: #34495e; }
-        .btn-print { background: #1f8a50; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #fff; }
+        .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; text-decoration: none; }
+        .btn-excel { background-color: #1f7244; }
+        .btn-print { background-color: #2980b9; }
+        .btn-back { background-color: #7f8c8d; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #34495e; color: #fff; padding: 12px; border: 1px solid #ddd; text-align: center; }
-        td { padding: 10px; border: 1px solid #ddd; font-size: 13px; vertical-align: top; }
-        .total-row { background: #f2f2f2; font-weight: bold; }
+        th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #ccc; text-align: left; }
+        td { border: 1px solid #ccc; padding: 10px; font-size: 13px; vertical-align: top; }
+        .total-row { background-color: #f2f2f2; font-weight: bold; }
         
-        .footer-sig { margin-top: 60px; float: right; text-align: center; width: 350px; }
-        .sig-space { height: 80px; }
+        /* Area Tanda Tangan */
+        .footer-sig { margin-top: 50px; float: right; text-align: center; width: 350px; }
+        .sig-space { height: 70px; }
 
         @media print {
             .no-print { display: none !important; }
-            body { padding: 0; }
             table { width: 100%; border: 1px solid #000; }
-            th { background: #34495e !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+            th { background-color: #34495e !important; color: white !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="no-print">
-    <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
-    <button onclick="window.print()" class="btn btn-print">🖨️ Cetak / Simpan PDF</button>
+<div class="header-nav no-print">
+    <button onclick="history.back()" class="btn btn-back">← Kembali</button>
+    <div>
+        <button onclick="exportExcel()" class="btn btn-excel">📥 Export Excel</button>
+        <button onclick="window.print()" class="btn btn-print">🖨️ Print PDF</button>
+    </div>
 </div>
 
 <div id="print-area">
-    <h2 style="text-align: center; margin-bottom: 5px;">DAFTAR REKAPITULASI USULAN</h2>
-    <h3 id="judul-kel" style="text-align: center; margin-top: 0; font-weight: normal;">Usulan: -</h3>
+    <h3 style="text-align: center;">REKAPITULASI USULAN MUSRENBANG KECAMATAN MAKALE</h3>
+    <h4 id="judul-kel" style="text-align: center; font-weight: normal; margin-top: -10px;">Kelurahan: Memuat...</h4>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 25%;">Kegiatan</th>
+                <th>Kelurahan</th>
                 <th>Bidang</th>
+                <th>Kegiatan</th>
                 <th>Lokasi</th>
                 <th>Volume</th>
                 <th>Anggaran (Rp)</th>
                 <th>OPD</th>
-                <th>Keterangan</th>
             </tr>
         </thead>
-        <tbody id="isi-tabel">
-            </tbody>
+        <tbody id="tb">
+            <tr><td colspan="7" style="text-align: center;">Sedang mengambil data dari Google Sheets...</td></tr>
+        </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="4" style="text-align: right;">TOTAL ANGGARAN:</td>
-                <td id="total-val" colspan="3">Rp 0</td>
+                <td colspan="5" style="text-align: right;">TOTAL ANGGARAN:</td>
+                <td id="total-val" colspan="2">Rp 0</td>
             </tr>
         </tfoot>
     </table>
 
     <div class="footer-sig">
-        <p><span id="txt-lokasi">Tampo Makale</span>, ............................ 2026</p>
+        <p>Tampo Makale, ............................ 2026</p>
         <p><b id="txt-jabatan">Lurah Tampo Makale</b></p>
         <div class="sig-space"></div>
         <p><u><b id="txt-nama">MARTA PATANDUK, SE</b></u></p>
-        <p id="txt-nip">NIP. 196806171993032009</p>
+        <p>NIP. 196806171993032009</p>
     </div>
 </div>
 
 <script>
-    /**
-     * 1. PROTEKSI HALAMAN
-     * Memastikan data role tetap ada agar tidak terlempar ke login
-     */
-    const userRole = localStorage.getItem("role");
-    const userKelurahan = localStorage.getItem("kelurahan") || "Kelurahan Tampo Makale";
+    // Link CSV Google Sheets (Pastikan sudah "Publish to Web" sebagai CSV)
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS2_6L-Y_Cj005C6j-rW_p-8V2F5j9X.../pub?output=csv'; 
+    const KELURAHAN_AKTIF = localStorage.getItem("kelurahan") || "Kelurahan Tampo Makale";
 
-    if (!userRole) {
-        // Jika session hilang, paksa login kembali
-        // location.href = "index.html"; 
+    async function fetchData() {
+        try {
+            const response = await fetch(SHEET_URL);
+            const csvText = await response.text();
+            const rows = csvText.split('\n').slice(1); // Lewati baris header Google Sheets
+
+            let html = '';
+            let totalAnggaran = 0;
+
+            rows.forEach(row => {
+                // Parsing sederhana dengan penanganan koma di dalam teks (opsional)
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
+                if (cols.length < 5) return;
+
+                // Membersihkan tanda kutip dari data CSV
+                const kel = cols[1]?.replace(/"/g, "").trim();
+                
+                // Filter data berdasarkan Kelurahan yang Login
+                if (kel === KELURAHAN_AKTIF) {
+                    // MENGATASI UNDEFINED: Jika kolom 'bidang' (index 2) kosong, ganti dengan '-'
+                    const bidang = cols[2]?.replace(/"/g, "").trim() || "-"; 
+                    const kegiatan = cols[3]?.replace(/"/g, "") || "-";
+                    const lokasi = cols[4]?.replace(/"/g, "") || "-";
+                    const volume = cols[5]?.replace(/"/g, "") || "-";
+                    const anggaranRaw = cols[6]?.replace(/"/g, "").replace(/\./g, "").replace(/,/g, "") || "0";
+                    const anggaran = parseInt(anggaranRaw);
+                    const opd = cols[7]?.replace(/"/g, "") || "-";
+
+                    totalAnggaran += anggaran;
+
+                    html += `
+                    <tr>
+                        <td>${kel}</td>
+                        <td>${bidang === "undefined" ? "-" : bidang}</td>
+                        <td>${kegiatan}</td>
+                        <td>${lokasi}</td>
+                        <td>${volume}</td>
+                        <td>${anggaran.toLocaleString('id-ID')}</td>
+                        <td>${opd}</td>
+                    </tr>`;
+                }
+            });
+
+            document.getElementById("tb").innerHTML = html || '<tr><td colspan="7" style="text-align: center;">Tidak ada data ditemukan untuk kelurahan ini.</td></tr>';
+            document.getElementById("total-val").innerText = "Rp " + totalAnggaran.toLocaleString('id-ID');
+            document.getElementById("judul-kel").innerText = "Kelurahan: " + KELURAHAN_AKTIF;
+
+            // LOGIKA PLT. LURAH: Jika Tampo Makale, ubah jabatan secara otomatis
+            const jabEl = document.getElementById("txt-jabatan");
+            if (KELURAHAN_AKTIF.includes("Tampo Makale")) {
+                jabEl.innerText = "Plt. Lurah Tampo Makale";
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("tb").innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Gagal memuat data dari Google Sheets. Periksa koneksi atau Link CSV.</td></tr>';
+        }
     }
 
-    // 2. DATA SIMULASI (Sesuai dengan data di gambar Anda)
-    const dataUsulan = [
-        { 
-            keg: "Pembangunan Sistem Drainase Lingkungan", 
-            bid: undefined, // Masalah 'undefined' yang diperbaiki
-            lok: "Lingkungan Pora", 
-            vol: "300 Meter", 
-            ang: 200000000, 
-            opd: "DPRKP", 
-            ket: "Pembangunan Sistem Drainase dari gerbang Jl. Kampung KB" 
-        },
-        { 
-            keg: "Diversifikasi Tanaman Jagung dan Kacang Tanah", 
-            bid: undefined, 
-            lok: "KWT Kayoko, Kelompok Tani Bina Akrab", 
-            vol: "4 Kelompok", 
-            ang: 40000000, 
-            opd: "DPKPP", 
-            ket: "Pengadaan Benih Kacang Tanah, Jagung" 
-        },
-        { 
-            keg: "Rekonstruksi Jalan Kabupaten", 
-            bid: undefined, 
-            lok: "Lingkungan Kayoko' Parada - Kel. Tampo Makale", 
-            vol: "260 M", 
-            ang: 250000000, 
-            opd: "DPUTR", 
-            ket: "Lanjutan Rabat Beton poros Kayoko' Parada" 
-        }
-    ];
-
-    function renderRekap() {
-        const tbody = document.getElementById("isi-tabel");
-        const jabEl = document.getElementById("txt-jabatan");
-        const judulEl = document.getElementById("judul-kel");
-        const lokasiEl = document.getElementById("txt-lokasi");
-        let total = 0;
-
-        // Set Judul Halaman
-        judulEl.innerText = "Usulan: " + userKelurahan;
-        
-        // Logika Jabatan Plt. Lurah
-        const namaWilayah = userKelurahan.replace("Kelurahan ", "");
-        lokasiEl.innerText = namaWilayah;
-
-        if (userKelurahan === "Kelurahan Tampo Makale" || userKelurahan === "Kelurahan Buntu Burake") {
-            jabEl.innerText = "Plt. Lurah " + namaWilayah;
-        } else {
-            jabEl.innerText = "Lurah " + namaWilayah;
-        }
-
-        // Render Baris Tabel & Perbaikan 'undefined'
-        tbody.innerHTML = dataUsulan.map(item => {
-            total += item.ang;
-            return `
-                <tr>
-                    <td><b>${item.keg}</b></td>
-                    <td>${item.bid || "-"}</td> 
-                    <td>${item.lok}</td>
-                    <td>${item.vol}</td>
-                    <td>${item.ang.toLocaleString('id-ID')}</td>
-                    <td>${item.opd}</td>
-                    <td>${item.ket}</td>
-                </tr>
-            `;
-        }).join('');
-
-        document.getElementById("total-val").innerText = "Rp " + total.toLocaleString('id-ID');
+    function exportExcel() {
+        const table = document.getElementById("print-area");
+        const html = table.outerHTML;
+        const url = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
+        const link = document.createElement("a");
+        link.download = `Rekap_Musrenbang_${KELURAHAN_AKTIF}.xls`;
+        link.href = url;
+        link.click();
     }
 
-    window.onload = renderRekap;
+    window.onload = fetchData;
 </script>
 
 </body>
