@@ -69,7 +69,6 @@
                 <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
                 <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
                 <option>Banyaknya UMKM yang belum memiliki NIB</option>
-                <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
                 <option>Normalisasi Sungai</option>
             </select>
 
@@ -85,7 +84,7 @@
             <select id="opd" required>
                 <option value="">-- Pilih OPD --</option>
                 <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+                <option>Dinas Pendidikan & Kebudayaan</option>
             </select>
 
             <label>Keterangan</label>
@@ -139,7 +138,6 @@
     const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
     let dataSheet = [];
 
-    // INISIALISASI
     if (!userKel) {
         window.location.href = "index.html";
     } else {
@@ -151,22 +149,18 @@
         loadData();
     });
 
-    // FUNGSI SMART GET (Menghindari Undefined akibat huruf besar/kecil di Sheets)
     const getVal = (obj, name) => {
         if (!obj) return "";
         const key = Object.keys(obj).find(k => k.toLowerCase().trim() === name.toLowerCase());
         return key ? obj[key] : "";
     };
 
-    // LOAD DATA
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
             const json = await res.json();
             dataSheet = json.data;
             
-            console.log("Data diterima:", dataSheet[0]); // Cek struktur di console
-
             const filter = dataSheet.filter(x => getVal(x, "kelurahan") === userKel);
             let baris = ""; let total = 0;
             let s = 0, so = 0, e = 0;
@@ -179,7 +173,9 @@
                 const vAnggaran = getVal(d, "anggaran");
                 const vOpd = getVal(d, "opd");
                 const vKet = getVal(d, "keterangan");
-                const idData = getVal(d, "rowId") || getVal(d, "timestamp");
+                
+                // Prioritaskan rowId, lalu Timestamp (T besar), lalu timestamp (t kecil)
+                const idData = getVal(d, "rowId") || d.Timestamp || d.timestamp || "";
 
                 const n = Number(vAnggaran) || 0; 
                 total += n;
@@ -210,9 +206,8 @@
         } catch (err) { console.error("Error Load:", err); }
     }
 
-    // SIAP EDIT
     function siapEdit(id) {
-        const item = dataSheet.find(d => (getVal(d, "rowId") || getVal(d, "timestamp")).toString() === id.toString());
+        const item = dataSheet.find(d => (getVal(d, "rowId") || d.Timestamp || d.timestamp || "").toString() === id.toString());
         if (item) {
             document.getElementById("rowId").value = id;
             document.getElementById("bidang").value = getVal(item, "bidang");
@@ -227,12 +222,40 @@
             btn.innerText = "💾 Simpan Perubahan";
             btn.style.backgroundColor = "#f39c12";
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            alert("Data tidak ditemukan di database!");
         }
     }
 
-    // SUBMITInsert/Update
+    async function hapus(id) {
+        // Validasi jika id undefined
+        if(!id || id === "undefined") {
+            alert("ID data tidak terbaca. Silakan refresh halaman.");
+            return;
+        }
+
+        if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
+            const btn = event.target; // Ambil tombol yang diklik
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "...";
+
+            try {
+                const response = await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
+                });
+                
+                alert("Usulan berhasil dihapus!");
+                loadData(); // Segarkan tabel
+            } catch (err) { 
+                alert("Gagal menghapus data. Periksa koneksi internet."); 
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+    }
+
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
@@ -254,7 +277,7 @@
 
         try {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert("Berhasil!");
+            alert(idSesi ? "Berhasil diperbarui!" : "Berhasil dikirim!");
             resetForm();
             loadData();
         } catch (err) { alert("Gagal!"); }
@@ -268,15 +291,6 @@
         const btn = document.getElementById("btnProses");
         btn.innerText = "Kirim Usulan";
         btn.style.backgroundColor = "#27ae60";
-    }
-
-    async function hapus(id) {
-        if(confirm("Hapus usulan ini?")) {
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", rowId: id }) });
-                loadData();
-            } catch (err) { alert("Gagal hapus"); }
-        }
     }
 
     function logout() { localStorage.clear(); window.location.href = "index.html"; }
