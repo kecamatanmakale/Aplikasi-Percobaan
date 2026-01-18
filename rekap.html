@@ -1,57 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Rekap Musrenbang</title>
-<style>
-body{font-family:Arial}
-table{width:100%;border-collapse:collapse}
-td,th{border:1px solid #ccc;padding:6px}
-button{margin:10px;padding:10px}
-@media print{button{display:none}}
-</style>
-</head>
+    <meta charset="UTF-8">
+    <title>Rekap Usulan Kelurahan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
+        .no-print { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; color: #fff; }
+        .btn-back { background: #7f8c8d; }
+        .btn-print { background: #1f8a50; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #34495e; color: #fff; padding: 12px; border: 1px solid #ddd; text-align: left; }
+        td { padding: 10px; border: 1px solid #ddd; font-size: 14px; vertical-align: top; }
+        .total-row { background: #f9f9f9; font-weight: bold; }
+        
+        .footer-sig { margin-top: 50px; float: right; text-align: center; width: 350px; }
+        .sig-space { height: 70px; }
 
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            table { width: 100%; border: 1px solid #000; }
+            th { background: #34495e !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
 <body>
 
-<h3>Rekap Usulan Musrenbang Kecamatan Makale</h3>
+<div class="no-print">
+    <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
+    <button onclick="window.print()" class="btn btn-print">🖨️ Cetak / Simpan PDF</button>
+</div>
 
-<button onclick="exportExcel()">Export Excel</button>
-<button onclick="window.print()">Print PDF</button>
+<div id="print-area">
+    <h2 style="text-align: center; margin-bottom: 5px;">DAFTAR REKAPITULASI USULAN</h2>
+    <h3 id="judul-kel" style="text-align: center; margin-top: 0; font-weight: normal;">Kelurahan: -</h3>
 
-<table>
-<thead>
-<tr>
-<th>Kelurahan</th><th>Bidang</th><th>Kegiatan</th><th>Anggaran</th>
-</tr>
-</thead>
-<tbody id="tb"></tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30%;">Kegiatan</th>
+                <th>Bidang</th>
+                <th>Lokasi</th>
+                <th>Volume</th>
+                <th>Anggaran (Rp)</th>
+            </tr>
+        </thead>
+        <tbody id="isi-tabel">
+            </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4" style="text-align: right;">TOTAL ANGGARAN:</td>
+                <td id="total-val">Rp 0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer-sig">
+        <p><span id="txt-lokasi">Tampo Makale</span>, ............................ 2026</p>
+        <p><b id="txt-jabatan">Lurah</b></p>
+        <div class="sig-space"></div>
+        <p><u><b>MARTA PATANDUK, SE</b></u></p>
+        <p>NIP. 196806171993032009</p>
+    </div>
+</div>
 
 <script>
-if(localStorage.getItem("role")!=="admin")location.href="index.html";
+    // 1. CEK LOGIN (PENTING: Agar tidak kembali ke Login)
+    const userRole = localStorage.getItem("role");
+    if (!userRole || userRole !== "operator") {
+        location.href = "index.html"; 
+    }
 
-let data=JSON.parse(localStorage.getItem("dataUsulan"))||[];
-data.forEach(d=>{
-  tb.innerHTML+=`
-  <tr>
-  <td>${d.kelurahan}</td>
-  <td>${d.bidang}</td>
-  <td>${d.kegiatan}</td>
-  <td>${d.anggaran}</td>
-  </tr>`;
-});
+    // 2. Ambil Nama Kelurahan dari URL atau localStorage
+    const params = new URLSearchParams(window.location.search);
+    let kelurahanAktif = params.get('kel') || localStorage.getItem("kelurahan") || "Kelurahan Tampo Makale";
+    
+    // 3. Data Simulasi (Sesuai gambar anda)
+    const dataUsulan = [
+        { keg: "Diversifikasi Tanaman Jagung dan Kacang Tanah", bid: undefined, lok: "KWT Kayoko, Kel. Tampo Makale", vol: "4 Kelompok", ang: 40000000 },
+        { keg: "Rekonstruksi Jalan Kabupaten", bid: "Sarana Prasarana", lok: "Lingkungan Kayoko' Parada", vol: "260 M", ang: 250000000 }
+    ];
 
-function exportExcel(){
-  let csv="Kelurahan,Bidang,Kegiatan,Anggaran\n";
-  data.forEach(d=>{
-    csv+=`${d.kelurahan},${d.bidang},${d.kegiatan},${d.anggaran}\n`;
-  });
-  let a=document.createElement("a");
-  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
-  a.download="Rekap_Musrenbang_Kecamatan.xls";
-  a.click();
-}
+    function renderLaporan() {
+        const tbody = document.getElementById("isi-tabel");
+        const jabEl = document.getElementById("txt-jabatan");
+        const judulEl = document.getElementById("judul-kel");
+        const lokasiEl = document.getElementById("txt-lokasi");
+        let total = 0;
+
+        // Set Judul
+        judulEl.innerText = "Kelurahan: " + kelurahanAktif;
+        
+        // Logika Jabatan Plt. Lurah
+        const namaWilayah = kelurahanAktif.replace("Kelurahan ", "");
+        lokasiEl.innerText = namaWilayah;
+
+        if (kelurahanAktif === "Kelurahan Tampo Makale" || kelurahanAktif === "Kelurahan Buntu Burake") {
+            jabEl.innerText = "Plt. Lurah " + namaWilayah;
+        } else {
+            jabEl.innerText = "Lurah " + namaWilayah;
+        }
+
+        // Render Baris Tabel
+        tbody.innerHTML = dataUsulan.map(item => {
+            total += item.ang;
+            return `
+                <tr>
+                    <td><b>${item.keg}</b></td>
+                    <td>${item.bid || "-"}</td> 
+                    <td>${item.lok}</td>
+                    <td>${item.vol}</td>
+                    <td>${item.ang.toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        document.getElementById("total-val").innerText = "Rp " + total.toLocaleString('id-ID');
+    }
+
+    window.onload = renderLaporan;
 </script>
 
 </body>
