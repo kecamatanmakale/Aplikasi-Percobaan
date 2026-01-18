@@ -744,33 +744,40 @@
             document.getElementById("countEkonomi").innerText = e;
         } catch (err) { console.error(err); }
     }
-   // FUNGSI SIAP EDIT (VERSI PERBAIKAN)
+  // FUNGSI SIAP EDIT (VERSI SMART MAPPING)
     function siapEdit(id) {
-        const item = dataSheet.find(d => (d.rowId || d.timestamp) === id);
+        // Cari data berdasarkan ID
+        const item = dataSheet.find(d => (d.rowId || d.timestamp) == id);
+        
         if (item) {
-            // Ambil data dengan pengecekan ganda juga
-            const valBidang = item.bidang || item.Bidang || "";
-            const valKegiatan = item.kegiatan || item.Kegiatan || "";
-            const valLokasi = item.lokasi || item.Lokasi || "";
-            const valVolume = item.volume || item.Volume || "";
-            const valAnggaran = item.anggaran || item.Anggaran || "";
-            const valOpd = item.opd || item.Opd || item.OPD || "";
-            const valKet = item.keterangan || item.Keterangan || "";
+            // Fungsi pembantu untuk mengambil nilai tanpa peduli huruf besar/kecil/spasi
+            const getVal = (obj, name) => {
+                const key = Object.keys(obj).find(k => k.toLowerCase().trim() === name.toLowerCase());
+                return key ? obj[key] : "";
+            };
 
+            // Isi form dengan data yang ditemukan
             document.getElementById("rowId").value = id;
-            document.getElementById("bidang").value = valBidang; // <--- Masalah utama teratasi di sini
+            document.getElementById("bidang").value = getVal(item, "bidang");
             
-            $('#kegiatan').val(valKegiatan).trigger('change');
-            document.getElementById("lokasi").value = valLokasi;
-            document.getElementById("volume").value = valVolume;
-            document.getElementById("anggaran").value = valAnggaran;
-            document.getElementById("opd").value = valOpd;
-            document.getElementById("keterangan").value = valKet;
+            // Untuk Select2 (Kamus Usulan)
+            $('#kegiatan').val(getVal(item, "kegiatan")).trigger('change');
+            
+            document.getElementById("lokasi").value = getVal(item, "lokasi");
+            document.getElementById("volume").value = getVal(item, "volume");
+            document.getElementById("anggaran").value = getVal(item, "anggaran");
+            document.getElementById("opd").value = getVal(item, "opd");
+            document.getElementById("keterangan").value = getVal(item, "keterangan");
 
+            // Ubah tampilan tombol menjadi mode Edit
             const btn = document.getElementById("btnProses");
             btn.innerText = "💾 Simpan Perubahan";
             btn.style.backgroundColor = "#f39c12";
+            
+            // Scroll otomatis ke atas agar form terlihat
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert("Data tidak ditemukan!");
         }
     }
 
@@ -826,5 +833,6 @@
 </script>
 </body>
 </html>
+
 
 
