@@ -3,46 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Usulan Musrenbang</title>
+    <title>Sistem Usulan Musrenbang</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
-        .no-print { margin-bottom: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; background-color: #f4f7f6; }
         
-        /* Gaya Tabel */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
-        th { background-color: #34495e; color: white; }
-        .tr-total { background-color: #f2f2f2; font-weight: bold; }
-        
-        /* Gaya Tanda Tangan */
-        .signature-container { margin-top: 50px; float: right; text-align: center; width: 300px; }
-        .signature-space { height: 80px; }
-
-        /* Media Query Khusus Cetak */
-        @media print {
-            .no-print, .btn-aksi { display: none !important; }
-            body { margin: 0; }
-            table { border: 1px solid black; }
-            th { background-color: #34495e !important; -webkit-print-color-adjust: exact; }
-            @page { size: A4 landscape; margin: 1cm; }
+        /* Bar Navigasi Atas */
+        .navbar-tools { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 20px; 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
 
-        .btn-print { background-color: #27ae60; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; }
-        .btn-print:hover { background-color: #2ecc71; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn-back { background-color: #34495e; color: white; }
+        .btn-excel { background-color: #1f7244; color: white; margin-right: 5px; }
+        .btn-print { background-color: #2980b9; color: white; }
+        .btn-submit { background-color: #27ae60; color: white; width: 100%; padding: 12px; margin-bottom: 20px; font-size: 16px; }
+
+        /* Tabel Styles */
+        table { width: 100%; border-collapse: collapse; background: white; margin-bottom: 20px; }
+        th { background-color: #34495e; color: white; padding: 12px; border: 1px solid #2c3e50; }
+        td { padding: 12px; border: 1px solid #ddd; vertical-align: top; }
+        .total-row { background-color: #ecf0f1; font-weight: bold; }
+
+        /* Area Tanda Tangan */
+        .footer-container { margin-top: 50px; display: flex; justify-content: flex-end; }
+        .signature-box { text-align: center; width: 350px; }
+        .sig-space { height: 70px; }
+
+        /* Pengaturan Cetak (PDF) */
+        @media print {
+            .navbar-tools, .btn-submit, .aksi-col, .btn-edit-del { display: none !important; }
+            body { background: white; margin: 0; }
+            .signature-box { width: 250px; }
+            @page { size: landscape; margin: 1.5cm; }
+            table { width: 100%; border: 1px solid black; }
+            th { background-color: #34495e !important; color: white !important; -webkit-print-color-adjust: exact; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="no-print">
-        <h2>Input Usulan Musrenbang</h2>
-        <p><i>Halaman ini akan otomatis menyesuaikan jabatan berdasarkan login Kelurahan.</i></p>
-        <button class="btn-print" onclick="window.print()">Cetak Laporan (PDF)</button>
-        <hr>
+    <div class="navbar-tools">
+        <button class="btn btn-back" onclick="window.location.href='dashboard.html'">← Kembali ke Dashboard</button>
+        <div>
+            <button class="btn btn-excel" onclick="exportKeExcel()">Export Excel</button>
+            <button class="btn btn-print" onclick="window.print()">Print PDF</button>
+        </div>
     </div>
 
-    <h3 style="text-align: center;">DAFTAR USULAN KEGIATAN</h3>
+    <button class="btn btn-submit">Kirim Usulan</button>
 
-    <table>
+    <h3>Daftar Usulan :</h3>
+
+    <table id="tabel-data">
         <thead>
             <tr>
                 <th>Kegiatan</th>
@@ -50,105 +69,86 @@
                 <th>Lokasi</th>
                 <th>Volume</th>
                 <th>Anggaran (Rp)</th>
-                <th class="btn-aksi">Aksi</th>
+                <th>OPD</th>
+                <th>Keterangan</th>
+                <th class="aksi-col">Aksi</th>
             </tr>
         </thead>
-        <tbody id="table-body">
+        <tbody id="content-tabel">
             </tbody>
         <tfoot>
-            <tr class="tr-total">
+            <tr class="total-row">
                 <td colspan="4" style="text-align: right;">TOTAL ANGGARAN:</td>
-                <td id="total-anggaran">0</td>
-                <td class="btn-aksi"></td>
+                <td id="total-val" colspan="4">Rp 0</td>
             </tr>
         </tfoot>
     </table>
 
-    <div class="signature-container">
-        <p>Tampo Makale, <span id="tgl-sekarang"></span> 2026</p>
-        <p><b id="jabatan-display">Lurah Tampo Makale</b></p>
-        <div class="signature-space"></div>
-        <p><u><b id="nama-pejabat">MARTA PATANDUK, SE</b></u></p>
-        <p>NIP. 196806171993032009</p>
+    <div class="footer-container">
+        <div class="signature-box">
+            <p>Tampo Makale, .................... 2026</p>
+            <p><b id="txt-jabatan">Lurah Tampo Makale</b></p>
+            <div class="sig-space"></div>
+            <p><u><b id="txt-nama">MARTA PATANDUK, SE</b></u></p>
+            <p>NIP. 196806171993032009</p>
+        </div>
     </div>
 
     <script>
-        // 1. DATA SIMULASI (Sama seperti di gambar Anda)
-        const dataUsulan = [
-            {
-                kegiatan: "Diversifikasi Tanaman Jagung dan Kacang Tanah",
-                bidang: undefined, // Meniru error di gambar
-                lokasi: "KWT Kayoko, Kelompok Tani Bina Akrab, Kelompok Tani Sanginaa",
-                volume: "4 Kelompok",
-                anggaran: 40000000
-            },
-            {
-                kegiatan: "Rekonstruksi Jalan Kabupaten",
-                bidang: "Infrastruktur", 
-                lokasi: "Lingkungan Kayoko' Parada - Kel. Tampo Makale",
-                volume: "260 M",
-                anggaran: 250000000
-            }
+        // Simulasi data dari gambar Anda
+        const rawData = [
+            { keg: "Diversifikasi Tanaman Jagung dan Kacang Tanah", bid: undefined, lok: "KWT Kayoko, Kelompok Tani Bina Akrab", vol: "4 Kelompok", ang: 40000000, opd: "DPKPP", ket: "Pengadaan Benih..." },
+            { keg: "Rekonstruksi Jalan Kabupaten", bid: undefined, lok: "Lingkungan Kayoko' Parada", vol: "260 M", ang: 250000000, opd: "DPUTR", ket: "Lanjutan Rabat Beton..." }
         ];
 
-        // 2. SIMULASI LOGIN USERNAME
-        const username = "Kelurahan Tampo Makale"; 
+        // KONFIGURASI USERNAME
+        const currentUsername = "Kelurahan Tampo Makale"; 
 
-        function renderTable() {
-            const tbody = document.getElementById('table-body');
+        function initApp() {
+            // 1. Logika Perubahan Jabatan "Plt. Lurah"
+            const displayJabatan = document.getElementById('txt-jabatan');
+            if (currentUsername === "Kelurahan Tampo Makale" || currentUsername === "Kelurahan Buntu Burake") {
+                // Mengubah "Kelurahan Tampo Makale" menjadi "Plt. Lurah Tampo Makale"
+                let namaKel = currentUsername.replace("Kelurahan ", "");
+                displayJabatan.innerText = "Plt. Lurah " + namaKel;
+            } else {
+                displayJabatan.innerText = "Lurah " + currentUsername.replace("Kelurahan ", "");
+            }
+
+            // 2. Render Tabel & Perbaikan "undefined"
+            const tbody = document.getElementById('content-tabel');
             let total = 0;
 
-            tbody.innerHTML = dataUsulan.map(item => {
-                total += item.anggaran;
-                
-                // MENGATASI UNDEFINED: Jika bidang kosong, tampilkan "-"
-                const bidangFix = item.bidang || "-";
-                
-                // FORMAT RUPIAH: Menggunakan toLocaleString
-                const anggaranFix = item.anggaran.toLocaleString('id-ID');
-
+            tbody.innerHTML = rawData.map(item => {
+                total += item.ang;
                 return `
                     <tr>
-                        <td>${item.kegiatan}</td>
-                        <td>${bidangFix}</td>
-                        <td>${item.lokasi}</td>
-                        <td>${item.volume}</td>
-                        <td>${anggaranFix}</td>
-                        <td class="btn-aksi">
-                            <button style="background:orange; color:white; border:none; padding:5px;">✎</button>
-                            <button style="background:red; color:white; border:none; padding:5px;">✘</button>
+                        <td><b>${item.keg}</b></td>
+                        <td>${item.bid || "-"}</td> 
+                        <td>${item.lok}</td>
+                        <td>${item.vol}</td>
+                        <td>${item.ang.toLocaleString('id-ID')}</td>
+                        <td>${item.opd}</td>
+                        <td>${item.ket}</td>
+                        <td class="aksi-col">
+                            <button class="btn-edit-del" style="background:orange; color:white; border:none; margin-bottom:2px;">✎</button><br>
+                            <button class="btn-edit-del" style="background:red; color:white; border:none;">✘</button>
                         </td>
                     </tr>
                 `;
             }).join('');
 
-            document.getElementById('total-anggaran').innerText = "Rp " + total.toLocaleString('id-ID');
+            document.getElementById('total-val').innerText = "Rp " + total.toLocaleString('id-ID');
         }
 
-        function aturJabatan() {
-            const jabatanDisplay = document.getElementById('jabatan-display');
-            const tglDisplay = document.getElementById('tgl-sekarang');
-
-            // Logika jabatan Plt.
-            if (username === "Kelurahan Tampo Makale" || username === "Kelurahan Buntu Burake") {
-                jabatanDisplay.innerText = "Plt. " + username;
-            } else {
-                jabatanDisplay.innerText = username;
-            }
-
-            // Isi tanggal otomatis (Opsional)
-            const d = new Date();
-            const tgl = d.getDate();
-            const bulan = d.toLocaleString('id-ID', { month: 'long' });
-            tglDisplay.innerText = `${tgl} ${bulan}`;
+        // Fungsi Export ke Excel
+        function exportKeExcel() {
+            const table = document.getElementById("tabel-data");
+            const workbook = XLSX.utils.table_to_book(table, {sheet: "Laporan Musrenbang"});
+            XLSX.writeFile(workbook, "Laporan_Usulan_2026.xlsx");
         }
 
-        // Jalankan semua fungsi saat halaman dibuka
-        window.onload = function() {
-            renderTable();
-            aturJabatan();
-        };
+        window.onload = initApp;
     </script>
-
 </body>
 </html>
