@@ -3,224 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <title>Input Usulan Musrenbang</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f8;
-    margin:0;
-    padding:20px;
-}
-.container{
-    max-width:1200px;
-    margin:auto;
-    background:#fff;
-    padding:20px;
-    border-radius:8px;
-    box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
+body{font-family:Arial;background:#f4f6f8;padding:20px}
+.container{max-width:1200px;margin:auto;background:#fff;padding:20px;border-radius:8px}
 label{font-weight:bold}
-input,select,textarea{
-    width:100%;
-    padding:8px;
-    margin:5px 0 15px;
-}
-button.submit{
-    background:#28a745;
-    color:#fff;
-    border:none;
-    padding:12px;
-    width:100%;
-    font-size:16px;
-    border-radius:5px;
-    cursor:pointer;
-}
-button.submit:hover{background:#218838}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-    font-size:14px;
-}
-thead th{
-    background:#34495e;
-    color:#fff;
-    padding:10px;
-    text-align:left;
-}
-tbody td{
-    border:1px solid #ddd;
-    padding:8px;
-    vertical-align:top;
-}
-.aksi{
-    text-align:center;
-}
-.btn{
-    border:none;
-    padding:6px 8px;
-    border-radius:4px;
-    cursor:pointer;
-    color:#fff;
-    font-size:13px;
-}
-.btn-edit{background:#f39c12}
-.btn-hapus{background:#e74c3c}
-
-.total{
-    margin-top:15px;
-    font-weight:bold;
-    text-align:right;
-}
+input,select,textarea{width:100%;padding:8px;margin:5px 0 15px}
+button{background:#28a745;color:#fff;border:none;padding:12px;width:100%;font-size:16px}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{background:#34495e;color:#fff;padding:10px}
+td{border:1px solid #ddd;padding:8px}
+.aksi button{margin:2px;padding:5px 8px}
 </style>
 </head>
 
 <body>
 <div class="container">
-
 <h3>Form Input Usulan</h3>
 
-<form id="formUsulan">
-    <label>Bidang</label>
-    <select id="bidang" required>
-        <option value="">-- Pilih Bidang --</option>
-        <option value="Bidang Sarana dan Prasarana">Bidang Sarana dan Prasarana</option>
-        <option value="Bidang Sosial Budaya">Bidang Sosial Budaya</option>
-        <option value="Bidang Ekonomi">Bidang Ekonomi</option>
-    </select>
+<form id="form">
+<label>Bidang</label>
+<select id="bidang" required>
+<option value="">-- Pilih --</option>
+<option value="SARPRAS">Bidang Sarana Prasarana</option>
+<option value="SOSBUD">Bidang Sosial Budaya</option>
+<option value="EKONOMI">Bidang Ekonomi</option>
+</select>
 
-    <label>Kegiatan</label>
-    <input id="kegiatan" required>
+<label>Kegiatan</label>
+<input id="kegiatan" required>
 
-    <label>Lokasi</label>
-    <input id="lokasi">
+<label>Lokasi</label>
+<input id="lokasi">
 
-    <label>Volume</label>
-    <input id="volume">
+<label>Volume</label>
+<input id="volume">
 
-    <label>Anggaran (Rp)</label>
-    <input type="number" id="anggaran" required>
+<label>Anggaran (Rp)</label>
+<input type="number" id="anggaran" required>
 
-    <label>OPD Tujuan</label>
-    <select id="opd" required>
-        <option value="">-- Pilih OPD --</option>
-        <option value="DPUTR">DPUTR</option>
-        <option value="DPRKP">DPRKP</option>
-        <option value="DPKPP (Pertanian)">DPKPP (Pertanian)</option>
-    </select>
+<label>OPD Tujuan</label>
+<select id="opd" required>
+<option value="">-- Pilih OPD --</option>
+<option>DPUTR</option>
+<option>DPRKP</option>
+<option>DPKPP</option>
+</select>
 
-    <label>Keterangan</label>
-    <textarea id="keterangan" rows="3"></textarea>
+<label>Keterangan</label>
+<textarea id="keterangan"></textarea>
 
-    <button class="submit" type="submit">Kirim Usulan</button>
+<button type="submit">Kirim Usulan</button>
 </form>
 
-<h4>Daftar Usulan :</h4>
-
+<h4>Daftar Usulan</h4>
 <table>
 <thead>
 <tr>
-    <th>Kegiatan</th>
-    <th>Bidang</th>
-    <th>Lokasi</th>
-    <th>Volume</th>
-    <th>Anggaran (Rp)</th>
-    <th>OPD</th>
-    <th>Keterangan</th>
-    <th class="aksi">Aksi</th>
+<th>Kegiatan</th><th>Bidang</th><th>Lokasi</th><th>Volume</th>
+<th>Anggaran</th><th>OPD</th><th>Keterangan</th><th>Aksi</th>
 </tr>
 </thead>
-<tbody id="tabelUsulan"></tbody>
+<tbody id="tabel"></tbody>
 </table>
 
-<div class="total">
-    TOTAL ANGGARAN : Rp <span id="totalAnggaran">0</span>
-</div>
-
+<p style="text-align:right;font-weight:bold">
+TOTAL ANGGARAN : Rp <span id="total">0</span>
+</p>
 </div>
 
 <script>
-let dataUsulan = JSON.parse(localStorage.getItem("dataUsulan")) || [];
-let editIndex = null;
+const STORAGE_KEY="MUSRENBANG_USULAN";
+let data=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+let edit=null;
 
-const form = document.getElementById("formUsulan");
-const tbody = document.getElementById("tabelUsulan");
-const totalEl = document.getElementById("totalAnggaran");
+const mapBidang={
+SARPRAS:"Sarana Prasarana",
+SOSBUD:"Sosial Budaya",
+EKONOMI:"Ekonomi"
+};
 
-form.addEventListener("submit", e => {
-    e.preventDefault();
-
-    const data = {
-        bidang: bidang.value,
-        kegiatan: kegiatan.value,
-        lokasi: lokasi.value,
-        volume: volume.value,
-        anggaran: Number(anggaran.value),
-        opd: opd.value,
-        keterangan: keterangan.value
-    };
-
-    if(editIndex === null){
-        dataUsulan.push(data);
-    } else {
-        dataUsulan[editIndex] = data;
-        editIndex = null;
-    }
-
-    localStorage.setItem("dataUsulan", JSON.stringify(dataUsulan));
-    form.reset();
-    render();
-});
+form.onsubmit=e=>{
+e.preventDefault();
+if(!bidang.value||!kegiatan.value||!opd.value||!anggaran.value){
+alert("Data wajib belum lengkap");return;
+}
+const item={
+bidang:bidang.value,
+kegiatan:kegiatan.value,
+lokasi:lokasi.value,
+volume:volume.value,
+anggaran:Number(anggaran.value),
+opd:opd.value,
+keterangan:keterangan.value,
+kelurahan:"Makale",
+waktu:new Date().toLocaleString("id-ID")
+};
+edit===null?data.push(item):data[edit]=item;
+localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+form.reset();edit=null;render();
+};
 
 function render(){
-    tbody.innerHTML="";
-    let total=0;
-
-    dataUsulan.forEach((d,i)=>{
-        total+=d.anggaran;
-        tbody.innerHTML+=`
-        <tr>
-            <td>${d.kegiatan}</td>
-            <td>${d.bidang}</td>
-            <td>${d.lokasi}</td>
-            <td>${d.volume}</td>
-            <td>${d.anggaran.toLocaleString("id-ID")}</td>
-            <td>${d.opd}</td>
-            <td>${d.keterangan}</td>
-            <td class="aksi">
-                <button class="btn btn-edit" onclick="edit(${i})">✏️</button>
-                <button class="btn btn-hapus" onclick="hapus(${i})">❌</button>
-            </td>
-        </tr>`;
-    });
-
-    totalEl.textContent = total.toLocaleString("id-ID");
+tabel.innerHTML="";let total=0;
+data.forEach((d,i)=>{
+total+=d.anggaran;
+tabel.innerHTML+=`
+<tr>
+<td>${d.kegiatan}</td>
+<td>${mapBidang[d.bidang]}</td>
+<td>${d.lokasi}</td>
+<td>${d.volume}</td>
+<td>${d.anggaran.toLocaleString("id-ID")}</td>
+<td>${d.opd}</td>
+<td>${d.keterangan}</td>
+<td>
+<button onclick="editData(${i})">✏️</button>
+<button onclick="hapus(${i})">❌</button>
+</td>
+</tr>`;
+});
+totalEl=total;
+totalSpan.textContent=total.toLocaleString("id-ID");
 }
-
-function hapus(i){
-    if(confirm("Hapus usulan ini?")){
-        dataUsulan.splice(i,1);
-        localStorage.setItem("dataUsulan", JSON.stringify(dataUsulan));
-        render();
-    }
-}
-
-function edit(i){
-    const d = dataUsulan[i];
-    bidang.value = d.bidang;
-    kegiatan.value = d.kegiatan;
-    lokasi.value = d.lokasi;
-    volume.value = d.volume;
-    anggaran.value = d.anggaran;
-    opd.value = d.opd;
-    keterangan.value = d.keterangan;
-    editIndex = i;
-}
-
+function hapus(i){if(confirm("Hapus?")){data.splice(i,1);render();save();}}
+function editData(i){const d=data[i];edit=i;
+bidang.value=d.bidang;kegiatan.value=d.kegiatan;lokasi.value=d.lokasi;
+volume.value=d.volume;anggaran.value=d.anggaran;opd.value=d.opd;
+keterangan.value=d.keterangan;}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
 render();
 </script>
-
 </body>
 </html>
