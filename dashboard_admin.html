@@ -1,158 +1,31 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin Musrenbang Makale</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body{ font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; background:#f4f7f6; display:flex; }
-        .sidebar{ width:250px; background:#1a5bb8; height:100vh; position:fixed; color:#fff; padding:25px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
-        .logo{ width:80px; height:auto; margin-bottom:10px; }
-        .btn-nav, .btn-logout{ width:100%; padding:12px; border:none; border-radius:5px; font-weight:bold; margin-top:10px; cursor:pointer; }
-        .btn-nav{ background:#1a5bb8; color:#fff; text-align:left; }
-        .btn-nav:hover{ background:#174ea6; }
-        .btn-logout{ background:#c0392b; color:#fff; margin-top:30px; }
-        .main-content{ margin-left:270px; padding:30px; width:calc(100% - 270px); }
-        .grid-container{ display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:20px; margin-bottom:25px; }
-        .card{ background:#fff; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); text-align:center; }
-        .stat-value{ font-size:32px; font-weight:bold; color:#1a5bb8; margin:10px 0; }
-        .chart-flex{ display:flex; gap:15px; align-items:center; justify-content:center; }
-        .chart-container{ width:150px; height:150px; }
-        .legend-item{ font-size:11px; margin-bottom:8px; text-align: left; }
-        .rekap-kelurahan{ background:#fff; padding:25px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
-        table{ width:100%; border-collapse:collapse; margin-top:15px; }
-        th,td{ padding:12px; border-bottom:1px solid #eee; text-align: left; }
-        th{ background:#f8f9fa; color:#1a5bb8; }
-    </style>
+<meta charset="UTF-8">
+<title>Dashboard Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-<div class="sidebar">
-    <img src="./logo-makale.png" alt="Logo" class="logo">
-    <h3>ADMIN PANEL</h3>
-    <p>Kecamatan Makale</p>
-    <hr style="width:100%">
-    <button class="btn-nav" onclick="location.href='dashboard_admin.html'">🏠 Dashboard</button>
-    <button class="btn-nav" onclick="location.href='rekap_admin.html'">📊 Rekap Usulan</button>
-    <button class="btn-logout" onclick="localStorage.clear();location.href='index.html'">LOGOUT</button>
-</div>
-
-<div class="main-content">
-    <h1>Dashboard Monitoring T.A. 2027</h1>
-
-    <div class="grid-container">
-        <div class="card">
-            <h4>Total Usulan</h4>
-            <div class="stat-value" id="totalUsulan">0</div>
-            <p>Usulan Masuk</p>
-        </div>
-        <div class="card">
-            <h4>Total Anggaran</h4>
-            <div class="stat-value" id="totalAnggaran" style="color:#27ae60">Rp 0</div>
-            <p>Seluruh Bidang</p>
-        </div>
-        <div class="card">
-            <h4>Statistik Per Bidang</h4>
-            <div class="chart-flex">
-                <div class="chart-container"><canvas id="chartBidang"></canvas></div>
-                <div>
-                    <div class="legend-item">🔵 Sarpras: <br><strong id="leg-sarpras">Rp 0</strong></div>
-                    <div class="legend-item">🔴 Sosbud: <br><strong id="leg-sosbud">Rp 0</strong></div>
-                    <div class="legend-item">🟡 Ekonomi: <br><strong id="leg-ekonomi">Rp 0</strong></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="rekap-kelurahan">
-        <h3>Rekapitulasi Per Kelurahan / Lembang</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Kelurahan / Lembang</th>
-                    <th style="text-align:center">Jumlah Usulan</th>
-                    <th style="text-align:right">Total Anggaran</th>
-                </tr>
-            </thead>
-            <tbody id="bodyKelurahan">
-                <tr><td colspan="3" style="text-align:center">Memuat data terbaru...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+<h3>Dashboard Kecamatan</h3>
+<canvas id="grafik" height="120"></canvas>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-    // URL Web App terbaru yang Anda berikan
-    const URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
-    
-    try {
-        const res = await fetch(URL);
-        const result = await res.json();
-        
-        // Mengakses data dari properti 'data'
-        const rawData = result.data || result; 
+const STORAGE_KEY="MUSRENBANG_USULAN";
+const data=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
 
-        let totalRupiah = 0;
-        const bidang = {
-            sarpras: { ang: 0, jml: 0 },
-            sosbud: { ang: 0, jml: 0 },
-            ekonomi: { ang: 0, jml: 0 }
-        };
-        const kel = {};
+let sarpras=0,sosbud=0,ekonomi=0;
+data.forEach(d=>{
+if(d.bidang==="SARPRAS")sarpras++;
+if(d.bidang==="SOSBUD")sosbud++;
+if(d.bidang==="EKONOMI")ekonomi++;
+});
 
-        rawData.forEach(d => {
-            // Konversi nilai anggaran ke angka
-            const ang = Number(d.anggaran) || 0; 
-            totalRupiah += ang;
-
-            // Klasifikasi Bidang (Sesuai header lowercase dari Apps Script)
-            const b = (d.bidang || "").toLowerCase();
-            if (b.includes("sarana")) { bidang.sarpras.ang += ang; bidang.sarpras.jml++; }
-            else if (b.includes("sosial")) { bidang.sosbud.ang += ang; bidang.sosbud.jml++; }
-            else if (b.includes("ekonomi")) { bidang.ekonomi.ang += ang; bidang.ekonomi.jml++; }
-
-            // Rekap Per Kelurahan
-            const namaKel = d.kelurahan || "Lainnya";
-            if (!kel[namaKel]) kel[namaKel] = { jml: 0, total: 0 };
-            kel[namaKel].jml++;
-            kel[namaKel].total += ang;
-        });
-
-        // Update Elemen Teks
-        document.getElementById("totalUsulan").innerText = rawData.length;
-        document.getElementById("totalAnggaran").innerText = "Rp " + totalRupiah.toLocaleString("id-ID");
-        
-        document.getElementById("leg-sarpras").innerText = `Rp ${bidang.sarpras.ang.toLocaleString("id-ID")} (${bidang.sarpras.jml})`;
-        document.getElementById("leg-sosbud").innerText = `Rp ${bidang.sosbud.ang.toLocaleString("id-ID")} (${bidang.sosbud.jml})`;
-        document.getElementById("leg-ekonomi").innerText = `Rp ${bidang.ekonomi.ang.toLocaleString("id-ID")} (${bidang.ekonomi.jml})`;
-
-        // Render Tabel Kelurahan
-        const bodyKel = document.getElementById("bodyKelurahan");
-        bodyKel.innerHTML = Object.keys(kel).sort().map(k => `
-            <tr>
-                <td><strong>${k}</strong></td>
-                <td style="text-align:center">${kel[k].jml}</td>
-                <td style="text-align:right;font-weight:bold">Rp ${kel[k].total.toLocaleString("id-ID")}</td>
-            </tr>
-        `).join("");
-
-        // Render Grafik Lingkaran (Doughnut)
-        new Chart(document.getElementById("chartBidang"), {
-            type: "doughnut",
-            data: {
-                datasets: [{
-                    data: [bidang.sarpras.ang, bidang.sosbud.ang, bidang.ekonomi.ang],
-                    backgroundColor: ["#3498db", "#e74c3c", "#f1c40f"]
-                }]
-            },
-            options: { cutout: "70%", plugins: { legend: { display: false } } }
-        });
-
-    } catch (e) {
-        console.error("Fetch error:", e);
-        document.getElementById("bodyKelurahan").innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data. Periksa koneksi atau URL API.</td></tr>';
-    }
+new Chart(grafik,{
+type:"bar",
+data:{
+labels:["Sarana Prasarana","Sosial Budaya","Ekonomi"],
+datasets:[{data:[sarpras,sosbud,ekonomi]}]
+}
 });
 </script>
 </body>
