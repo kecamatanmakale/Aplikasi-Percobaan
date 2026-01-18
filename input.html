@@ -686,33 +686,57 @@
         $('.js-select2').select2({ placeholder: "-- Pilih Kegiatan --", width: '100%' });
     });
 
-    // LOAD DATA UTAMA
+    // LOAD DATA UTAMA (VERSI PERBAIKAN)
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
             const json = await res.json();
-            dataSheet = json.data; // Mengambil array data dari format JSON backend Anda
+            dataSheet = json.data;
             
+            // --- DEBUGGING: Cek di Console browser ---
+            console.log("Data Pertama:", dataSheet[0]); 
+            // -----------------------------------------
+
             const filter = dataSheet.filter(x => x.kelurahan === userKel);
             let baris = ""; let total = 0;
             let s = 0, so = 0, e = 0;
 
             filter.reverse().forEach(d => {
-                const n = Number(d.anggaran) || 0; total += n;
-                const b = (d.bidang || "").toLowerCase();
-                if(b.includes("sarana")) s++; else if(b.includes("sosial")) so++; else if(b.includes("ekonomi")) e++;
+                // AMBIL DATA DENGAN PENGECEKAN GANDA (Huruf Besar/Kecil)
+                // Ini solusi untuk masalah "Undefined"
+                const valBidang = d.bidang || d.Bidang || ""; 
+                const valKegiatan = d.kegiatan || d.Kegiatan || "";
+                const valLokasi = d.lokasi || d.Lokasi || "";
+                const valVolume = d.volume || d.Volume || "";
+                const valAnggaran = d.anggaran || d.Anggaran || 0;
+                const valOpd = d.opd || d.Opd || d.OPD || ""; // OPD kadang ditulis kapital semua
+                const valKet = d.keterangan || d.Keterangan || "-";
+                const idData = d.rowId || d.timestamp; 
 
-                const idData = d.rowId || d.timestamp; // Mendukung ID-xxxx
+                const n = Number(valAnggaran) || 0; 
+                total += n;
+
+                // Hitung Statistik
+                const b = valBidang.toLowerCase();
+                if(b.includes("sarana")) s++; 
+                else if(b.includes("sosial")) so++; 
+                else if(b.includes("ekonomi")) e++;
+
                 baris += `<tr>
-                    <td><strong>${d.kegiatan}</strong></td>
-                    <td>${d.bidang}</td><td>${d.lokasi}</td><td>${d.volume}</td>
-                    <td>${n.toLocaleString('id-ID')}</td><td>${d.opd}</td><td>${d.keterangan || "-"}</td>
+                    <td><strong>${valKegiatan}</strong></td>
+                    <td>${valBidang}</td>
+                    <td>${valLokasi}</td>
+                    <td>${valVolume}</td>
+                    <td>${n.toLocaleString('id-ID')}</td>
+                    <td>${valOpd}</td>
+                    <td>${valKet}</td>
                     <td class="no-print">
                         <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
                         <button onclick="hapus('${idData}')" class="btn-hapus">✖</button>
                     </td>
                 </tr>`;
             });
+
             document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
             document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString('id-ID');
             document.getElementById("countSarpra").innerText = s;
@@ -720,19 +744,28 @@
             document.getElementById("countEkonomi").innerText = e;
         } catch (err) { console.error(err); }
     }
-
-    // FUNGSI SIAP EDIT
+   // FUNGSI SIAP EDIT (VERSI PERBAIKAN)
     function siapEdit(id) {
         const item = dataSheet.find(d => (d.rowId || d.timestamp) === id);
         if (item) {
+            // Ambil data dengan pengecekan ganda juga
+            const valBidang = item.bidang || item.Bidang || "";
+            const valKegiatan = item.kegiatan || item.Kegiatan || "";
+            const valLokasi = item.lokasi || item.Lokasi || "";
+            const valVolume = item.volume || item.Volume || "";
+            const valAnggaran = item.anggaran || item.Anggaran || "";
+            const valOpd = item.opd || item.Opd || item.OPD || "";
+            const valKet = item.keterangan || item.Keterangan || "";
+
             document.getElementById("rowId").value = id;
-            document.getElementById("bidang").value = item.bidang;
-            $('#kegiatan').val(item.kegiatan).trigger('change');
-            document.getElementById("lokasi").value = item.lokasi;
-            document.getElementById("volume").value = item.volume;
-            document.getElementById("anggaran").value = item.anggaran;
-            document.getElementById("opd").value = item.opd;
-            document.getElementById("keterangan").value = item.keterangan;
+            document.getElementById("bidang").value = valBidang; // <--- Masalah utama teratasi di sini
+            
+            $('#kegiatan').val(valKegiatan).trigger('change');
+            document.getElementById("lokasi").value = valLokasi;
+            document.getElementById("volume").value = valVolume;
+            document.getElementById("anggaran").value = valAnggaran;
+            document.getElementById("opd").value = valOpd;
+            document.getElementById("keterangan").value = valKet;
 
             const btn = document.getElementById("btnProses");
             btn.innerText = "💾 Simpan Perubahan";
@@ -793,4 +826,5 @@
 </script>
 </body>
 </html>
+
 
