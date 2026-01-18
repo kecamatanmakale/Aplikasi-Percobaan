@@ -1,32 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard Admin</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin Musrenbang Kelurahan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        header {
+            background: #1e3c72;
+            color: #fff;
+            padding: 15px 25px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 25px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #1e3c72;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .box {
+            padding: 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .box span {
+            display: block;
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .sarpras { background: #3498db; }
+        .sosbud  { background: #9b59b6; }
+        .ekonomi { background: #2ecc71; }
+        .total   { background: #34495e; }
+
+        footer {
+            background: #1e3c72;
+            color: #fff;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+    </style>
 </head>
+
 <body>
-<h3>Dashboard Kecamatan</h3>
-<canvas id="grafik" height="120"></canvas>
 
-<script>
-const STORAGE_KEY="MUSRENBANG_USULAN";
-const data=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+<header>
+    Dashboard Admin Musrenbang Kelurahan
+</header>
 
-let sarpras=0,sosbud=0,ekonomi=0;
-data.forEach(d=>{
-if(d.bidang==="SARPRAS")sarpras++;
-if(d.bidang==="SOSBUD")sosbud++;
-if(d.bidang==="EKONOMI")ekonomi++;
-});
+<div class="container">
 
-new Chart(grafik,{
-type:"bar",
-data:{
-labels:["Sarana Prasarana","Sosial Budaya","Ekonomi"],
-datasets:[{data:[sarpras,sosbud,ekonomi]}]
-}
-});
-</script>
-</body>
-</html>
+    <!-- RINGKASAN -->
+    <div class="summary">
+        <div class="box sarpras">
+            Sarana Prasarana
+            <span id="sarprasCount">0</span>
+        </div>
+        <div class="box sosbud">
+            Sosial Budaya
+            <span id="sosbudCount">0</span>
+        </div>
+        <div class="box ekonomi">
+            Ekonomi
+            <span
