@@ -6,72 +6,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
+body{
     font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    margin: 0;
-    padding: 20px;
+    background:#f4f6f8;
+    margin:0;
+    padding:20px;
 }
-.container {
-    max-width: 1100px;
-    margin: auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
+.container{
+    max-width:1200px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
-h2 {
-    margin-top: 0;
+label{font-weight:bold}
+input,select,textarea{
+    width:100%;
+    padding:8px;
+    margin:5px 0 15px;
 }
-label {
-    font-weight: bold;
+button.submit{
+    background:#28a745;
+    color:#fff;
+    border:none;
+    padding:12px;
+    width:100%;
+    font-size:16px;
+    border-radius:5px;
+    cursor:pointer;
 }
-input, select, textarea {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0 15px;
+button.submit:hover{background:#218838}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    font-size:14px;
 }
-button {
-    background: #28a745;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    width: 100%;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
+thead th{
+    background:#34495e;
+    color:#fff;
+    padding:10px;
+    text-align:left;
 }
-button:hover {
-    background: #218838;
+tbody td{
+    border:1px solid #ddd;
+    padding:8px;
+    vertical-align:top;
 }
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+.aksi{
+    text-align:center;
 }
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    font-size: 14px;
+.btn{
+    border:none;
+    padding:6px 8px;
+    border-radius:4px;
+    cursor:pointer;
+    color:#fff;
+    font-size:13px;
 }
-th {
-    background: #2c3e50;
-    color: #fff;
-}
-.total {
-    margin-top: 15px;
-    font-weight: bold;
-    text-align: right;
-}
-.aksi button {
-    width: auto;
-    padding: 5px 10px;
-    margin: 2px;
-}
-.hapus {
-    background: #dc3545;
-}
-.edit {
-    background: #f39c12;
+.btn-edit{background:#f39c12}
+.btn-hapus{background:#e74c3c}
+
+.total{
+    margin-top:15px;
+    font-weight:bold;
+    text-align:right;
 }
 </style>
 </head>
@@ -79,25 +80,25 @@ th {
 <body>
 <div class="container">
 
-<h2>Form Input Usulan Musrenbang</h2>
+<h3>Form Input Usulan</h3>
 
 <form id="formUsulan">
     <label>Bidang</label>
     <select id="bidang" required>
         <option value="">-- Pilih Bidang --</option>
-        <option value="Bidang Sarana dan Prasarana">Bidang Sarana Prasarana</option>
+        <option value="Bidang Sarana dan Prasarana">Bidang Sarana dan Prasarana</option>
         <option value="Bidang Sosial Budaya">Bidang Sosial Budaya</option>
         <option value="Bidang Ekonomi">Bidang Ekonomi</option>
     </select>
 
     <label>Kegiatan</label>
-    <input type="text" id="kegiatan" required>
+    <input id="kegiatan" required>
 
     <label>Lokasi</label>
-    <input type="text" id="lokasi" required>
+    <input id="lokasi">
 
     <label>Volume</label>
-    <input type="text" id="volume">
+    <input id="volume">
 
     <label>Anggaran (Rp)</label>
     <input type="number" id="anggaran" required>
@@ -113,23 +114,22 @@ th {
     <label>Keterangan</label>
     <textarea id="keterangan" rows="3"></textarea>
 
-    <button type="submit">Kirim Usulan</button>
+    <button class="submit" type="submit">Kirim Usulan</button>
 </form>
 
-<h3>Daftar Usulan</h3>
+<h4>Daftar Usulan :</h4>
 
 <table>
 <thead>
 <tr>
-    <th>No</th>
-    <th>Bidang</th>
     <th>Kegiatan</th>
+    <th>Bidang</th>
     <th>Lokasi</th>
     <th>Volume</th>
     <th>Anggaran (Rp)</th>
     <th>OPD</th>
     <th>Keterangan</th>
-    <th>Aksi</th>
+    <th class="aksi">Aksi</th>
 </tr>
 </thead>
 <tbody id="tabelUsulan"></tbody>
@@ -143,48 +143,55 @@ th {
 
 <script>
 let dataUsulan = JSON.parse(localStorage.getItem("dataUsulan")) || [];
+let editIndex = null;
 
 const form = document.getElementById("formUsulan");
 const tbody = document.getElementById("tabelUsulan");
 const totalEl = document.getElementById("totalAnggaran");
 
-form.addEventListener("submit", function(e) {
+form.addEventListener("submit", e => {
     e.preventDefault();
 
-    const usulan = {
-        bidang: document.getElementById("bidang").value,
-        kegiatan: document.getElementById("kegiatan").value,
-        lokasi: document.getElementById("lokasi").value,
-        volume: document.getElementById("volume").value,
-        anggaran: Number(document.getElementById("anggaran").value),
-        opd: document.getElementById("opd").value,
-        keterangan: document.getElementById("keterangan").value
+    const data = {
+        bidang: bidang.value,
+        kegiatan: kegiatan.value,
+        lokasi: lokasi.value,
+        volume: volume.value,
+        anggaran: Number(anggaran.value),
+        opd: opd.value,
+        keterangan: keterangan.value
     };
 
-    dataUsulan.push(usulan);
+    if(editIndex === null){
+        dataUsulan.push(data);
+    } else {
+        dataUsulan[editIndex] = data;
+        editIndex = null;
+    }
+
     localStorage.setItem("dataUsulan", JSON.stringify(dataUsulan));
     form.reset();
-    renderTabel();
+    render();
 });
 
-function renderTabel() {
-    tbody.innerHTML = "";
-    let total = 0;
+function render(){
+    tbody.innerHTML="";
+    let total=0;
 
-    dataUsulan.forEach((u, i) => {
-        total += u.anggaran;
-        tbody.innerHTML += `
+    dataUsulan.forEach((d,i)=>{
+        total+=d.anggaran;
+        tbody.innerHTML+=`
         <tr>
-            <td>${i + 1}</td>
-            <td>${u.bidang}</td>
-            <td>${u.kegiatan}</td>
-            <td>${u.lokasi}</td>
-            <td>${u.volume}</td>
-            <td>${u.anggaran.toLocaleString("id-ID")}</td>
-            <td>${u.opd}</td>
-            <td>${u.keterangan}</td>
+            <td>${d.kegiatan}</td>
+            <td>${d.bidang}</td>
+            <td>${d.lokasi}</td>
+            <td>${d.volume}</td>
+            <td>${d.anggaran.toLocaleString("id-ID")}</td>
+            <td>${d.opd}</td>
+            <td>${d.keterangan}</td>
             <td class="aksi">
-                <button class="hapus" onclick="hapus(${i})">X</button>
+                <button class="btn btn-edit" onclick="edit(${i})">✏️</button>
+                <button class="btn btn-hapus" onclick="hapus(${i})">❌</button>
             </td>
         </tr>`;
     });
@@ -192,15 +199,27 @@ function renderTabel() {
     totalEl.textContent = total.toLocaleString("id-ID");
 }
 
-function hapus(index) {
-    if (confirm("Hapus usulan ini?")) {
-        dataUsulan.splice(index, 1);
+function hapus(i){
+    if(confirm("Hapus usulan ini?")){
+        dataUsulan.splice(i,1);
         localStorage.setItem("dataUsulan", JSON.stringify(dataUsulan));
-        renderTabel();
+        render();
     }
 }
 
-renderTabel();
+function edit(i){
+    const d = dataUsulan[i];
+    bidang.value = d.bidang;
+    kegiatan.value = d.kegiatan;
+    lokasi.value = d.lokasi;
+    volume.value = d.volume;
+    anggaran.value = d.anggaran;
+    opd.value = d.opd;
+    keterangan.value = d.keterangan;
+    editIndex = i;
+}
+
+render();
 </script>
 
 </body>
