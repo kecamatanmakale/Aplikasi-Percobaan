@@ -1,4 +1,6 @@
 
+Bantu diperiksa file ini
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -727,7 +729,7 @@
     function siapEdit(id) {
         const item = dataSheet.find(d => (d.rowId || d.timestamp) === id);
         if (item) {
-            document.getElementById("rowId").value = id;
+            document.getElementById("rowsId").value = id;
             document.getElementById("bidang").value = item.bidang;
             $('#kegiatan').val(item.kegiatan).trigger('change');
             document.getElementById("lokasi").value = item.lokasi;
