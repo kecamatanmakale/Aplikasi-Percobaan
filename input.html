@@ -744,23 +744,27 @@
             document.getElementById("countEkonomi").innerText = e;
         } catch (err) { console.error(err); }
     }
-  // FUNGSI SIAP EDIT (VERSI SMART MAPPING)
-    function siapEdit(id) {
-        // Cari data berdasarkan ID
-        const item = dataSheet.find(d => (d.rowId || d.timestamp) == id);
+ function siapEdit(id) {
+        // 1. Pastikan id dikonversi ke string dan dibersihkan dari spasi jika ada
+        const targetId = String(id).trim();
+        
+        // 2. Cari data dengan perbandingan yang lebih fleksibel (==)
+        const item = dataSheet.find(d => {
+            const rowId = String(d.rowId || d.timestamp || "").trim();
+            return rowId == targetId;
+        });
         
         if (item) {
-            // Fungsi pembantu untuk mengambil nilai tanpa peduli huruf besar/kecil/spasi
             const getVal = (obj, name) => {
                 const key = Object.keys(obj).find(k => k.toLowerCase().trim() === name.toLowerCase());
                 return key ? obj[key] : "";
             };
 
-            // Isi form dengan data yang ditemukan
-            document.getElementById("rowId").value = id;
+            // Isi form
+            document.getElementById("rowId").value = targetId;
             document.getElementById("bidang").value = getVal(item, "bidang");
             
-            // Untuk Select2 (Kamus Usulan)
+            // Khusus untuk Select2 (Kegiatan)
             $('#kegiatan').val(getVal(item, "kegiatan")).trigger('change');
             
             document.getElementById("lokasi").value = getVal(item, "lokasi");
@@ -769,15 +773,17 @@
             document.getElementById("opd").value = getVal(item, "opd");
             document.getElementById("keterangan").value = getVal(item, "keterangan");
 
-            // Ubah tampilan tombol menjadi mode Edit
+            // Ubah tombol
             const btn = document.getElementById("btnProses");
             btn.innerText = "💾 Simpan Perubahan";
             btn.style.backgroundColor = "#f39c12";
             
-            // Scroll otomatis ke atas agar form terlihat
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            alert("Data tidak ditemukan!");
+            // Jika masih gagal, kita tampilkan ID apa yang dicari di console untuk debug
+            console.error("ID yang dicari tidak ada di database:", targetId);
+            console.log("Isi database saat ini:", dataSheet);
+            alert("Data tidak ditemukan! (Cek console F12)");
         }
     }
 
@@ -833,6 +839,7 @@
 </script>
 </body>
 </html>
+
 
 
 
