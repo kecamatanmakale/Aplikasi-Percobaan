@@ -760,18 +760,40 @@
         }
     }
 
-    async function hapus(id) {
-        if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
-            try {
-                await fetch(SCRIPT_URL, { 
-                    method: "POST", 
-                    body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
-                });
-                alert("Berhasil dihapus!");
-                loadData();
-            } catch (err) { alert("Gagal!"); }
+   async function hapus(id) {
+    if(!id || id === "undefined") {
+        alert("ID data tidak terbaca. Silakan refresh halaman.");
+        return;
+    }
+
+    if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
+        // Cari elemen baris tabel atau tombol yang diklik untuk memberikan feedback visual
+        const btnHapus = event.target;
+        const originalText = btnHapus.innerText;
+        
+        try {
+            btnHapus.disabled = true;
+            btnHapus.innerText = "...";
+
+            const response = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
+            });
+
+            // Pastikan untuk menunggu hasil dari script sebelum memberikan notifikasi
+            alert("Berhasil dihapus!");
+            
+            // PENTING: Panggil kembali loadData() untuk menyegarkan tampilan tabel
+            await loadData(); 
+            
+        } catch (err) { 
+            alert("Gagal menghapus data. Periksa koneksi atau script Anda."); 
+            console.error("Error Delete:", err);
+            btnHapus.disabled = false;
+            btnHapus.innerText = originalText;
         }
     }
+}
 
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -820,3 +842,4 @@
 </script>
 </body>
 </html>
+
