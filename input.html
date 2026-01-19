@@ -17,10 +17,17 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #34495e; color: white; }
+        
+        /* Area Tanda Tangan */
         .tanda-tangan-container { display: flex; justify-content: flex-end; margin-top: 50px; page-break-inside: avoid; }
-        .box-ttd { text-align: center; width: 300px; font-size: 14px; }
+        .box-ttd { text-align: center; width: 350px; font-size: 14px; }
         .nama-pejabat { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; padding: 0; } }
+        
+        @media print { 
+            .no-print { display: none !important; } 
+            .container { box-shadow: none; padding: 0; max-width: 100%; } 
+            body { background: white; padding: 0; }
+        }
     </style>
 </head>
 <body>
@@ -30,7 +37,7 @@
         <button onclick="window.print()" style="background:#3498db; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">🖨️ CETAK KE PDF</button>
     </div>
 
-    <h3>Daftar Usulan Musrenbang: <span id="namaKel"></span></h3>
+    <h3>Daftar Usulan Musrenbang: <span id="namaKelDisplay"></span></h3>
     
     <div class="box no-print">
         <form id="formUsulan">
@@ -539,39 +546,27 @@
             </select>
 
             <label>Lokasi Spesifik</label>
-            <input type="text" id="lokasi" required placeholder="Contoh: RT 01 Lingkungan Ariang">
+            <input type="text" id="lokasi" required placeholder="Contoh: RT 01 Lingkungan ...">
 
-            <label>OPD Tujuan (Pilih dari Daftar)</label>
+            <label>OPD Tujuan</label>
             <select id="opd" class="js-select2" required>
                 <option value="">-- Pilih OPD --</option>
-                <option value="DPUTR">DPUTR</option>
-                <option value="DPRKP">DPRKP</option>
-                <option value="Dinas Kesehatan">Dinas Kesehatan</option>
-                <option value="Dinas Pendidikan & Kebudayaan">Dinas Pendidikan & Kebudayaan</option>
-                <option value="Dinas Sosial">Dinas Sosial</option>
-                <option value="DPKPP (Pertanian)">DPKPP (Pertanian)</option>
-                <option value="Dinas Perhubungan">Dinas Perhubungan</option>
-                <option value="BPBD">BPBD</option>
-                <option value="Disparpora">Disparpora</option>
-                <option value="Dinas Koperasi & UKM">Dinas Koperasi & UKM</option>
-                <option value="DLHD">DLHD</option>
-                <option value="DPML">DPML</option>
-                <option value="DPMPTSP">DPMPTSP</option>
-                <option value="Dinas DP3A & KB">Dinas DP3A & KB</option>
-                <option value="Dinas Perpustakaan & Arsip Daerah">Dinas Perpustakaan & Arsip Daerah</option>
-                <option value="Disnakertans">Disnakertans</option>
-                <option value="Bappelitbangda">Bappelitbangda</option>
-                <option value="BPKPD (Badan Pengelola Keuangan)">BPKPD (Badan Pengelola Keuangan)</option>
-                <option value="Bakesbangpol">Bakesbangpol</option>
-                <option value="Inspektorat Daerah">Inspektorat Daerah</option>
-                <option value="Satpol PP">Satpol PP</option>
-                <option value="Sekretariat Daerah">Sekretariat Daerah</option>
-                <option value="Sekretariat DPRD">Sekretariat DPRD</option>
-                <option value="RSUD Lakipadada">RSUD Lakipadada</option>
+                <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
+                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+                <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
+                <option>BPBD</option><option>Disparpora</option>
+                <option>Dinas Koperasi & UKM</option><option>DLHD</option>
+                <option>DPML</option><option>DPMPTSP</option>
+                <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
+                <option>Disnakertans</option><option>Bappelitbangda</option>
+                <option>BPKPD (Badan Pengelola Keuangan)</option><option>Bakesbangpol</option>
+                <option>Inspektorat Daerah</option><option>Satpol PP</option>
+                <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
+                <option>RSUD Lakipadada</option>
             </select>
 
             <label>Keterangan Tambahan</label>
-            <textarea id="keterangan" rows="2" placeholder="Detail rincian jika ada..."></textarea>
+            <textarea id="keterangan" rows="2" placeholder="Rincian usulan..."></textarea>
 
             <button type="submit" id="btnSimpan" class="btn-kirim">SIMPAN USULAN</button>
         </form>
@@ -589,17 +584,17 @@
                 </tr>
             </thead>
             <tbody id="isiTabel">
-                <tr><td colspan="5" align="center">Memuat data usulan...</td></tr>
+                <tr><td colspan="5" align="center">Memuat data...</td></tr>
             </tbody>
         </table>
     </div>
 
     <div class="tanda-tangan-container">
         <div class="box-ttd">
-            <p>Makale, ............................ 2026</p>
-            <p><strong>Lurah Ariang</strong></p>
-            <p class="nama-pejabat">MARTINUS KALO'BONG, SE., MM</p>
-            <p>NIP. 197703072009061002</p>
+            <p id="tglDisplay">........., ....................... 2026</p>
+            <p><strong id="jabatanDisplay">Lurah</strong></p>
+            <p class="nama-pejabat" id="namaPejabatDisplay">( .................................... )</p>
+            <p id="nipPejabatDisplay">NIP. .............................</p>
         </div>
     </div>
 </div>
@@ -608,40 +603,75 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwO1wutjpIhGqNr98x3hBONP8qasbVFs2qcH_jPHok7cNofwi64JrmmECazCnvh6Dfc/exec";
-    const userKel = localStorage.getItem("kelurahan") || "Kelurahan Ariang";
+    const SCRIPT_URL = "URL_WEB_APP_ANDA"; // Pastikan ini URL terbaru
+    const userAktif = localStorage.getItem("kelurahan") || "Kelurahan Ariang";
 
-    // PEMETAAN KEGIATAN KE OPD TUJUAN
-    const logikOPD = {
-        "Pembangunan Jalan Lingkungan": "DPRKP",
-        "Pembangunan Jaringan Irigasi": "DPUTR",
-        "Pembangunan Drainase/Selokan": "DPUTR",
-        "Pengadaan Ternak Babi/Sapi": "DPKPP (Pertanian)",
-        "Rehabilitasi Gedung Sekolah": "Dinas Pendidikan & Kebudayaan",
-        "Pembangunan Puskesmas Pembantu": "Dinas Kesehatan",
-        "Penerangan Jalan Umum": "Dinas Perhubungan"
+    // DATABASE PEJABAT
+    const dataPejabat = {
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
     };
 
     $(document).ready(function() {
-        document.getElementById("namaKel").innerText = userKel;
         $('.js-select2').select2({ width: '100%' });
+        setProfilPejabat();
         loadData();
     });
 
-    // FUNGSI OTOMATIS MEMILIH DROPDOWN OPD
-    function pilihOPDOtomatis(kegiatan) {
-        const targetOPD = logikOPD[kegiatan];
-        if (targetOPD) {
-            // Mengubah nilai select OPD dan mengupdate tampilan Select2
-            $('#opd').val(targetOPD).trigger('change');
+    function setProfilPejabat() {
+        const profil = dataPejabat[userAktif];
+        const displayKel = userAktif.replace("Kelurahan ", "").replace("Lembang ", "");
+        
+        // 1. Set Nama Kelurahan di Judul & Tanggal
+        document.getElementById("namaKelDisplay").innerText = userAktif;
+        document.getElementById("tglDisplay").innerText = displayKel + ", ....................... 2026";
+
+        // 2. Logika Jabatan Otomatis
+        let jabatan = "";
+        if (userAktif.includes("Lembang")) {
+            jabatan = "Kepala Lembang " + displayKel;
+        } else if (userAktif === "Kelurahan Tampo Makale" || userAktif === "Kelurahan Buntu Burake") {
+            jabatan = "Plt. Lurah " + displayKel.replace(" Makale", "");
+        } else {
+            jabatan = "Lurah " + displayKel;
         }
+        
+        document.getElementById("jabatanDisplay").innerText = jabatan;
+
+        // 3. Set Nama & NIP Pejabat
+        if (profil) {
+            document.getElementById("namaPejabatDisplay").innerText = profil.nama;
+            document.getElementById("nipPejabatDisplay").innerText = (profil.nip === "-") ? "" : "NIP. " + profil.nip;
+        }
+    }
+
+    // Fungsi Otomatisasi OPD (Contoh Sederhana)
+    function pilihOPDOtomatis(kegiatan) {
+        const map = {
+            "Pembangunan Jalan Lingkungan": "DPRKP",
+            "Pembangunan Jaringan Irigasi": "DPUTR"
+        };
+        if(map[kegiatan]) $('#opd').val(map[kegiatan]).trigger('change');
     }
 
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
             const json = await res.json();
-            const filter = json.data.filter(x => x.kelurahan === userKel);
+            const filter = json.data.filter(x => x.kelurahan === userAktif);
             let html = "";
             filter.reverse().forEach(d => {
                 const id = d.rowsId || d.rowsid || "";
@@ -666,7 +696,7 @@
 
         const payload = {
             action: "insert",
-            kelurahan: userKel,
+            kelurahan: userAktif,
             bidang: $("#bidang").val(),
             kegiatan: $("#kegiatan").val(),
             lokasi: $("#lokasi").val(),
@@ -674,12 +704,12 @@
             keterangan: $("#keterangan").val()
         };
         await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        alert("Usulan Berhasil Disimpan!");
+        alert("Berhasil Disimpan!");
         location.reload();
     });
 
     async function hapus(id) {
-        if(confirm("Hapus usulan ini secara permanen?")) {
+        if(confirm("Hapus usulan ini?")) {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", rowId: id }) });
             loadData();
         }
