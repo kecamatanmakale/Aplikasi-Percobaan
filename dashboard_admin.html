@@ -14,32 +14,32 @@
         .sidebar { width: 250px; background: #1e88e5; color: white; min-height: 100vh; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: fixed; }
         .sidebar-logo { text-align: center; margin-bottom: 30px; }
         .logo-img { width: 70px; margin-bottom: 10px; }
+        
         .sidebar-nav { flex-grow: 1; }
         .sidebar-nav a { display: block; color: white; text-decoration: none; padding: 12px; margin: 5px 0; border-radius: 5px; transition: 0.3s; font-size: 14px; }
         .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255,255,255,0.2); }
         
-        /* Tombol Logout & Footer */
-        .btn-logout { background: #d32f2f; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 30px; font-weight: bold; }
-        ..sidebar-footer {
-    margin-top: 20px;
-    font-size: 14px;            /* Ukuran font besar */
-    text-align: center;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;           /* Ditambah agar ada ruang antar baris */
-    font-weight: 500;           /* Ketebalan sedang agar tidak terlalu kaku */
-    padding: 0 10px;            /* Memberi ruang agar tidak mentok ke tepi sidebar */
-}
+        /* Tombol Logout & Hak Cipta */
+        .btn-logout { background: #d32f2f; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 30px; font-weight: bold; text-transform: uppercase; }
+        
+        .sidebar-footer { 
+            margin-top: 35px; /* Jarak diturunkan agar tidak rapat */
+            font-size: 13px; /* Ukuran diperbesar */
+            text-align: center; 
+            color: rgba(255, 255, 255, 0.8); 
+            line-height: 1.6; 
+        }
+        .sidebar-footer strong { color: #fff; display: block; margin: 2px 0; }
 
         /* Main Content */
         .main-content { flex: 1; margin-left: 250px; padding: 30px; }
-        .header { margin-bottom: 30px; }
         
-        /* Grid Statistik (Anggaran Dihapus) */
+        /* Statistik Grid (Tanpa Anggaran) */
         .stats-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
         
-        /* Grafik Container */
-        .chart-container { position: relative; height: 320px; width: 100%; display: flex; align-items: center; justify-content: center; }
+        /* Grafik Diperbesar */
+        .chart-container { position: relative; height: 320px; width: 100%; }
 
         /* Tabel Rekapitulasi */
         .table-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -48,10 +48,8 @@
         th { background: #f8f9fa; color: #333; font-weight: bold; }
         .text-left { text-align: left; padding-left: 15px; }
         
-        /* Warna kolom bidang */
-        .col-sarpras { background-color: #f0f7ff; }
-        .col-sosbud { background-color: #fff5f5; }
-        .col-ekonomi { background-color: #fffdf0; }
+        /* Highlight Kolom Bidang */
+        .bg-bidang { background-color: #fafafa; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -59,8 +57,8 @@
 <div class="sidebar">
     <div class="sidebar-logo">
         <img src="logo.png" class="logo-img" alt="Logo">
-        <h3 style="margin: 0;">ADMIN PANEL</h3>
-        <p style="font-size: 12px; opacity: 0.8;">Kecamatan Makale</p>
+        <h3 style="margin:0;">ADMIN PANEL</h3>
+        <p style="font-size:12px; opacity:0.8; margin-top:5px;">Kecamatan Makale</p>
     </div>
     
     <div class="sidebar-nav">
@@ -70,17 +68,15 @@
         <button class="btn-logout" onclick="location.href='index.html'">LOGOUT</button>
         
         <div class="sidebar-footer">
-    Created by : <br> 
-    <b>Tim IT Kecamatan Makale</b> <br> 
-    @ 2026
-</div>
+            Created by : <br>
+            <strong>Tim IT Kecamatan Makale</strong> <br>
+            @ 2026
+        </div>
     </div>
 </div>
 
 <div class="main-content">
-    <div class="header">
-        <h1>Dashboard Monitoring T.A. 2027</h1>
-    </div>
+    <h1>Dashboard Monitoring T.A. 2027</h1>
 
     <div class="stats-grid">
         <div class="stat-card">
@@ -90,7 +86,7 @@
         </div>
 
         <div class="stat-card">
-            <p style="font-weight: bold; margin-bottom: 10px;">Statistik Per Bidang</p>
+            <p style="font-weight:bold; margin-bottom:10px;">Statistik Per Bidang</p>
             <div class="chart-container">
                 <canvas id="bidangChart"></canvas>
             </div>
@@ -108,20 +104,20 @@
                     <th colspan="3">Per Bidang</th>
                 </tr>
                 <tr>
-                    <th width="15%" class="col-sarpras">Sarana Prasarana</th>
-                    <th width="15%" class="col-sosbud">Sosial Budaya</th>
-                    <th width="15%" class="col-ekonomi">Ekonomi</th>
+                    <th width="15%">Sarana Prasarana</th>
+                    <th width="15%">Sosial Budaya</th>
+                    <th width="15%">Ekonomi</th>
                 </tr>
             </thead>
             <tbody id="tabelRekap">
-                <tr><td colspan="6">Menghubungkan ke database...</td></tr>
+                <tr><td colspan="6">Memuat data usulan...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec; // Masukkan URL Google Apps Script Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; 
     const listKelurahan = [
         "Kelurahan Ariang", "Kelurahan Batupapan", "Kelurahan Bombongan", "Kelurahan Botang", 
         "Kelurahan Buntu Burake", "Kelurahan Kamali Pentalluan", "Kelurahan Lamunan", 
@@ -131,60 +127,54 @@
 
     let bidangChart;
 
-    async function loadDashboardData() {
+    async function loadData() {
         try {
-            const response = await fetch(SCRIPT_URL + "?action=read");
-            const result = await response.json();
-            const data = result.data;
+            const res = await fetch(SCRIPT_URL + "?action=read");
+            const json = await res.json();
+            const data = json.data;
 
-            let tableHtml = "";
+            let html = "";
             let summary = { sarpras: 0, sosbud: 0, ekonomi: 0 };
 
             listKelurahan.forEach((kel, index) => {
-                const kelData = data.filter(d => d.kelurahan === kel);
-                const s = kelData.filter(d => d.bidang.includes("Sarana")).length;
-                const sb = kelData.filter(d => d.bidang.includes("Sosial")).length;
-                const e = kelData.filter(d => d.bidang.includes("Ekonomi")).length;
+                const filtered = data.filter(d => d.kelurahan === kel);
+                const s = filtered.filter(d => d.bidang.includes("Sarana")).length;
+                const sb = filtered.filter(d => d.bidang.includes("Sosial")).length;
+                const e = filtered.filter(d => d.bidang.includes("Ekonomi")).length;
                 
                 summary.sarpras += s;
                 summary.sosbud += sb;
                 summary.ekonomi += e;
 
-                tableHtml += `<tr>
+                html += `<tr>
                     <td>${index + 1}</td>
                     <td class="text-left">${kel}</td>
-                    <td><b>${kelData.length}</b></td>
-                    <td class="col-sarpras">${s}</td>
-                    <td class="col-sosbud">${sb}</td>
-                    <td class="col-ekonomi">${e}</td>
+                    <td class="bg-bidang">${filtered.length}</td>
+                    <td>${s}</td>
+                    <td>${sb}</td>
+                    <td>${e}</td>
                 </tr>`;
             });
 
-            document.getElementById("tabelRekap").innerHTML = tableHtml;
+            document.getElementById("tabelRekap").innerHTML = html;
             document.getElementById("totalUsulan").innerText = data.length;
-            
-            renderChart(summary);
-        } catch (error) {
-            document.getElementById("tabelRekap").innerHTML = "<tr><td colspan='6' style='color:red;'>Gagal mengambil data dari Google Sheet.</td></tr>";
+            updateChart(summary);
+        } catch (e) {
+            document.getElementById("tabelRekap").innerHTML = "<tr><td colspan='6'>Gagal sinkronisasi data.</td></tr>";
         }
     }
 
-    function renderChart(summary) {
+    function updateChart(summary) {
         const ctx = document.getElementById('bidangChart').getContext('2d');
         if (bidangChart) bidangChart.destroy();
 
         bidangChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: [
-                    `Sarpras: ${summary.sarpras}`, 
-                    `Sosbud: ${summary.sosbud}`, 
-                    `Ekonomi: ${summary.ekonomi}`
-                ],
+                labels: [`Sarpras: ${summary.sarpras}`, `Sosbud: ${summary.sosbud}`, `Ekonomi: ${summary.ekonomi}`],
                 datasets: [{
                     data: [summary.sarpras, summary.sosbud, summary.ekonomi],
-                    backgroundColor: ['#1e88e5', '#e53935', '#ffb300'],
-                    hoverOffset: 10
+                    backgroundColor: ['#1e88e5', '#e53935', '#ffb300']
                 }]
             },
             options: {
@@ -193,20 +183,14 @@
                 plugins: {
                     legend: {
                         position: 'right',
-                        labels: {
-                            padding: 25,
-                            font: { size: 14, weight: 'bold' },
-                            usePointStyle: true
-                        }
+                        labels: { padding: 20, font: { size: 14, weight: 'bold' }, usePointStyle: true }
                     }
                 }
             }
         });
     }
 
-    window.onload = loadDashboardData;
+    window.onload = loadData;
 </script>
 </body>
 </html>
-
-
