@@ -619,7 +619,7 @@
 
     <div class="tanda-tangan-container">
         <div class="box-ttd">
-            <p><span id="tgl-wilayah">............</span>, <span id="tgl-sekarang">................</span> 2026</p>
+            <p><span id="nama-wilayah-ttd">............</span>, ............................ 2026</p>
             <p><strong id="jabatan-lurah">Lurah __________</strong></p>
             <p class="nama-pejabat" id="nama-lurah">( Nama Lengkap )</p>
             <p id="nip-lurah">NIP. .............................</p>
@@ -635,7 +635,6 @@
     const userKel = localStorage.getItem("kelurahan") || sessionStorage.getItem("kelurahan");
     let dataSheet = [];
 
-    // DATABASE PEJABAT
     const dataPejabat = {
         "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
         "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
@@ -663,33 +662,27 @@
     $(document).ready(function() {
         $('.js-select2').select2({ placeholder: "-- Pilih Kegiatan --", width: '100%' });
         loadData();
-        setOtomatisPejabat();
+        initTTD();
     });
 
-    function setOtomatisPejabat() {
-        const pejabat = dataPejabat[userKel];
-        if (pejabat) {
-            // Update Lokasi & Tanggal
-            const namaWilayah = userKel.replace("Kelurahan ", "").replace("Lembang ", "");
-            document.getElementById("tgl-wilayah").innerText = namaWilayah;
+    function initTTD() {
+        const pj = dataPejabat[userKel];
+        if(pj) {
+            const murni = userKel.replace("Kelurahan ", "").replace("Lembang ", "");
+            document.getElementById("nama-wilayah-ttd").innerText = murni;
             
-            const skrg = new Date();
-            const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            document.getElementById("tgl-sekarang").innerText = skrg.getDate() + " " + bulan[skrg.getMonth()];
-
-            // Logika Jabatan Khusus (Plt)
-            let jabatanText = "";
+            let jabatan = "";
             if (userKel === "Kelurahan Tampo Makale") {
-                jabatanText = "Plt. Lurah Tampo";
+                jabatan = "Plt. Lurah Tampo";
             } else if (userKel === "Kelurahan Buntu Burake") {
-                jabatanText = "Plt. Lurah Buntu Burake";
+                jabatan = "Plt. Lurah Buntu Burake";
             } else {
-                jabatanText = userKel.includes("Lembang") ? "Kepala Lembang " + namaWilayah : "Lurah " + namaWilayah;
+                jabatan = userKel.includes("Lembang") ? "Kepala Lembang " + murni : "Lurah " + murni;
             }
             
-            document.getElementById("jabatan-lurah").innerText = jabatanText;
-            document.getElementById("nama-lurah").innerText = pejabat.nama;
-            document.getElementById("nip-lurah").innerText = pejabat.nip !== "-" ? "NIP. " + pejabat.nip : "";
+            document.getElementById("jabatan-lurah").innerText = jabatan;
+            document.getElementById("nama-lurah").innerText = pj.nama;
+            document.getElementById("nip-lurah").innerText = (pj.nip && pj.nip !== "-") ? "NIP. " + pj.nip : "";
         }
     }
 
@@ -768,19 +761,15 @@
     }
 
     async function hapus(id) {
-        if(!id || id === "undefined") {
-            alert("ID data tidak terbaca. Silakan refresh halaman.");
-            return;
-        }
         if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
             try {
                 await fetch(SCRIPT_URL, { 
                     method: "POST", 
                     body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
                 });
-                alert("Usulan berhasil dihapus!");
+                alert("Berhasil dihapus!");
                 loadData();
-            } catch (err) { alert("Gagal menghapus."); }
+            } catch (err) { alert("Gagal!"); }
         }
     }
 
@@ -805,7 +794,7 @@
 
         try {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            alert(idSesi ? "Berhasil diperbarui!" : "Berhasil dikirim!");
+            alert("Berhasil disimpan!");
             resetForm();
             loadData();
         } catch (err) { alert("Gagal!"); }
@@ -823,8 +812,8 @@
 
     function exportExcel() {
         const table = document.getElementById("tabelData");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Usulan Musrenbang" });
-        XLSX.writeFile(wb, `Usulan_${userKel}_2026.xlsx`);
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Data" });
+        XLSX.writeFile(wb, `Musrenbang_${userKel}.xlsx`);
     }
 
     function logout() { localStorage.clear(); window.location.href = "index.html"; }
