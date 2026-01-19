@@ -18,17 +18,29 @@
 
         /* Main Content */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; display: flex; flex-direction: column; justify-content: center; }
         
-        /* Table Box */
+        /* Layout Statistik */
+        .stats-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+        
+        /* Container Grafik yang Diperbesar */
+        .chart-container { 
+            position: relative; 
+            height: 300px; /* Tinggi grafik ditingkatkan */
+            width: 100%; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tabel Rekap */
         .table-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
         th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
         th { background: #f8f9fa; font-weight: bold; }
         .text-left { text-align: left; padding-left: 15px; }
 
-        canvas { max-width: 100%; max-height: 250px; margin: auto; }
+        canvas { max-width: 100% !important; max-height: 100% !important; }
     </style>
 </head>
 <body>
@@ -52,12 +64,15 @@
     <div class="stats-grid">
         <div class="stat-card">
             <p>Total Usulan</p>
-            <h2 id="totalUsulan" style="font-size: 48px; color: #1e88e5;">0</h2>
+            <h2 id="totalUsulan" style="font-size: 60px; color: #1e88e5; margin: 20px 0;">0</h2>
             <p>Usulan Masuk</p>
         </div>
+
         <div class="stat-card">
-            <p>Statistik Per Bidang</p>
-            <canvas id="bidangChart"></canvas>
+            <p style="margin-bottom: 15px;">Statistik Per Bidang</p>
+            <div class="chart-container">
+                <canvas id="bidangChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -85,7 +100,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; // Ganti dengan URL Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; 
     const listKelurahan = [
         "Kelurahan Ariang", "Kelurahan Batupapan", "Kelurahan Bombongan", "Kelurahan Botang", 
         "Kelurahan Buntu Burake", "Kelurahan Kamali Pentalluan", "Kelurahan Lamunan", 
@@ -129,11 +144,11 @@
             
             updateChart(counts);
         } catch (error) {
-            console.error(error);
             document.getElementById("tabelRekap").innerHTML = "<tr><td colspan='6'>Gagal memuat data.</td></tr>";
         }
     }
 
+    // Fungsi Grafik dengan Legend Data
     function updateChart(counts) {
         const ctx = document.getElementById('bidangChart').getContext('2d');
         if (bidangChart) bidangChart.destroy();
@@ -141,16 +156,33 @@
         bidangChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Sarpras', 'Sosbud', 'Ekonomi'],
+                labels: [
+                    `Sarpras: ${counts.sarpras}`, 
+                    `Sosbud: ${counts.sosbud}`, 
+                    `Ekonomi: ${counts.ekonomi}`
+                ],
                 datasets: [{
                     data: [counts.sarpras, counts.sosbud, counts.ekonomi],
-                    backgroundColor: ['#1e88e5', '#e53935', '#ffb300']
+                    backgroundColor: ['#1e88e5', '#e53935', '#ffb300'],
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'right' } }
+                plugins: {
+                    legend: {
+                        position: 'right', // Legend di sisi kanan
+                        labels: {
+                            padding: 20,
+                            font: { size: 14, weight: 'bold' },
+                            usePointStyle: true
+                        }
+                    }
+                },
+                layout: {
+                    padding: 10
+                }
             }
         });
     }
