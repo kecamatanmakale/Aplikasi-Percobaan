@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -66,7 +67,7 @@
             <label>Nama Kegiatan (Kamus Usulan)</label>
             <select id="kegiatan" class="js-select2" required>
                 <option value=""></option>
-                <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
+               <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
                 <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
                 <option>Banyaknya UMKM yang belum memiliki NIB</option>
 <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
@@ -570,7 +571,7 @@
             <label>OPD Tujuan</label>
             <select id="opd" required>
                 <option value="">-- Pilih OPD --</option>
-               <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
+                <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
                 <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
                 <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
                 <option>BPBD</option><option>Disparpora</option>
@@ -710,7 +711,7 @@
                 const vAnggaran = getVal(d, "anggaran");
                 const vOpd = getVal(d, "opd");
                 const vKet = getVal(d, "keterangan");
-                const idData = getVal(d, "rowId") || d.Timestamp || d.timestamp || "";
+                const idData = getVal(d, "rowsId") || d.rowsId || d.Timestamp || d.timestamp || "";
 
                 const n = Number(vAnggaran) || 0; 
                 total += n;
@@ -728,7 +729,7 @@
                     <td>${vKet || "-"}</td>
                     <td class="no-print">
                         <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
-                        <button onclick="hapus('${idData}')" class="btn-hapus">✖</button>
+                        <button onclick="hapus('${idData}', event)" class="btn-hapus">✖</button>
                     </td>
                 </tr>`;
             });
@@ -741,59 +742,41 @@
         } catch (err) { console.error("Error Load:", err); }
     }
 
-    function siapEdit(id) {
-        const item = dataSheet.find(d => (getVal(d, "rowId") || d.Timestamp || d.timestamp || "").toString() === id.toString());
-        if (item) {
-            document.getElementById("rowId").value = id;
-            document.getElementById("bidang").value = getVal(item, "bidang");
-            $('#kegiatan').val(getVal(item, "kegiatan")).trigger('change');
-            document.getElementById("lokasi").value = getVal(item, "lokasi");
-            document.getElementById("volume").value = getVal(item, "volume");
-            document.getElementById("anggaran").value = getVal(item, "anggaran");
-            document.getElementById("opd").value = getVal(item, "opd");
-            document.getElementById("keterangan").value = getVal(item, "keterangan");
+    async function hapus(id, event) {
+        if (!id || id === "undefined" || id === "") {
+            alert("ID data tidak terbaca. Silakan refresh halaman atau pastikan kolom rowsId tersedia di Spreadsheet.");
+            return;
+        }
 
-            const btn = document.getElementById("btnProses");
-            btn.innerText = "💾 Simpan Perubahan";
-            btn.style.backgroundColor = "#f39c12";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            
+            try {
+                btn.disabled = true;
+                btn.innerText = "...";
+
+                const response = await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
+                });
+
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    alert("Berhasil dihapus!");
+                    await loadData(); 
+                } else {
+                    alert("Gagal menghapus: " + result.message);
+                }
+            } catch (err) { 
+                alert("Gagal koneksi server."); 
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
     }
-
-   async function hapus(id) {
-    if(!id || id === "undefined") {
-        alert("ID data tidak terbaca. Silakan refresh halaman.");
-        return;
-    }
-
-    if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
-        // Cari elemen baris tabel atau tombol yang diklik untuk memberikan feedback visual
-        const btnHapus = event.target;
-        const originalText = btnHapus.innerText;
-        
-        try {
-            btnHapus.disabled = true;
-            btnHapus.innerText = "...";
-
-            const response = await fetch(SCRIPT_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
-            });
-
-            // Pastikan untuk menunggu hasil dari script sebelum memberikan notifikasi
-            alert("Berhasil dihapus!");
-            
-            // PENTING: Panggil kembali loadData() untuk menyegarkan tampilan tabel
-            await loadData(); 
-            
-        } catch (err) { 
-            alert("Gagal menghapus data. Periksa koneksi atau script Anda."); 
-            console.error("Error Delete:", err);
-            btnHapus.disabled = false;
-            btnHapus.innerText = originalText;
-        }
-    }
-}
 
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -834,7 +817,9 @@
 
     function exportExcel() {
         const table = document.getElementById("tabelData");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Data" });
+        const tableClone = table.cloneNode(true);
+        tableClone.querySelectorAll('.no-print').forEach(el => el.remove());
+        const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Musrenbang" });
         XLSX.writeFile(wb, `Musrenbang_${userKel}.xlsx`);
     }
 
@@ -842,4 +827,3 @@
 </script>
 </body>
 </html>
-
