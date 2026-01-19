@@ -1,332 +1,44 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Sistem Musrenbang Kecamatan Makale 2026</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1200px; margin: auto; }
-        .no-print { margin-bottom: 20px; display: flex; gap: 10px; }
-        
-        /* Dashboard Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #3498db; text-align: center; }
-        .stat-card h2 { margin: 5px 0; color: #2c3e50; }
-        .stat-card p { margin: 0; font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
-
-        /* Form Style */
-        .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        h3 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; }
-        label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        
-        .btn { border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-green { background: #27ae60; width: 100%; margin-top: 20px; font-size: 16px; }
-        .btn-blue { background: #3498db; }
-        .btn-excel { background: #1f8a4c; }
-        .btn-orange { background: #f39c12; }
-        .btn-red { background: #e74c3c; }
-
-        /* Table Style */
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
-        th { background-color: #34495e; color: white; text-transform: uppercase; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-
-        /* Tanda Tangan */
-        .ttd-section { display: flex; justify-content: flex-end; margin-top: 50px; page-break-inside: avoid; }
-        .ttd-box { text-align: center; width: 350px; font-size: 14px; }
-        .ttd-nama { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
-
-        @media print { 
-            .no-print, .btn-action { display: none !important; } 
-            body { background: white; padding: 0; }
-            .box { box-shadow: none; border: 1px solid #eee; }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Dashboard Operator</title>
+<style>
+body{margin:0;font-family:Arial;background:#f4f6f9}
+.header{background:#1f8a50;color:#fff;padding:12px;display:flex;align-items:center}
+.logo{width:45px;margin-right:10px}
+.card{background:#fff;margin:20px;padding:20px;border-radius:8px}
+button{width:100%;padding:12px;margin-top:10px;background:#1f8a50;color:#fff;border:none}
+.logout{background:#c0392b}
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="no-print">
-        <button onclick="window.print()" class="btn btn-blue">🖨️ Cetak PDF</button>
-        <button onclick="exportToExcel()" class="btn btn-excel">📊 Export Excel</button>
-        <a href="dashboard.html" class="btn btn-orange" style="text-decoration:none">📈 Lihat Grafik</a>
-    </div>
-
-    <div class="stats-grid no-print">
-        <div class="stat-card">
-            <p>Total Usulan</p>
-            <h2 id="countTotal">0</h2>
-        </div>
-        <div class="stat-card" style="border-color: #27ae60">
-            <p>Sarpras</p>
-            <h2 id="countSarpras">0</h2>
-        </div>
-        <div class="stat-card" style="border-color: #f39c12">
-            <p>Ekonomi</p>
-            <h2 id="countEkonomi">0</h2>
-        </div>
-        <div class="stat-card" style="border-color: #9b59b6">
-            <p>Sosbud</p>
-            <h2 id="countSosbud">0</h2>
-        </div>
-    </div>
-
-    <div class="box no-print">
-        <form id="formUsulan">
-            <h3 id="formTitle">Form Input Usulan: <span id="userDisplay"></span></h3>
-            <input type="hidden" id="editRowId"> <label>Bidang Pembangunan</label>
-            <select id="bidang" required>
-                <option value="">-- Pilih Bidang --</option>
-                <option value="Bidang Sarana dan Prasarana">Bidang Sarana dan Prasarana</option>
-                <option value="Bidang Sosial Budaya">Bidang Sosial Budaya</option>
-                <option value="Bidang Ekonomi">Bidang Ekonomi</option>
-            </select>
-
-            <label>Kegiatan (Kamus Usulan)</label>
-            <select id="kegiatan" class="js-select2" required onchange="autoOPD(this.value)">
-                <option value="">-- Cari Kegiatan --</option>
-                <optgroup label="SARANA DAN PRASARANA">
-                    <option value="Rekonstruksi Jalan Kabupaten">Rekonstruksi Jalan Kabupaten</option>
-                    <option value="Pembangunan Drainase/Selokan">Pembangunan Drainase/Selokan</option>
-                    <option value="Pembangunan Jaringan Irigasi">Pembangunan Jaringan Irigasi</option>
-                    <option value="Penyediaan PSU Perumahan">Penyediaan PSU Perumahan</option>
-                </optgroup>
-                <optgroup label="EKONOMI">
-                    <option value="Pengadaan Ternak Babi/Sapi">Pengadaan Ternak Babi/Sapi</option>
-                    <option value="Pengadaan Benih Sayur">Pengadaan Benih Sayur</option>
-                    <option value="Pelatihan Keterampilan UMKM">Pelatihan Keterampilan UMKM</option>
-                </optgroup>
-                <optgroup label="SOSIAL BUDAYA">
-                    <option value="Pembangunan Sarana Sekolah">Pembangunan Sarana Sekolah</option>
-                    <option value="Pengadaan Mebel Sekolah">Pengadaan Mebel Sekolah</option>
-                    <option value="Pembentukan Rumah Data Kampung KB">Pembentukan Rumah Data Kampung KB</option>
-                </optgroup>
-            </select>
-
-            <label>Lokasi Spesifik</label>
-            <input type="text" id="lokasi" required placeholder="Contoh: RT 01 Lingkungan ...">
-
-            <label>OPD Tujuan</label>
-            <select id="opd" class="js-select2" required>
-                <option value="">-- Pilih OPD --</option>
-                <option value="DPUTR">DPUTR</option>
-                <option value="DPRKP">DPRKP</option>
-                <option value="DPKPP (Pertanian)">DPKPP (Pertanian)</option>
-                <option value="Dinas Pendidikan & Kebudayaan">Dinas Pendidikan & Kebudayaan</option>
-                <option value="DP3A & KB">DP3A & KB</option>
-                <option value="Dinas Sosial">Dinas Sosial</option>
-                <option value="Sekretariat DPRD">Sekretariat DPRD</option>
-            </select>
-
-            <label>Keterangan Tambahan</label>
-            <textarea id="keterangan" rows="2" placeholder="Rincian tambahan..."></textarea>
-
-            <button type="submit" id="btnSimpan" class="btn btn-green">💾 SIMPAN USULAN</button>
-            <button type="button" id="btnBatal" onclick="resetForm()" class="btn btn-red" style="display:none; width:100%; margin-top:10px;">❌ BATAL EDIT</button>
-        </form>
-    </div>
-
-    <div class="box">
-        <h3>Daftar Usulan Musrenbang</h3>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th width="30%">Kegiatan</th>
-                        <th width="20%">Bidang</th>
-                        <th width="20%">Lokasi</th>
-                        <th width="15%">OPD</th>
-                        <th width="15%" class="no-print">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="isiTabel">
-                    <tr><td colspan="5" align="center">Memuat data usulan...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="ttd-section">
-        <div class="ttd-box">
-            <p id="tglDisplay">........., ....................... 2026</p>
-            <p><strong id="jbtDisplay">Lurah</strong></p>
-            <p class="ttd-nama" id="namaPejabatDisplay">( .................................... )</p>
-            <p id="nipPejabatDisplay">NIP. .............................</p>
-        </div>
-    </div>
+<div class="header">
+  <img src="Logo_Tana_Toraja.png" class="logo">
+  <strong id="kel"></strong>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<div class="card">
+  <h3>Menu Operator</h3>
+  <button onclick="goInput()">➕ Input / Kelola Usulan</button>
+  <button onclick="goExcel()">📤 Export Excel</button>
+  <button onclick="window.print()">🖨️ Print PDF</button>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; // Masukkan URL hasil Deploy Web App Anda
-    const userAktif = localStorage.getItem("kelurahan") || "Kelurahan Ariang";
-    let listUsulan = [];
+if(localStorage.getItem("role")!=="operator")location.href="index.html";
+kel.innerText=localStorage.getItem("kelurahan");
 
-    const dataPejabat = {
-        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
-        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
-        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
-        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
-        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
-        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
-        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
-        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
-        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
-        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
-        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
-        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
-        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
-        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
-        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
-    };
-
-    $(document).ready(function() {
-        $('.js-select2').select2();
-        document.getElementById("userDisplay").innerText = userAktif;
-        setProfil();
-        loadData();
-    });
-
-    // 1. Logika Jabatan & Profil
-    function setProfil() {
-        const p = dataPejabat[userAktif];
-        const wilayah = userAktif.replace("Kelurahan ", "").replace("Lembang ", "");
-        document.getElementById("tglDisplay").innerText = wilayah + ", ....................... 2026";
-
-        let jabatan = "";
-        if (userAktif.includes("Lembang")) {
-            jabatan = "Kepala Lembang " + wilayah;
-        } else if (userAktif === "Kelurahan Tampo Makale" || userAktif === "Kelurahan Buntu Burake") {
-            jabatan = "Plt. Lurah " + wilayah.replace(" Makale", "");
-        } else {
-            jabatan = "Lurah " + wilayah;
-        }
-        document.getElementById("jbtDisplay").innerText = jabatan;
-
-        if (p) {
-            document.getElementById("namaPejabatDisplay").innerText = p.nama;
-            document.getElementById("nipPejabatDisplay").innerText = p.nip === "-" ? "" : "NIP. " + p.nip;
-        }
-    }
-
-    // 2. Load Data & Dashboard
-    async function loadData() {
-        try {
-            const res = await fetch(SCRIPT_URL + "?action=read");
-            const json = await res.json();
-            listUsulan = json.data.filter(x => x.kelurahan === userAktif);
-            
-            updateStats(listUsulan);
-            renderTable(listUsulan);
-        } catch (e) {
-            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='5' align='center' style='color:red'>Gagal memuat data. Cek SCRIPT_URL.</td></tr>";
-        }
-    }
-
-    function updateStats(data) {
-        document.getElementById("countTotal").innerText = data.length;
-        document.getElementById("countSarpras").innerText = data.filter(x => x.bidang.includes("Sarana")).length;
-        document.getElementById("countEkonomi").innerText = data.filter(x => x.bidang.includes("Ekonomi")).length;
-        document.getElementById("countSosbud").innerText = data.filter(x => x.bidang.includes("Sosial")).length;
-    }
-
-    function renderTable(data) {
-        let html = "";
-        data.reverse().forEach(d => {
-            const id = d.rowsId || d.rowsid;
-            html += `<tr>
-                <td><b>${d.kegiatan}</b></td>
-                <td>${d.bidang}</td>
-                <td>${d.lokasi}</td>
-                <td>${d.opd}</td>
-                <td class="no-print" align="center">
-                    <button onclick='isiFormEdit(${JSON.stringify(d)})' class="btn btn-orange" style="padding:5px 8px">✏️</button>
-                    <button onclick="hapus('${id}')" class="btn btn-red" style="padding:5px 8px">🗑️</button>
-                </td>
-            </tr>`;
-        });
-        document.getElementById("isiTabel").innerHTML = html || "<tr><td colspan='5' align='center'>Belum ada usulan.</td></tr>";
-    }
-
-    // 3. Fitur Edit
-    function isiFormEdit(d) {
-        window.scrollTo(0,0);
-        document.getElementById("editRowId").value = d.rowsId || d.rowsid;
-        $("#bidang").val(d.bidang);
-        $("#kegiatan").val(d.kegiatan).trigger('change');
-        $("#lokasi").val(d.lokasi);
-        $("#opd").val(d.opd).trigger('change');
-        $("#keterangan").val(d.keterangan);
-        
-        document.getElementById("btnSimpan").innerText = "🔄 UPDATE USULAN";
-        document.getElementById("btnBatal").style.display = "block";
-    }
-
-    function resetForm() {
-        document.getElementById("formUsulan").reset();
-        document.getElementById("editRowId").value = "";
-        $(".js-select2").val("").trigger('change');
-        document.getElementById("btnSimpan").innerText = "💾 SIMPAN USULAN";
-        document.getElementById("btnBatal").style.display = "none";
-    }
-
-    // 4. CRUD Actions
-    document.getElementById("formUsulan").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById("btnSimpan");
-        const id = document.getElementById("editRowId").value;
-        btn.disabled = true; btn.innerText = "SEDANG MEMPROSES...";
-
-        const payload = {
-            action: id ? "update" : "insert",
-            rowId: id,
-            kelurahan: userAktif,
-            bidang: $("#bidang").val(),
-            kegiatan: $("#kegiatan").val(),
-            lokasi: $("#lokasi").val(),
-            opd: $("#opd").val(),
-            keterangan: $("#keterangan").val()
-        };
-
-        await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        alert("Data Berhasil Disimpan!");
-        location.reload();
-    });
-
-    async function hapus(id) {
-        if(confirm("Hapus usulan ini?")) {
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", rowId: id }) });
-            loadData();
-        }
-    }
-
-    // 5. Export & Auto OPD
-    function exportToExcel() {
-        const ws = XLSX.utils.json_to_sheet(listUsulan);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Usulan");
-        XLSX.writeFile(wb, `Musrenbang_2026_${userAktif}.xlsx`);
-    }
-
-    function autoOPD(val) {
-        const mapping = {
-            "Rekonstruksi Jalan Kabupaten": "DPUTR",
-            "Pembangunan Drainase/Selokan": "DPUTR",
-            "Penyediaan PSU Perumahan": "DPRKP",
-            "Pengadaan Ternak Babi/Sapi": "DPKPP (Pertanian)",
-            "Pembangunan Sarana Sekolah": "Dinas Pendidikan & Kebudayaan"
-        };
-        if(mapping[val]) $('#opd').val(mapping[val]).trigger('change');
-    }
+function goInput(){location.href="input.html"}
+function goExcel(){location.href="input.html#excel"}
+function logout(){
+  localStorage.clear();
+  location.href="index.html";
+}
 </script>
+
 </body>
 </html>
