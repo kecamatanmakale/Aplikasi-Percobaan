@@ -693,91 +693,59 @@
         return key ? obj[key] : "";
     };
 
-    async function loadData() {
+   // Pastikan bagian pengambilan ID di dalam loadData seperti ini:
+async function loadData() {
+    // ... kode fetch data ...
+    filter.reverse().forEach(d => {
+        // Skrip ini akan mencari 'rowsId' (sesuai header A1 di gambar), 
+        // jika tidak ada akan mengambil 'Timestamp'
+        const idData = d.rowsId || d.rowsid || d.Timestamp || d.timestamp || ""; 
+
+        baris += `<tr>
+            <td class="no-print">
+                <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
+                <button onclick="hapus('${idData}', event)" class="btn-hapus">✖</button>
+            </td>
+        </tr>`;
+    });
+    // ...
+}
+
+async function hapus(id, event) {
+    if (!id || id === "undefined" || id === "") {
+        alert("ID data tidak terbaca. Silakan isi kolom rowsId di Spreadsheet terlebih dahulu.");
+        return;
+    }
+
+    if (confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        
         try {
-            const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
-            const json = await res.json();
-            dataSheet = json.data;
-            
-            const filter = dataSheet.filter(x => getVal(x, "kelurahan") === userKel);
-            let baris = ""; let total = 0;
-            let s = 0, so = 0, e = 0;
+            btn.disabled = true;
+            btn.innerText = "...";
 
-            filter.reverse().forEach(d => {
-                const vBidang = getVal(d, "bidang");
-                const vKegiatan = getVal(d, "kegiatan");
-                const vLokasi = getVal(d, "lokasi");
-                const vVolume = getVal(d, "volume");
-                const vAnggaran = getVal(d, "anggaran");
-                const vOpd = getVal(d, "opd");
-                const vKet = getVal(d, "keterangan");
-                const idData = getVal(d, "rowsId") || d.rowsId || d.Timestamp || d.timestamp || "";
-
-                const n = Number(vAnggaran) || 0; 
-                total += n;
-
-                const b = vBidang.toLowerCase();
-                if(b.includes("sarana")) s++; else if(b.includes("sosial")) so++; else if(b.includes("ekonomi")) e++;
-
-                baris += `<tr>
-                    <td><strong>${vKegiatan}</strong></td>
-                    <td>${vBidang}</td>
-                    <td>${vLokasi}</td>
-                    <td>${vVolume}</td>
-                    <td>${n.toLocaleString('id-ID')}</td>
-                    <td>${vOpd}</td>
-                    <td>${vKet || "-"}</td>
-                    <td class="no-print">
-                        <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
-                        <button onclick="hapus('${idData}', event)" class="btn-hapus">✖</button>
-                    </td>
-                </tr>`;
+            const response = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
             });
 
-            document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data.</td></tr>";
-            document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString('id-ID');
-            document.getElementById("countSarpra").innerText = s;
-            document.getElementById("countSosbud").innerText = so;
-            document.getElementById("countEkonomi").innerText = e;
-        } catch (err) { console.error("Error Load:", err); }
-    }
-
-    async function hapus(id, event) {
-        if (!id || id === "undefined" || id === "") {
-            alert("ID data tidak terbaca. Silakan refresh halaman atau pastikan kolom rowsId tersedia di Spreadsheet.");
-            return;
-        }
-
-        if(confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
-            const btn = event.target;
-            const originalText = btn.innerText;
+            const result = await response.json();
             
-            try {
-                btn.disabled = true;
-                btn.innerText = "...";
-
-                const response = await fetch(SCRIPT_URL, { 
-                    method: "POST", 
-                    body: JSON.stringify({ action: "delete", rowId: id.toString() }) 
-                });
-
-                const result = await response.json();
-                
-                if (result.status === "success") {
-                    alert("Berhasil dihapus!");
-                    await loadData(); 
-                } else {
-                    alert("Gagal menghapus: " + result.message);
-                }
-            } catch (err) { 
-                alert("Gagal koneksi server."); 
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
+            if (result.status === "success") {
+                alert("Berhasil dihapus!");
+                await loadData(); // Segarkan tabel secara otomatis
+            } else {
+                alert("Gagal menghapus: " + result.message);
             }
+        } catch (err) { 
+            alert("Terjadi kesalahan koneksi ke server."); 
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
     }
-
+}
     document.getElementById("formUsulan").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("btnProses");
@@ -827,3 +795,4 @@
 </script>
 </body>
 </html>
+
