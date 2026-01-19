@@ -12,10 +12,15 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1200px; margin: auto; }
         
+        /* Identitas User & Navigasi */
+        .user-nav { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; color: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .user-info { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .user-info i { font-size: 20px; }
+        
         /* Dashboard Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #3498db; text-align: center; }
-        .stat-card h2 { margin: 5px 0; color: #2c3e50; }
+        .stat-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 4px solid #3498db; text-align: center; }
+        .stat-card h2 { margin: 5px 0; color: #2c3e50; font-size: 28px; }
         .stat-card p { margin: 0; font-size: 11px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
         /* Form & Boxes */
@@ -25,11 +30,12 @@
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         
         /* Buttons */
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .btn-green { background: #27ae60; width: 100%; margin-top: 20px; font-size: 16px; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn { border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-size: 14px; }
+        .btn-green { background: #27ae60; width: 100%; margin-top: 20px; justify-content: center; font-size: 16px; }
         .btn-blue { background: #3498db; }
         .btn-excel { background: #1f8a4c; }
+        .btn-dark { background: #34495e; }
         .btn-orange { background: #f39c12; }
         .btn-red { background: #e74c3c; }
 
@@ -45,7 +51,7 @@
         .ttd-nama { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
 
         @media print { 
-            .no-print { display: none !important; } 
+            .no-print, .user-nav, .btn-group { display: none !important; } 
             body { background: white; padding: 0; }
             .box { box-shadow: none; border: 1px solid #eee; }
         }
@@ -54,9 +60,16 @@
 <body>
 
 <div class="container">
+    <div class="user-nav no-print">
+        <div class="user-info">
+            👤 Username: <span id="usernameDisplay">Memuat...</span>
+        </div>
+        <a href="dashboard_utama.html" class="btn btn-dark">🏠 Kembali ke Dashboard</a>
+    </div>
+
     <div class="btn-group no-print">
-        <button onclick="window.print()" class="btn btn-blue">🖨️ Cetak PDF</button>
-        <button onclick="exportToExcel()" class="btn btn-excel">📊 Export ke Excel</button>
+        <button onclick="window.print()" class="btn btn-blue">📄 Cetak PDF</button>
+        <button onclick="exportToExcel()" class="btn btn-excel">📗 Export ke Excel</button>
     </div>
 
     <div class="stats-grid no-print">
@@ -64,15 +77,15 @@
             <p>Total Usulan</p>
             <h2 id="statTotal">0</h2>
         </div>
-        <div class="stat-card" style="border-color: #27ae60">
+        <div class="stat-card" style="border-top-color: #27ae60">
             <p>Bidang Sarpras</p>
             <h2 id="statSarpras">0</h2>
         </div>
-        <div class="stat-card" style="border-color: #f39c12">
+        <div class="stat-card" style="border-top-color: #f39c12">
             <p>Bidang Ekonomi</p>
             <h2 id="statEkonomi">0</h2>
         </div>
-        <div class="stat-card" style="border-color: #9b59b6">
+        <div class="stat-card" style="border-top-color: #9b59b6">
             <p>Bidang Sosbud</p>
             <h2 id="statSosbud">0</h2>
         </div>
@@ -99,15 +112,9 @@
                 <option value="Penyediaan Prasarana, Sarana dan Utilitas Umum di Perumahan">Penyediaan Prasarana, Sarana dan Utilitas Umum di Perumahan</option>
                 <option value="Pemeliharaan, Perawatan, dan Pemeriksaan Berkala Bangunan Gedung">Pemeliharaan, Perawatan, dan Pemeriksaan Berkala Bangunan Gedung</option>
                 <option value="Pengadaan Ternak Babi">Pengadaan Ternak Babi</option>
-                <option value="Pengadaan Ternak Sapi">Pengadaan Ternak Sapi</option>
                 <option value="Pembangunan Jaringan Irigasi">Pembangunan Jaringan Irigasi</option>
                 <option value="Pembangunan Sarana, Prasarana dan Utilitas Sekolah">Pembangunan Sarana, Prasarana dan Utilitas Sekolah</option>
-                <option value="Pengadaan Mebel Sekolah">Pengadaan Mebel Sekolah</option>
-                <option value="Penyediaan Alat Kesehatan Puskesmas/Pustu">Penyediaan Alat Kesehatan Puskesmas/Pustu</option>
-                <option value="Pemberian Tambahan Nutrisi Pencegahan Stunting">Pemberian Tambahan Nutrisi Pencegahan Stunting</option>
                 <option value="Pelatihan Keterampilan bagi UMKM">Pelatihan Keterampilan bagi UMKM</option>
-                <option value="Pembangunan Bak Penampung Air Bersih">Pembangunan Bak Penampung Air Bersih</option>
-                <option value="Pemasangan Lampu Penerangan Jalan Umum">Pemasangan Lampu Penerangan Jalan Umum</option>
             </select>
 
             <label>Lokasi Spesifik</label>
@@ -122,7 +129,6 @@
                 <option value="Dinas Pendidikan & Kebudayaan">Dinas Pendidikan & Kebudayaan</option>
                 <option value="Dinas Kesehatan">Dinas Kesehatan</option>
                 <option value="Sekretariat DPRD">Sekretariat DPRD</option>
-                <option value="Dinas Koperasi & UMKM">Dinas Koperasi & UMKM</option>
             </select>
 
             <label>Keterangan Tambahan</label>
@@ -134,7 +140,7 @@
     </div>
 
     <div class="box">
-        <h3>Daftar Usulan Musrenbang TA 2026</h3>
+        <h3>Daftar Usulan: <span id="namaWilayahTabel"></span></h3>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
@@ -167,11 +173,11 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; // Ganti dengan URL hasil Deploy Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec";
     const userAktif = localStorage.getItem("kelurahan") || "Kelurahan Ariang";
     let dataGlobal = [];
 
-    // Data Pejabat
+    // Basis Data Pejabat
     const dataPejabat = {
         "Kelurahan Ariang": { nama: "MARTINUS KALO'BONG, SE., MM", nip: "197703072009061002" },
         "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
@@ -191,7 +197,9 @@
     };
 
     $(document).ready(function() {
-        $('.js-select2').select2({ width: '100%' });
+        $('.js-select2').select2();
+        document.getElementById("usernameDisplay").innerText = userAktif;
+        document.getElementById("namaWilayahTabel").innerText = userAktif;
         setProfilTTD();
         loadData();
     });
@@ -235,7 +243,6 @@
     function renderTable(data) {
         let html = "";
         data.reverse().forEach(d => {
-            const id = d.rowsId || d.rowsid;
             html += `<tr>
                 <td><b>${d.kegiatan}</b></td>
                 <td>${d.bidang}</td>
@@ -243,7 +250,7 @@
                 <td>${d.opd}</td>
                 <td class="no-print" align="center">
                     <button onclick='isiFormEdit(${JSON.stringify(d)})' class="btn btn-orange" style="padding:5px 8px">✏️</button>
-                    <button onclick="hapus('${id}')" class="btn btn-red" style="padding:5px 8px">🗑️</button>
+                    <button onclick="hapus('${d.rowsId || d.rowsid}')" class="btn btn-red" style="padding:5px 8px">🗑️</button>
                 </td>
             </tr>`;
         });
@@ -288,7 +295,7 @@
         };
 
         await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        alert("Berhasil!");
+        alert("Data Berhasil Disimpan!");
         location.reload();
     });
 
@@ -311,15 +318,8 @@
             "Rekonstruksi Jalan Kabupaten": "DPUTR",
             "Pembangunan Drainase/Selokan": "DPUTR",
             "Penyediaan Prasarana, Sarana dan Utilitas Umum di Perumahan": "DPRKP",
-            "Pemeliharaan, Perawatan, dan Pemeriksaan Berkala Bangunan Gedung": "DPRKP",
             "Pengadaan Ternak Babi": "DPKPP",
-            "Pengadaan Ternak Sapi": "DPKPP",
-            "Pembangunan Jaringan Irigasi": "DPKPP",
-            "Pembangunan Sarana, Prasarana dan Utilitas Sekolah": "Dinas Pendidikan & Kebudayaan",
-            "Pengadaan Mebel Sekolah": "Dinas Pendidikan & Kebudayaan",
-            "Penyediaan Alat Kesehatan Puskesmas/Pustu": "Dinas Kesehatan",
-            "Pelatihan Keterampilan bagi UMKM": "Dinas Koperasi & UMKM",
-            "Pemasangan Lampu Penerangan Jalan Umum": "DPRKP"
+            "Pembangunan Jaringan Irigasi": "DPKPP"
         };
         if(map[val]) $('#opd').val(map[val]).trigger('change');
     }
