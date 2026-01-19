@@ -2,36 +2,77 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Input Usulan Musrenbang</title>
+    <title>Input Usulan Musrenbang Makale</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .no-print { margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #2c3e50; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .btn-hapus { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-hapus:disabled { background: #95a5a6; }
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 1000px; margin: auto; }
+        .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        .btn-kirim { background-color: #27ae60; color: white; border: none; padding: 12px; width: 100%; margin-top: 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-hapus { background: #e74c3c; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; font-size: 12px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background-color: #34495e; color: white; }
+        /* Area Tanda Tangan */
+        .tanda-tangan-container { display: flex; justify-content: flex-end; margin-top: 50px; page-break-inside: avoid; }
+        .box-ttd { text-align: center; width: 300px; font-size: 14px; }
+        .nama-pejabat { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay">Memproses Data...</div>
-
 <div class="container">
-    <h2 style="text-align: center; color: #2c3e50;">Daftar Usulan Musrenbang</h2>
-    <hr>
-    
-    <div class="no-print">
-        <button onclick="location.reload()" style="padding: 10px; cursor: pointer;">🔄 Refresh Data</button>
-        <button onclick="window.print()" style="padding: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 4px;">🖨️ Cetak Ke PDF</button>
+    <div class="no-print" style="margin-bottom: 20px;">
+        <button onclick="window.location.href='dashboard.html'" style="background:#4a5568; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;">⬅ Dashboard</button>
+        <button onclick="window.print()" style="background:#3498db; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;">🖨️ Print PDF</button>
     </div>
 
+    <h3>Input Usulan: <span id="namaKel">-</span></h3>
+
+    <div class="box no-print">
+        <form id="formUsulan">
+            <input type="hidden" id="rowId">
+            <label>Bidang</label>
+            <select id="bidang" required>
+                <option value="">-- Pilih Bidang --</option>
+                <option value="Bidang Sarana dan Prasarana">Bidang Sarana dan Prasarana</option>
+                <option value="Bidang Sosial Budaya">Bidang Sosial Budaya</option>
+                <option value="Bidang Ekonomi">Bidang Ekonomi</option>
+            </select>
+
+            <label>Kegiatan</label>
+            <select id="kegiatan" class="js-select2" required>
+                <option value="">-- Pilih Kegiatan --</option>
+                <option>Pembangunan Jalan Lingkungan</option>
+                <option>Pembangunan Jaringan Irigasi</option>
+                <option>Pengadaan Ternak Babi</option>
+                <option>Normalisasi Sungai</option>
+            </select>
+
+            <label>Lokasi Spesifik</label>
+            <input type="text" id="lokasi" required placeholder="Contoh: RT 01 Lingkungan Ariang">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;"><label>Volume</label><input type="text" id="volume" required></div>
+                <div style="flex: 1;"><label>Anggaran (Rp)</label><input type="number" id="anggaran" required></div>
+            </div>
+
+            <label>OPD Tujuan</label>
+            <input type="text" id="opd" required>
+
+            <label>Keterangan</label>
+            <textarea id="keterangan" rows="2"></textarea>
+
+            <button type="submit" id="btnProses" class="btn-kirim">Simpan Usulan</button>
+        </form>
+    </div>
+
+    <h4>Daftar Usulan :</h4>
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -41,111 +82,93 @@
                     <th>Lokasi</th>
                     <th>Volume</th>
                     <th>Anggaran (Rp)</th>
-                    <th>OPD</th>
                     <th class="no-print">Aksi</th>
                 </tr>
             </thead>
-            <tbody id="isiTabel">
-                <tr><td colspan="7" align="center">Sedang memuat data usulan...</td></tr>
-            </tbody>
+            <tbody id="isiTabel"></tbody>
         </table>
+    </div>
+
+    <div class="tanda-tangan-container">
+        <div class="box-ttd">
+            <p><span id="wilayah-ttd">............</span>, ............................ 2026</p>
+            <p><strong id="jabatan-ttd">Lurah __________</strong></p>
+            <p class="nama-pejabat" id="nama-ttd">( .................................... )</p>
+            <p id="nip-ttd">NIP. .............................</p>
+        </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    // URL Web App yang baru Anda berikan
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwO1wutjpIhGqNr98x3hBONP8qasbVFs2qcH_jPHok7cNofwi64JrmmECazCnvh6Dfc/exec";
-    const userKel = localStorage.getItem("kelurahan") || "Kelurahan Ariang"; // Contoh fallback
+    // URL SCRIPT ANDA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9swaXukSYLiutCsrN08307K8eYu0ZheT1zKLvxFch87BTJVxLJCeEmfe9WGCoOVUc/exec";
+    const userKel = localStorage.getItem("kelurahan") || "Kelurahan Ariang";
 
     $(document).ready(function() {
+        document.getElementById("namaKel").innerText = userKel;
+        $('.js-select2').select2({ width: '100%' });
         loadData();
+        setupTTD();
     });
 
     async function loadData() {
         try {
-            const response = await fetch(SCRIPT_URL + "?action=read");
-            const result = await response.json();
+            const res = await fetch(SCRIPT_URL + "?action=read");
+            const json = await res.json();
+            const filter = json.data.filter(x => x.kelurahan === userKel);
             
-            // Filter berdasarkan Kelurahan yang aktif
-            const filteredData = result.data.filter(item => {
-                const itemKel = (item.kelurahan || "").toString().trim().toLowerCase();
-                return itemKel === userKel.toLowerCase().trim();
-            });
-
-            renderTable(filteredData);
-        } catch (error) {
-            console.error(error);
-            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='7' align='center' style='color:red;'>Gagal memuat data. Periksa koneksi atau URL Script.</td></tr>";
-        }
-    }
-
-    function renderTable(data) {
-        let html = "";
-        if (data.length === 0) {
-            html = "<tr><td colspan='7' align='center'>Tidak ada data usulan untuk wilayah ini.</td></tr>";
-        } else {
-            // Urutkan dari yang terbaru (berdasarkan baris di sheet)
-            data.reverse().forEach(item => {
-                // Pastikan properti ID sesuai dengan header kolom A di Sheet (rowsId)
-                const id = item.rowsId || item.rowsid || ""; 
-                
+            let html = "";
+            filter.reverse().forEach(d => {
+                const id = d.rowsId || d.rowsid || "";
                 html += `<tr>
-                    <td><b>${item.kegiatan || '-'}</b></td>
-                    <td>${item.bidang || '-'}</td>
-                    <td>${item.lokasi || '-'}</td>
-                    <td>${item.volume || '-'}</td>
-                    <td>${Number(item.anggaran || 0).toLocaleString('id-ID')}</td>
-                    <td>${item.opd || '-'}</td>
-                    <td class="no-print">
-                        <button class="btn-hapus" onclick="hapusData('${id}', this)">✖ Hapus</button>
-                    </td>
+                    <td>${d.kegiatan}</td>
+                    <td>${d.bidang}</td>
+                    <td>${d.lokasi}</td>
+                    <td>${d.volume}</td>
+                    <td>${Number(d.anggaran).toLocaleString('id-ID')}</td>
+                    <td class="no-print"><button onclick="hapus('${id}')" class="btn-hapus">✖</button></td>
                 </tr>`;
             });
-        }
-        document.getElementById("isiTabel").innerHTML = html;
+            document.getElementById("isiTabel").innerHTML = html || "<tr><td colspan='6' align='center'>Data Kosong</td></tr>";
+        } catch (e) { console.error(e); }
     }
 
-    async function hapusData(id, btn) {
-        if (!id) {
-            alert("ID data tidak terbaca. Silakan refresh halaman.");
-            return;
-        }
+    function setupTTD() {
+        // Logika otomatis mengisi nama Lurah berdasarkan userKel bisa ditambahkan di sini
+        document.getElementById("wilayah-ttd").innerText = userKel.replace("Kelurahan ", "");
+        document.getElementById("jabatan-ttd").innerText = "Lurah " + userKel.replace("Kelurahan ", "");
+    }
 
-        if (confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
-            showLoader(true);
-            btn.disabled = true;
-            btn.innerText = "Processing...";
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "delete",
-                        rowId: id
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.status === "success") {
-                    alert("Data berhasil dihapus!");
-                    loadData(); // Muat ulang tabel
-                } else {
-                    alert("Gagal: " + result.message);
-                }
-            } catch (error) {
-                alert("Terjadi kesalahan jaringan.");
-            } finally {
-                showLoader(false);
-            }
+    async function hapus(id) {
+        if(confirm("Hapus data ini?")) {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "delete", rowId: id })
+            });
+            loadData();
         }
     }
 
-    function showLoader(isVisible) {
-        document.getElementById("loader").style.display = isVisible ? "flex" : "none";
-    }
+    document.getElementById("formUsulan").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = {
+            action: "insert",
+            kelurahan: userKel,
+            bidang: $("#bidang").val(),
+            kegiatan: $("#kegiatan").val(),
+            lokasi: $("#lokasi").val(),
+            volume: $("#volume").val(),
+            anggaran: $("#anggaran").val(),
+            opd: $("#opd").val(),
+            keterangan: $("#keterangan").val()
+        };
+        await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        alert("Data Tersimpan");
+        location.reload();
+    });
 </script>
 </body>
 </html>
