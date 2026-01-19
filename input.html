@@ -695,32 +695,55 @@
 
    // Pastikan bagian pengambilan ID di dalam loadData seperti ini:
 async function loadData() {
-    // ... kode fetch data ...
-    filter.reverse().forEach(d => {
-        // Skrip ini akan mencari 'rowsId' (sesuai header A1 di gambar), 
-        // jika tidak ada akan mengambil 'Timestamp'
-        const idData = d.rowsId || d.rowsid || d.Timestamp || d.timestamp || ""; 
+    try {
+        const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+        const json = await res.json();
+        dataSheet = json.data;
+        
+        // Filter berdasarkan kelurahan yang sedang aktif
+        const filter = dataSheet.filter(x => getVal(x, "kelurahan") === userKel);
+        let baris = ""; let total = 0;
 
-        baris += `<tr>
-            <td class="no-print">
-                <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
-                <button onclick="hapus('${idData}', event)" class="btn-hapus">✖</button>
-            </td>
-        </tr>`;
-    });
-    // ...
+        filter.reverse().forEach(d => {
+            // PERBAIKAN: Membaca rowsId (huruf 's') atau Timestamp untuk data lama
+            const idData = d.rowsId || d.rowsid || d.Timestamp || d.timestamp || "";
+            
+            const vAnggaran = Number(getVal(d, "anggaran")) || 0;
+            total += vAnggaran;
+
+            baris += `<tr>
+                <td><strong>${getVal(d, "kegiatan")}</strong></td>
+                <td>${getVal(d, "bidang")}</td>
+                <td>${getVal(d, "lokasi")}</td>
+                <td>${getVal(d, "volume")}</td>
+                <td>${vAnggaran.toLocaleString('id-ID')}</td>
+                <td>${getVal(d, "opd")}</td>
+                <td>${getVal(d, "keterangan") || "-"}</td>
+                <td class="no-print">
+                    <button onclick="siapEdit('${idData}')" class="btn-edit">✎</button>
+                    <button onclick="hapus('${idData}', event)" class="btn-hapus">✖</button>
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById("isiTabel").innerHTML = baris || "<tr><td colspan='8' align='center'>Belum ada data untuk kelurahan ini.</td></tr>";
+        document.getElementById("totalAnggaran").innerText = "Rp " + total.toLocaleString('id-ID');
+        
+        // Update Rekap (Jika ada fungsi updateRekap)
+        updateRekap(filter); 
+    } catch (err) { 
+        console.error("Gagal memuat data:", err); 
+    }
 }
 
 async function hapus(id, event) {
     if (!id || id === "undefined" || id === "") {
-        alert("ID data tidak terbaca. Silakan isi kolom rowsId di Spreadsheet terlebih dahulu.");
+        alert("ID data tidak ditemukan. Pastikan kolom 'rowsId' di Spreadsheet sudah terisi.");
         return;
     }
 
     if (confirm("Apakah Anda yakin ingin menghapus usulan ini?")) {
         const btn = event.target;
-        const originalText = btn.innerText;
-        
         try {
             btn.disabled = true;
             btn.innerText = "...";
@@ -734,15 +757,15 @@ async function hapus(id, event) {
             
             if (result.status === "success") {
                 alert("Berhasil dihapus!");
-                await loadData(); // Segarkan tabel secara otomatis
+                await loadData(); // Segarkan tabel
             } else {
-                alert("Gagal menghapus: " + result.message);
+                alert("Gagal di server: " + result.message);
             }
         } catch (err) { 
-            alert("Terjadi kesalahan koneksi ke server."); 
+            alert("Kesalahan koneksi."); 
         } finally {
             btn.disabled = false;
-            btn.innerText = originalText;
+            btn.innerText = "✖";
         }
     }
 }
@@ -795,4 +818,5 @@ async function hapus(id, event) {
 </script>
 </body>
 </html>
+
 
