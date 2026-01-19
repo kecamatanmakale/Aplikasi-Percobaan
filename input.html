@@ -12,10 +12,10 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1240px; margin: auto; }
         
-        /* Navbar dengan Logo */
+        /* Navbar dengan Logo GitHub */
         .user-nav { display: flex; justify-content: space-between; align-items: center; background: #1b5e20; color: white; padding: 10px 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .brand-section { display: flex; align-items: center; gap: 15px; }
-        .logo-kab { height: 45px; width: auto; filter: drop-shadow(0px 0px 2px white); }
+        .logo-kab { height: 50px; width: auto; } /* Ukuran logo disesuaikan */
         .user-info { font-weight: bold; font-size: 16px; }
         
         /* Dashboard Stats */
@@ -24,7 +24,7 @@
         .stat-card h2 { margin: 5px 0; color: #2c3e50; font-size: 32px; }
         .stat-card p { margin: 0; font-size: 11px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
 
-        /* Form & Boxes */
+        /* Form Box */
         .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         h3 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; }
         .ta-info { margin-top: -5px; font-weight: bold; color: #1b5e20; font-size: 14px; margin-bottom: 15px; }
@@ -40,23 +40,22 @@
         .btn-orange { background: #f39c12; }
         .btn-red { background: #c62828; }
         .btn-back { background: rgba(255,255,255,0.2); border: 1px solid white; }
-        .btn-back:hover { background: white; color: #1b5e20; }
 
         /* Table Style */
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
         th { background-color: #37474f; color: white; text-transform: uppercase; }
         tr:nth-child(even) { background-color: #f9f9f9; }
 
         /* Tanda Tangan */
-        .ttd-section { display: flex; justify-content: flex-end; margin-top: 50px; page-break-inside: avoid; }
+        .ttd-section { display: flex; justify-content: flex-end; margin-top: 40px; page-break-inside: avoid; }
         .ttd-box { text-align: center; width: 350px; font-size: 14px; }
-        .ttd-nama { margin-top: 70px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+        .ttd-nama { margin-top: 60px; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
 
         @media print { 
             .no-print, .user-nav, .btn-group { display: none !important; } 
             body { background: white; padding: 0; }
-            .box { box-shadow: none; border: none; padding: 10px 0; }
+            .box { box-shadow: none; border: none; padding: 5px 0; }
         }
     </style>
 </head>
@@ -65,7 +64,7 @@
 <div class="container">
     <div class="user-nav no-print">
         <div class="brand-section">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Logo_Tana_Toraja.png/480px-Logo_Tana_Toraja.png" class="logo-kab" alt="Logo Tana Toraja">
+            <img src="logo.png" class="logo-kab" alt="Logo Tana Toraja">
             <div class="user-info">
                 Operator: <span id="usernameDisplay">Memuat...</span>
             </div>
@@ -105,7 +104,7 @@
                 <option value="Pembangunan Drainase/Selokan">Pembangunan Drainase/Selokan</option>
                 <option value="Penyediaan Prasarana, Sarana dan Utilitas Umum di Perumahan">Penyediaan PSU Perumahan</option>
                 <option value="Pengadaan Ternak Babi">Pengadaan Ternak Babi</option>
-                <option value="Pembangunan Sarana, Prasarana dan Utilitas Sekolah">Pembangunan Sarana Sekolah</option>
+                <option value="Pembangunan Jaringan Irigasi">Pembangunan Jaringan Irigasi</option>
             </select>
 
             <label>Lokasi Spesifik</label>
@@ -120,7 +119,7 @@
                 <option value="Dinas Pendidikan & Kebudayaan">Dinas Pendidikan & Kebudayaan</option>
             </select>
 
-            <label>Keterangan Tambahan (Tampil di Tabel)</label>
+            <label>Keterangan Tambahan</label>
             <textarea id="keterangan" rows="2" placeholder="Detail rincian usulan..."></textarea>
 
             <button type="submit" id="btnSimpan" class="btn btn-green">💾 SIMPAN USULAN</button>
@@ -135,11 +134,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th width="25%">Kegiatan</th>
+                        <th width="20%">Kegiatan</th>
                         <th width="15%">Bidang</th>
                         <th width="15%">Lokasi</th>
                         <th width="15%">OPD Tujuan</th>
-                        <th width="20%">Keterangan</th> <th width="10%" class="no-print">Aksi</th>
+                        <th width="25%">Keterangan</th> <th width="10%" class="no-print">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="isiTabel">
@@ -167,15 +166,15 @@
     const userAktif = localStorage.getItem("kelurahan") || "Kelurahan Tondon Mamullu";
     let dataGlobal = [];
 
+    // Data Pejabat untuk TTD Otomatis
     const dataPejabat = {
         "Kelurahan Tondon Mamullu": { nama: "DANIEL TANDING, SE", nip: "197012312006041055" },
         "Kelurahan Ariang": { nama: "MARTINUS KALO'BONG, SE., MM", nip: "197703072009061002" },
         "Kelurahan Buntu Burake": { nama: "THOMAS MANGELO", nip: "197204091992031003" }
-        // ... Tambahkan lainnya sesuai kebutuhan
     };
 
     $(document).ready(function() {
-        $('.js-select2').select2();
+        $('.js-select2').select2({ width: '100%' });
         document.getElementById("usernameDisplay").innerText = userAktif;
         document.getElementById("namaWilayahTabel").innerText = userAktif;
         setProfilTTD();
@@ -201,7 +200,7 @@
             updateDashboard(dataGlobal);
             renderTable(dataGlobal);
         } catch (e) {
-            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='6' align='center' style='color:red'>Gagal memuat data.</td></tr>";
+            document.getElementById("isiTabel").innerHTML = "<tr><td colspan='6' align='center'>Gagal memuat data dari Spreadsheet.</td></tr>";
         }
     }
 
@@ -220,10 +219,9 @@
                 <td>${d.bidang}</td>
                 <td>${d.lokasi}</td>
                 <td>${d.opd}</td>
-                <td>${d.keterangan || "-"}</td>
-                <td class="no-print" align="center">
-                    <button onclick='isiFormEdit(${JSON.stringify(d)})' class="btn btn-orange" style="padding:5px 8px">✏️</button>
-                    <button onclick="hapus('${d.rowsId || d.rowsid}')" class="btn btn-red" style="padding:5px 8px">🗑️</button>
+                <td>${d.keterangan || "-"}</td> <td class="no-print" align="center">
+                    <button onclick='isiFormEdit(${JSON.stringify(d)})' class="btn btn-orange" style="padding:4px 6px">✏️</button>
+                    <button onclick="hapus('${d.rowsId || d.rowsid}')" class="btn btn-red" style="padding:4px 6px">🗑️</button>
                 </td>
             </tr>`;
         });
