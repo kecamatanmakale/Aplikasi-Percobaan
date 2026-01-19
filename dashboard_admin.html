@@ -20,7 +20,15 @@
         
         /* Tombol Logout & Footer */
         .btn-logout { background: #d32f2f; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 30px; font-weight: bold; }
-        .sidebar-footer { margin-top: 15px; font-size: 14px; text-align: center; color: rgba(255, 255, 255, 0.6); line-height: 1.4; }
+        ..sidebar-footer {
+    margin-top: 20px;
+    font-size: 14px;            /* Ukuran font besar */
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;           /* Ditambah agar ada ruang antar baris */
+    font-weight: 500;           /* Ketebalan sedang agar tidak terlalu kaku */
+    padding: 0 10px;            /* Memberi ruang agar tidak mentok ke tepi sidebar */
+}
 
         /* Main Content */
         .main-content { flex: 1; margin-left: 250px; padding: 30px; }
@@ -62,8 +70,10 @@
         <button class="btn-logout" onclick="location.href='index.html'">LOGOUT</button>
         
         <div class="sidebar-footer">
-            Created by : Tim IT Kecamatan Makale @ 2026
-        </div>
+    Created by : <br> 
+    <b>Tim IT Kecamatan Makale</b> <br> 
+    @ 2026
+</div>
     </div>
 </div>
 
@@ -198,4 +208,5 @@
 </script>
 </body>
 </html>
+
 
