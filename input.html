@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Usulan - Musrenbang Makale 2027</title>
+    <title>Cetak Usulan Musrenbang 2027 - Landscape</title>
     
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,76 +12,73 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        /* --- Tampilan Layar Aplikasi --- */
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .header { background: #1f8a50; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 1100px; margin: auto; margin-bottom: 20px; }
+        /* --- Tampilan Aplikasi di Layar --- */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .header-app { background: #1f8a50; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 1300px; margin: auto; margin-bottom: 20px; }
         .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
         
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        .btn-save { background: #1f8a50; color: white; padding: 15px; width: 100%; font-size: 16px; margin-top: 20px; }
-        .btn-pdf { background: #e74c3c; color: white; padding: 10px 15px; }
-        .btn-excel { background: #27ae60; color: white; padding: 10px 15px; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; padding: 10px 15px; transition: 0.3s; }
+        .btn-save { background: #1f8a50; color: white; width: 100%; font-size: 16px; margin-top: 20px; }
+        .btn-pdf { background: #e74c3c; color: white; }
+        .btn-excel { background: #27ae60; color: white; }
         
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 5px; }
         label { font-weight: bold; display: block; margin-top: 15px; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: white; }
+        /* --- Pengaturan Tabel --- */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; table-layout: fixed; }
         th { background: #f8f9fa; color: #145a32; padding: 12px; border: 1px solid #dee2e6; text-align: center; }
-        td { padding: 10px; border: 1px solid #dee2e6; vertical-align: top; }
+        td { padding: 10px; border: 1px solid #dee2e6; vertical-align: top; word-wrap: break-word; }
 
-        /* --- Elemen Cetak (KOP & TTD) --- */
-        .print-header { display: none; text-align: center; margin-bottom: 20px; }
-        .print-header h2 { margin: 0; font-size: 16pt; text-transform: uppercase; color: #000; }
-        .print-header .line { border-bottom: 5px double #000; margin-top: 10px; margin-bottom: 20px; }
-        #signatureArea { display: none; margin-top: 50px; }
+        /* --- Elemen Khusus Cetak (Default Tersembunyi) --- */
+        .print-only { display: none; }
+        .line-double { border-bottom: 5px double #000; margin: 15px 0; }
 
         /* ========================================== */
-        /* ATURAN CETAK (PENTING)                   */
+        /* ATURAN CETAK (LANDSCAPE F4)              */
         /* ========================================== */
         @media print {
-            /* Sembunyikan semua elemen kecuali area laporan */
-            .header, 
-            #areaInput, 
-            .btn-group, 
-            .btn-action, 
-            .no-print { 
+            @page { 
+                size: 330mm 215mm; /* Ukuran F4 Landscape */
+                margin: 15mm 10mm; 
+            }
+
+            /* Hilangkan Form, Tombol, dan Header Aplikasi */
+            .header-app, #areaInput, .btn-group, .btn-action, .no-print, h3 { 
                 display: none !important; 
             }
 
-            /* Atur ulang container */
+            /* Atur ulang container agar memenuhi kertas */
             body { background: white !important; padding: 0 !important; }
             .card { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
             
-            /* Tampilkan header resmi dan tanda tangan */
-            .print-header { display: block !important; }
-            #signatureArea { display: block !important; page-break-inside: avoid; }
+            /* Tampilkan Header Laporan dan TTD */
+            .print-only { display: block !important; }
+            #signatureArea { display: block !important; margin-top: 30px; page-break-inside: avoid; }
             
-            /* Format Tabel untuk Print */
-            table { font-size: 11pt; border: 1px solid black; }
+            /* Optimasi Tabel untuk PDF */
+            table { font-size: 10pt; border: 1px solid black; }
             th { background-color: #eee !important; color: black !important; border: 1px solid black; }
             td { border: 1px solid black; }
-
-            /* Atur Kertas F4 */
-            @page { size: 215mm 330mm; margin: 20mm 15mm; }
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div>Akses Operator: <strong id="userDisplay">...</strong></div>
-    <button onclick="location.href='index.html'" style="background:#b03a2e; color:white; padding:8px 15px;">Logout</button>
+<div class="header-app">
+    <div>Operator: <strong id="userDisplay">...</strong></div>
+    <button onclick="location.href='index.html'" style="background:#b03a2e; color:white;">Logout</button>
 </div>
 
 <div class="card" id="areaInput">
-    <h3><i class="fas fa-edit"></i> Input Usulan Baru</h3>
+    <h3><i class="fas fa-edit"></i> Form Input Usulan Baru</h3>
     <form id="usulanForm">
         <input type="hidden" id="kelurahan" name="kelurahan">
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div>
-                <label>Bidang Usulan</label>
+                <label>Bidang</label>
                 <select name="bidang" id="bidang" required>
                     <option value="">-- Pilih Bidang --</option>
                     <option>Bidang Sarana dan Prasarana</option>
@@ -95,53 +92,52 @@
             </div>
         </div>
 
-        <label>Nama Kegiatan (Kamus Usulan)</label>
+        <label>Nama Kegiatan</label>
         <select name="kegiatan" id="kegiatan" class="js-select2" required>
             <option value=""></option>
             <option>Pembangunan Jaringan Irigasi</option>
             <option>Normalisasi Sungai / Drainase</option>
-            <option>Pengadaan Ternak Babi / Sapi</option>
             <option>Pembangunan Jalan Lingkungan</option>
             <option>Pengadaan Sarana Air Bersih</option>
         </select>
 
-        <label>Lokasi Spesifik</label>
-        <input type="text" name="lokasi" id="lokasi" placeholder="Contoh: Dusun Rante, RT 02" required>
+        <label>Lokasi (RT/RW/Lingkungan)</label>
+        <input type="text" name="lokasi" id="lokasi" required>
 
-        <label>Keterangan Tambahan</label>
-        <textarea name="keterangan" id="keterangan" rows="2" placeholder="Contoh: Volume 200 meter"></textarea>
+        <label>Keterangan (Volume / Alasan / Detail Tambahan)</label>
+        <textarea name="keterangan" id="keterangan" rows="3" placeholder="Masukkan detail volume atau keterangan lainnya..."></textarea>
 
-        <button type="submit" class="btn-save" id="btnSubmit">💾 SIMPAN KE DATABASE</button>
+        <button type="submit" class="btn-save" id="btnSubmit">💾 SIMPAN KE GOOGLE SHEETS</button>
     </form>
 </div>
 
 <div class="card">
-    <div class="print-header">
-        <h2>DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
+    <div class="print-only" style="text-align: center;">
+        <h2 style="margin: 0;">DAFTAR USULAN MUSRENBANG TAHUN ANGGARAN 2027</h2>
         <h2 id="printKelurahan">...</h2>
-        <div class="line"></div>
+        <div class="line-double"></div>
     </div>
 
     <div class="btn-group">
         <button onclick="exportExcel()" class="btn-excel"><i class="fas fa-file-excel"></i> Export Excel</button>
-        <button onclick="window.print()" class="btn-pdf"><i class="fas fa-print"></i> Cetak PDF (F4)</button>
+        <button onclick="window.print()" class="btn-pdf"><i class="fas fa-print"></i> Cetak PDF (Landscape)</button>
     </div>
 
     <table id="tableUsulan">
         <thead>
             <tr>
-                <th width="30">No</th>
-                <th width="150">Bidang</th>
-                <th width="250">Kegiatan</th>
-                <th>Lokasi & Detail</th>
-                <th width="100">OPD</th>
-                <th class="btn-action" width="50">Aksi</th>
+                <th style="width: 30px;">No</th>
+                <th style="width: 150px;">Bidang</th>
+                <th style="width: 250px;">Kegiatan</th>
+                <th style="width: 200px;">Lokasi</th>
+                <th style="width: 120px;">OPD Tujuan</th>
+                <th>Keterangan</th> <th class="btn-action" style="width: 50px;">Aksi</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
-    <div id="signatureArea">
+    <div id="signatureArea" class="print-only">
         <div style="float: right; width: 350px; text-align: center;">
             <p id="sigDate"></p>
             <p id="sigJabatan" style="font-weight: bold;"></p>
@@ -154,17 +150,15 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
-    
-    // Data Pejabat Sama Seperti Sebelumnya
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec"; // Ganti dengan URL web app Anda
+    const currentKel = localStorage.getItem("kelurahan");
+
+    // Data Pejabat untuk TTD
     const dataPejabat = {
         "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
         "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
-        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
-        // ... (tambahkan kelurahan lainnya sesuai data Anda)
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" }
     };
-
-    const currentKel = localStorage.getItem("kelurahan");
 
     $(document).ready(function() {
         if (!currentKel) { window.location.href = "index.html"; return; }
@@ -173,7 +167,8 @@
         document.getElementById('kelurahan').value = currentKel;
         document.getElementById('printKelurahan').innerText = currentKel.toUpperCase();
         
-        $('.js-select2').select2({ placeholder: "Cari Kegiatan..." });
+        $('.js-select2').select2({ placeholder: "Cari kegiatan...", width: '100%' });
+        
         setupSignature();
         loadData();
     });
@@ -182,10 +177,10 @@
         const p = dataPejabat[currentKel] || { nama: "...................", nip: "..................." };
         const d = new Date();
         const bln = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-        const namaWilayah = currentKel.replace("Kelurahan ", "").replace("Lembang ", "");
+        const wilayah = currentKel.replace("Kelurahan ", "").replace("Lembang ", "");
 
-        document.getElementById('sigDate').innerText = `${namaWilayah}, ${d.getDate()} ${bln[d.getMonth()]} 2026`;
-        document.getElementById('sigJabatan').innerText = (currentKel.includes("Lembang") ? "Kepala Lembang " : "Lurah ") + namaWilayah + ",";
+        document.getElementById('sigDate').innerText = `${wilayah}, ${d.getDate()} ${bln[d.getMonth()]} 2026`;
+        document.getElementById('sigJabatan').innerText = (currentKel.includes("Lembang") ? "Kepala Lembang " : "Lurah ") + wilayah + ",";
         document.getElementById('sigNama').innerText = p.nama;
         document.getElementById('sigNip').innerText = p.nip !== "-" ? "NIP. " + p.nip : "";
     }
@@ -194,6 +189,7 @@
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
             const result = await res.json();
+            // Memastikan data yang tampil hanya milik kelurahan yang sedang login
             const myData = result.data.filter(d => d.kelurahan === currentKel);
             
             let html = "";
@@ -202,14 +198,15 @@
                     <td align="center">${i+1}</td>
                     <td>${d.bidang}</td>
                     <td><strong>${d.kegiatan}</strong></td>
-                    <td>${d.lokasi} <br><small>(${d.keterangan || '-'})</small></td>
+                    <td>${d.lokasi}</td>
                     <td align="center">${d.opd}</td>
+                    <td>${d.keterangan || '-'}</td>
                     <td class="btn-action" align="center">
                         <button onclick="deleteRow(${d.row})" style="color:red; background:none;"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
             });
-            document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='6' align='center'>Data Kosong</td></tr>";
+            document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='7' align='center'>Data Kosong</td></tr>";
         } catch (e) { console.error(e); }
     }
 
@@ -224,13 +221,13 @@
 
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() })
             .then(() => {
-                alert("Berhasil!");
+                alert("Data Berhasil Disimpan!");
                 this.reset();
                 $('#kegiatan').val(null).trigger('change');
                 loadData();
             }).finally(() => {
                 btn.disabled = false;
-                btn.innerText = "💾 SIMPAN KE DATABASE";
+                btn.innerText = "💾 SIMPAN KE GOOGLE SHEETS";
             });
     });
 
@@ -242,7 +239,7 @@
 
     function exportExcel() {
         const wb = XLSX.utils.table_to_book(document.getElementById("tableUsulan"));
-        XLSX.writeFile(wb, `Usulan_${currentKel}.xlsx`);
+        XLSX.writeFile(wb, `Laporan_Musrenbang_${currentKel}.xlsx`);
     }
 </script>
 
