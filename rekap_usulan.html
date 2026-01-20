@@ -6,45 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f7f6; }
-        
-        /* Header & Navigasi */
         .navbar { background: #1b5e20; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
         .btn-back { background: #fff; color: #1b5e20; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 13px; }
-
         .container { padding: 20px; max-width: 1300px; margin: auto; }
 
-        /* Rekap Atas (Tanpa Anggaran) */
-        .summary-box { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            border: 2px solid #333; 
-            background: white; 
-            margin-bottom: 25px;
-            border-radius: 8px;
-            overflow: hidden;
+        /* Summary Boxes */
+        .summary-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .summary-item { background: white; padding: 20px; text-align: center; border-radius: 10px; border: 1px solid #ddd; }
+        .summary-item .count { font-size: 24px; font-weight: bold; color: #1e88e5; display: block; }
+
+        /* Control Bar */
+        .control-bar { background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; flex: 1; }
+        .btn-print { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* Tabel */
+        .table-responsive { background: white; border-radius: 8px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f3f4; padding: 12px; border: 1px solid #ddd; font-size: 13px; }
+        td { padding: 10px; border: 1px solid #ddd; font-size: 13px; vertical-align: top; }
+
+        /* Area Tanda Tangan (Tersembunyi di Layar) */
+        .signature-area { 
+            display: none; 
+            margin-top: 50px; 
+            justify-content: flex-end; 
+            text-align: center; 
         }
-        .summary-item { padding: 15px; text-align: center; border-right: 1px solid #333; }
-        .summary-item:last-child { border-right: none; }
-        .summary-item strong { display: block; font-size: 14px; margin-bottom: 5px; text-transform: uppercase; }
-        .summary-item .count { font-size: 20px; font-weight: bold; color: #1e88e5; }
-        .summary-item .percent { font-size: 14px; color: #666; font-style: italic; }
+        .signature-box { width: 300px; padding-right: 50px; }
 
-        /* Kontrol Bar */
-        .control-bar { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-action { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; }
-        .btn-pdf { background: #2e7d32; }
-        .btn-excel { background: #f57c00; }
+        /* PENGATURAN CETAK (PRINT) */
+        @media print {
+            /* Sembunyikan Navigasi, Filter, Pencarian, dan Tombol-tombol */
+            .navbar, .control-bar, .btn-back { 
+                display: none !important; 
+            }
+            
+            /* Tampilkan Area Tanda Tangan hanya saat cetak */
+            .signature-area { 
+                display: flex !important; 
+            }
 
-        /* Tabel (Tanpa Volume & Anggaran) */
-        .table-responsive { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: #f8f9fa; padding: 12px; border: 1px solid #ddd; text-align: center; }
-        td { padding: 10px; border: 1px solid #ddd; vertical-align: top; }
-        .col-no { text-align: center; width: 40px; }
-        
-        /* Sidebar Copyright (Sesuai Dashboard) */
-        .footer-note { text-align: center; margin-top: 30px; font-size: 12px; color: #888; line-height: 1.2; }
+            /* Sesuaikan margin kertas */
+            @page { margin: 1cm; }
+            body { background: white; }
+            .container { padding: 0; max-width: 100%; }
+            .table-responsive { box-shadow: none; }
+        }
     </style>
 </head>
 <body>
@@ -52,7 +60,7 @@
 <div class="navbar">
     <a href="dashboard_admin.html" class="btn-back">⬅ Kembali ke Dashboard</a>
     <h2 style="margin: 0; font-size: 18px;">ADMINISTRATOR - REKAP MUSRENBANG</h2>
-    <div style="width: 150px;"></div> 
+    <div style="width: 100px;"></div>
 </div>
 
 <div class="container">
@@ -61,41 +69,40 @@
     <div class="summary-box">
         <div class="summary-item">
             <strong>Bidang Sarana Prasarana</strong>
-            <div class="count" id="s_count">0 Usulan</div>
-            <div class="percent" id="s_percent">0%</div>
+            <span class="count" id="s_count">0 Usulan</span>
+            <span class="percent" id="s_percent">0%</span>
         </div>
         <div class="summary-item">
             <strong>Bidang Sosial Budaya</strong>
-            <div class="count" id="sb_count">0 Usulan</div>
-            <div class="percent" id="sb_percent">0%</div>
+            <span class="count" id="sb_count">0 Usulan</span>
+            <span class="percent" id="sb_percent">0%</span>
         </div>
         <div class="summary-item">
             <strong>Bidang Ekonomi</strong>
-            <div class="count" id="e_count">0 Usulan</div>
-            <div class="percent" id="e_percent">0%</div>
+            <span class="count" id="e_count">0 Usulan</span>
+            <span class="percent" id="e_percent">0%</span>
         </div>
     </div>
 
     <div class="control-bar">
-        <input type="text" id="search" placeholder="Cari kegiatan..." style="flex: 1;">
+        <input type="text" id="searchInput" placeholder="Cari kegiatan...">
         <select id="filterKelurahan">
             <option value="">Semua Kelurahan/Lembang</option>
         </select>
-        <button class="btn-action btn-pdf" onclick="window.print()">🖨️ Cetak PDF</button>
-        <button class="btn-action btn-excel">📊 Export ke Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Cetak PDF / Print</button>
     </div>
 
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th class="col-no">No</th>
+                    <th width="40">No</th>
                     <th width="150">Kelurahan</th>
                     <th width="150">Bidang</th>
                     <th>Kegiatan</th>
                     <th>Lokasi</th>
                     <th width="80">OPD</th>
-                    <th width="250">Keterangan</th>
+                    <th>Keterangan</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -104,53 +111,65 @@
         </table>
     </div>
 
-    <div class="footer-note">
-        Created by : <br>
-        <strong>Tim IT Kecamatan Makale</strong> <br>
-        @ 2026
+    <div class="signature-area">
+        <div class="signature-box">
+            <p>Makale, <span id="currentDate"></span></p>
+            <p><strong>CAMAT MAKALE,</strong></p>
+            <br><br><br><br>
+            <p><strong><u>( ............................................ )</u></strong></p>
+            <p>NIP. ............................................</p>
+        </div>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; 
+    let allData = [];
+
+    // Mengatur tanggal hari ini otomatis untuk kolom tanda tangan
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').innerText = today.toLocaleDateString('id-ID', options);
 
     async function fetchData() {
         try {
             const response = await fetch(SCRIPT_URL + "?action=read");
             const result = await response.json();
-            const data = result.data;
+            allData = result.data;
 
-            // Populate Filter Kelurahan
-            const kelurahanList = [...new Set(data.map(item => item.kelurahan))];
+            const kelurahanSet = [...new Set(allData.map(item => item.kelurahan))].sort();
             const select = document.getElementById('filterKelurahan');
-            kelurahanList.forEach(kel => {
+            kelurahanSet.forEach(kel => {
                 const opt = document.createElement('option');
-                opt.value = kel;
-                opt.innerHTML = kel;
+                opt.value = kel; opt.textContent = kel;
                 select.appendChild(opt);
             });
 
-            renderTable(data);
-            updateSummary(data);
+            applyFilters(); 
+            updateSummary(allData);
         } catch (error) {
             document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Gagal memuat data.</td></tr>";
         }
     }
 
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const selectedKel = document.getElementById('filterKelurahan').value;
+        const filtered = allData.filter(item => {
+            const keg = (item.usulan || "").toLowerCase();
+            const lok = (item.lokasi || "").toLowerCase();
+            return (keg.includes(searchTerm) || lok.includes(searchTerm)) && 
+                   (selectedKel === "" || item.kelurahan === selectedKel);
+        });
+        renderTable(filtered);
+    }
+
     function renderTable(data) {
         let html = "";
         data.forEach((item, index) => {
-            html += `<tr>
-                <td class="col-no">${index + 1}</td>
-                <td>${item.kelurahan}</td>
-                <td>${item.bidang}</td>
-                <td>${item.usulan}</td>
-                <td>${item.lokasi}</td>
-                <td>${item.opd || '-'}</td>
-                <td>${item.keterangan || '-'}</td>
-            </tr>`;
+            html += `<tr><td>${index+1}</td><td>${item.kelurahan}</td><td>${item.bidang}</td><td>${item.usulan || "-"}</td><td>${item.lokasi || "-"}</td><td>${item.opd || "-"}</td><td>${item.keterangan || "-"}</td></tr>`;
         });
-        document.getElementById("tableBody").innerHTML = html;
+        document.getElementById("tableBody").innerHTML = html || "<tr><td colspan='7' style='text-align:center;'>Data tidak ditemukan.</td></tr>";
     }
 
     function updateSummary(data) {
@@ -158,20 +177,17 @@
         const s = data.filter(d => d.bidang.includes("Sarana")).length;
         const sb = data.filter(d => d.bidang.includes("Sosial")).length;
         const e = data.filter(d => d.bidang.includes("Ekonomi")).length;
-
-        // Update Text
         document.getElementById("s_count").innerText = s + " Usulan";
         document.getElementById("sb_count").innerText = sb + " Usulan";
         document.getElementById("e_count").innerText = e + " Usulan";
-
-        // Update Persentase
-        document.getElementById("s_percent").innerText = total > 0 ? ((s/total)*100).toFixed(1) + "% dari total" : "0%";
-        document.getElementById("sb_percent").innerText = total > 0 ? ((sb/total)*100).toFixed(1) + "% dari total" : "0%";
-        document.getElementById("e_percent").innerText = total > 0 ? ((e/total)*100).toFixed(1) + "% dari total" : "0%";
+        document.getElementById("s_percent").innerText = total > 0 ? ((s/total)*100).toFixed(1) + "%" : "0%";
+        document.getElementById("sb_percent").innerText = total > 0 ? ((sb/total)*100).toFixed(1) + "%" : "0%";
+        document.getElementById("e_percent").innerText = total > 0 ? ((e/total)*100).toFixed(1) + "%" : "0%";
     }
 
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('filterKelurahan').addEventListener('change', applyFilters);
     window.onload = fetchData;
 </script>
-
 </body>
 </html>
