@@ -1,81 +1,93 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Data Usulan - Admin</title>
-
-<style>
-body{font-family:Arial;background:#f4f6f9;margin:0}
-.header{background:#2c7be5;color:#fff;padding:12px 20px}
-.container{padding:20px}
-.card{background:#fff;padding:20px;border-radius:8px}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:8px}
-button{padding:6px 10px;background:#dc3545;color:#fff;border:none;cursor:pointer}
-</style>
+    <meta charset="UTF-8">
+    <title>Data Usulan - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .header { background: #1a5bb8; color: #fff; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .container { margin-top: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f8f9fa; }
+        .btn-del { color: #dc3545; border: none; background: none; cursor: pointer; }
+        #searchBox { padding: 10px; width: 250px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
+    </style>
 </head>
-
 <body>
 
 <div class="header">
-  <h3>📄 Data Usulan Semua Kelurahan</h3>
+    <h3>📄 Data Usulan Semua Kelurahan</h3>
+    <button onclick="location.href='dashboard_admin.html'" style="padding:8px 15px; cursor:pointer;">Dashboard Admin</button>
 </div>
 
 <div class="container">
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Kelurahan</th>
-          <th>Bidang</th>
-          <th>Kegiatan</th>
-          <th>Lokasi</th>
-          <th>Anggaran</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tabel"></tbody>
-    </table>
-
-    <br>
-    <button onclick="kembali()">⬅ Kembali</button>
-  </div>
+    <div class="card">
+        <input type="text" id="searchBox" placeholder="Cari kelurahan atau kegiatan..." onkeyup="filterData()">
+        <table id="adminTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kelurahan</th>
+                    <th>Bidang</th>
+                    <th>Kegiatan</th>
+                    <th>Lokasi</th>
+                    <th>OPD</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-if(localStorage.getItem("role")!=="admin") location.href="index.html";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
+    let masterData = [];
 
-let data = JSON.parse(localStorage.getItem("dataUsulan"))||[];
-let tabel=document.getElementById("tabel");
+    async function loadAllData() {
+        const res = await fetch(SCRIPT_URL + "?action=read");
+        const json = await res.json();
+        masterData = json.data;
+        renderTabel(masterData);
+    }
 
-function tampil(){
-  tabel.innerHTML="";
-  data.forEach((d,i)=>{
-    tabel.innerHTML+=`
-    <tr>
-      <td>${i+1}</td>
-      <td>${d.kelurahan}</td>
-      <td>${d.bidang}</td>
-      <td>${d.kegiatan}</td>
-      <td>${d.lokasi}</td>
-      <td>${Number(d.anggaran).toLocaleString("id-ID")}</td>
-      <td><button onclick="hapus(${i})">Hapus</button></td>
-    </tr>`;
-  });
-}
-function hapus(i){
-  if(confirm("Hapus data ini?")){
-    data.splice(i,1);
-    localStorage.setItem("dataUsulan",JSON.stringify(data));
-    tampil();
-  }
-}
-function kembali(){
-  location.href="dashboard_admin.html";
-}
-tampil();
+    function renderTabel(data) {
+        const body = document.getElementById("tabelBody");
+        body.innerHTML = data.map((d, i) => `
+            <tr>
+                <td>${i+1}</td>
+                <td>${d.kelurahan}</td>
+                <td>${d.bidang}</td>
+                <td>${d.kegiatan}</td>
+                <td>${d.lokasi}</td>
+                <td>${d.opd}</td>
+                <td>
+                    <button class="btn-del" onclick="hapus(${d.row})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterData() {
+        const keyword = document.getElementById("searchBox").value.toLowerCase();
+        const filtered = masterData.filter(d => 
+            d.kelurahan.toLowerCase().includes(keyword) || 
+            d.kegiatan.toLowerCase().includes(keyword)
+        );
+        renderTabel(filtered);
+    }
+
+    async function hapus(row) {
+        if(confirm("Hapus data ini secara permanen?")) {
+            await fetch(SCRIPT_URL + "?action=delete&row=" + row);
+            loadAllData();
+        }
+    }
+
+    loadAllData();
 </script>
-
 </body>
 </html>
