@@ -2,84 +2,209 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login Musrenbang Makale 2027</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Usulan - Musrenbang Makale 2027</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1f8a50 0%, #145a32 100%); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 40px; border-radius: 15px; width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-        .logo { width: 80px; margin-bottom: 15px; }
-        h2 { margin: 0; color: #333; font-size: 22px; }
-        .sub-title { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.4; }
-        select, input, button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 14px; }
-        button { background: #1f8a50; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 25px; transition: 0.3s; }
-        button:hover { background: #145a32; transform: translateY(-2px); }
-        
-        /* Pesan Khusus Sesuai Permintaan */
-        .note { margin-top: 25px; font-size: 12px; color: #145a32; font-weight: bold; line-height: 1.5; padding: 10px; background: #f0faf4; border-radius: 8px; border-left: 4px solid #1f8a50; text-align: center; }
-        .footer { margin-top: 20px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
+        .header-box { background: #1f8a50; color: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; margin-bottom: 25px; }
+        h3 { color: #145a32; border-bottom: 2px solid #1f8a50; padding-bottom: 10px; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .btn-submit { background: #1f8a50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-submit:hover { background: #145a32; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; color: #145a32; }
+        td { padding: 10px; border: 1px solid #dee2e6; vertical-align: top; }
+        .btn-logout { background: #b03a2e; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .badge-user { background: #fff; color: #1f8a50; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <img src="logo.png" class="logo" alt="Logo Tana Toraja">
-        
-        <h2>LOGIN SISTEM</h2>
-        <div class="sub-title">Musrenbang Kecamatan Makale<br>Tahun Anggaran 2027</div>
-        
-        <select id="user">
-            <option value="">-- Pilih Wilayah --</option>
-            <option value="admin">ADMIN KECAMATAN</option>
-            <option value="ariang">Kelurahan Ariang</option>
-            <option value="batupapan">Kelurahan Batupapan</option>
-            <option value="bombongan">Kelurahan Bombongan</option>
-            <option value="botang">Kelurahan Botang</option>
-            <option value="burake">Kelurahan Buntu Burake</option>
-            <option value="kamali">Kelurahan Kamali Pentalluan</option>
-            <option value="lamunan">Kelurahan Lamunan</option>
-            <option value="lapandan">Kelurahan Lapandan</option>
-            <option value="lea">Lembang Lea</option>
-            <option value="manggau">Kelurahan Manggau</option>
-            <option value="pantan">Kelurahan Pantan</option>
-            <option value="rante">Kelurahan Rante</option>
-            <option value="tampo">Kelurahan Tampo Makale</option>
-            <option value="tarongko">Kelurahan Tarongko</option>
-            <option value="tondon">Kelurahan Tondon Mamullu</option>
-        </select>
-        
-        <input type="password" id="pass" placeholder="Password">
-        
-        <button onclick="login()">MASUK</button>
 
-        <div class="note">
-            Aplikasi ini khusus untuk input usulan Hasil Musrenbang Kelurahan Tahun Anggaran 2027 di Kecamatan Makale
-        </div>
-
-        <div class="footer">
-            Created by : Fuad Amry - 2026
-        </div>
+<div class="container">
+    <div class="header-box">
+        <div>Operator: <span class="badge-user" id="userDisplay">...</span></div>
+        <a href="index.html" onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
-    <script>
-        function login() {
-            const u = document.getElementById("user").value;
-            const p = document.getElementById("pass").value;
-            const selectElement = document.getElementById("user");
-            const text = selectElement.options[selectElement.selectedIndex].text;
-            
-            if (!u) { alert("Silakan pilih wilayah terlebih dahulu!"); return; }
+    <div class="card">
+        <h3><i class="fas fa-edit"></i> Form Input Usulan</h3>
+        <form id="usulanForm">
+            <input type="hidden" id="editRow" name="editRow">
+            <input type="hidden" id="kelurahan" name="kelurahan">
 
-            if(u === "admin" && p === "admin123") {
-                localStorage.setItem("role", "admin");
-                localStorage.setItem("kelurahan", "ADMIN KECAMATAN");
-                window.location.href = "dashboard_admin.html";
-            } else if(u && p === u + "2027") {
-                localStorage.setItem("role", "operator");
-                localStorage.setItem("kelurahan", text);
-                window.location.href = "dashboard.html";
-            } else { 
-                alert("Login Gagal! Pastikan pilihan wilayah dan password benar."); 
-            }
+            <div class="form-group">
+                <label>Bidang</label>
+                <select name="bidang" id="bidang" required>
+                    <option value="">-- Pilih Bidang --</option>
+                    <option>Bidang Sarana dan Prasarana</option>
+                    <option>Bidang Sosial Budaya</option>
+                    <option>Bidang Ekonomi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Kegiatan (Kamus Usulan)</label>
+                <select name="kegiatan" id="kegiatan" class="js-select2" required>
+                    <option value=""></option>
+                    <option>Pembangunan Jaringan Irigasi</option>
+                    <option>Normalisasi Sungai</option>
+                    <option>Pengadaan Ternak Babi</option>
+                    <option>Pembangunan Sistem Drainase Lingkungan</option>
+                    <option>Rekonstruksi Jalan Kabupaten</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Lokasi Spesifik</label>
+                <input type="text" name="lokasi" id="lokasi" placeholder="Contoh: RT. 02 Lingkungan Rante" required>
+            </div>
+
+            <div class="form-group">
+                <label>OPD Tujuan</label>
+                <input type="text" name="opd" id="opd" placeholder="Contoh: DPUTR" required>
+            </div>
+
+            <div class="form-group">
+                <label>Keterangan (Volume/Detail)</label>
+                <textarea name="keterangan" id="keterangan" rows="3" placeholder="Contoh: 1 Unit / 200 Meter"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSave">💾 SIMPAN DATA USULAN</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-list"></i> Rekap Usulan Anda</h3>
+        <div id="loader" style="display:none; text-align:center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin"></i> Sinkronisasi Data...
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40">No</th>
+                        <th>Bidang</th>
+                        <th>Kegiatan</th>
+                        <th>Lokasi</th>
+                        <th>OPD</th>
+                        <th width="80">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycy06WLuhAYpT81smXANXjrMUrR7gdVONBRISvxP1fP2GXP6giGsbcm7tuIC1j55H1/exec"; // Ganti dengan URL Deployment Anda
+
+    // Sinkronisasi dengan Login
+    const user = localStorage.getItem("kelurahan");
+    if (!user) {
+        window.location.href = "index.html";
+    } else {
+        document.getElementById('userDisplay').innerText = user;
+        document.getElementById('kelurahan').value = user;
+    }
+
+    $(document).ready(function() {
+        $('.js-select2').select2({ placeholder: "Cari Kamus Usulan..." });
+        fetchData();
+    });
+
+    function fetchData() {
+        $("#loader").show();
+        fetch(SCRIPT_URL + "?action=read")
+            .then(res => res.json())
+            .then(result => {
+                // Filter Otomatis: Hanya tampilkan data milik Kelurahan yang login
+                const myData = result.data.filter(d => d.kelurahan === user);
+                
+                let html = "";
+                if (myData.length === 0) {
+                    html = "<tr><td colspan='6' align='center'>Belum ada data usulan yang masuk.</td></tr>";
+                } else {
+                    myData.forEach((d, idx) => {
+                        html += `<tr>
+                            <td align='center'>${idx + 1}</td>
+                            <td>${d.bidang}</td>
+                            <td>${d.kegiatan}</td>
+                            <td>${d.lokasi}</td>
+                            <td>${d.opd}</td>
+                            <td align='center'>
+                                <button class="btn-edit" onclick="editRow(${d.row},'${d.bidang}','${d.kegiatan}','${d.lokasi}','${d.opd}','${d.keterangan}')" style="color:orange; border:none; background:none; cursor:pointer;"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteRow(${d.row})" style="color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('tableBody').innerHTML = html;
+                $("#loader").hide();
+            });
+    }
+
+    document.getElementById('usulanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSave');
+        btn.disabled = true;
+        btn.innerText = "⏳ Sedang Menyimpan...";
+
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        formData.forEach((v, k) => params.append(k, v));
+        
+        const action = document.getElementById('editRow').value ? "edit" : "create";
+        params.append("action", action);
+
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() })
+            .then(() => {
+                alert("✅ Data Berhasil Disimpan!");
+                resetForm();
+                fetchData();
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "💾 SIMPAN DATA USULAN";
+            });
+    });
+
+    function editRow(row, bid, keg, lok, opd, ket) {
+        document.getElementById('editRow').value = row;
+        document.getElementById('bidang').value = bid;
+        $('#kegiatan').val(keg).trigger('change');
+        document.getElementById('lokasi').value = lok;
+        document.getElementById('opd').value = opd;
+        document.getElementById('keterangan').value = ket;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteRow(row) {
+        if (confirm("⚠️ Yakin ingin menghapus data usulan ini?")) {
+            fetch(SCRIPT_URL + "?action=delete&row=" + row).then(() => {
+                alert("Data Terhapus!");
+                fetchData();
+            });
         }
-    </script>
+    }
+
+    function resetForm() {
+        document.getElementById('usulanForm').reset();
+        document.getElementById('editRow').value = "";
+        document.getElementById('kelurahan').value = user;
+        $('#kegiatan').val(null).trigger('change');
+    }
+
+    function logout() {
+        localStorage.clear();
+    }
+</script>
 </body>
 </html>
