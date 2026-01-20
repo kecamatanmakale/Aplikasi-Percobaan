@@ -4,175 +4,265 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Input Usulan - Musrenbang Makale 2027</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .header { background: #1f8a50; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 900px; margin: auto; margin-bottom: 20px; }
-        h3 { color: #145a32; margin-top: 0; border-bottom: 2px solid #1f8a50; padding-bottom: 10px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-save { background: #1f8a50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
-        th { background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; text-align: left; }
-        td { padding: 10px; border: 1px solid #dee2e6; }
-        .loading { text-align: center; font-weight: bold; color: #1f8a50; display: none; }
+        /* CSS Umum */
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .header { background: #1f8a50; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; margin-bottom: 20px; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        .btn-save { background: #1f8a50; color: white; padding: 15px; width: 100%; font-size: 16px; margin-top: 20px; }
+        .btn-pdf { background: #e74c3c; color: white; padding: 10px 15px; }
+        .btn-excel { background: #27ae60; color: white; padding: 10px 15px; }
+        
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 5px; }
+        label { font-weight: bold; display: block; margin-top: 15px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: white; }
+        th { background: #f8f9fa; color: #145a32; padding: 12px; border: 1px solid #dee2e6; text-align: center; }
+        td { padding: 10px; border: 1px solid #dee2e6; vertical-align: top; }
+
+        /* KOP SURAT (Hanya Print) */
+        .print-header { display: none; text-align: center; margin-bottom: 20px; }
+        .print-header h2 { margin: 0; font-size: 16pt; }
+        .print-header h3 { margin: 5px 0; font-size: 14pt; border-bottom: 3px double black; padding-bottom: 10px; }
+
+        /* TANDA TANGAN */
+        #signatureArea { display: none; margin-top: 40px; }
+
+        /* SETTING KERTAS F4 */
+        @media print {
+            @page { size: 215mm 330mm; margin: 20mm; }
+            .header, .card:first-child, .btn-group, .btn-action, #loader { display: none !important; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none !important; padding: 0 !important; }
+            .print-header { display: block !important; }
+            #signatureArea { display: block !important; page-break-inside: avoid; }
+            table { font-size: 11pt; width: 100%; }
+            th { background: #eee !important; color: black !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div>Operator: <strong id="userDisplay">...</strong></div>
-    <button onclick="location.href='dashboard.html'" style="background:white; color:#1f8a50; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Menu Utama</button>
+    <div>Login: <strong id="userDisplay">...</strong></div>
+    <button onclick="location.href='index.html'" style="background:#b03a2e; color:white; padding:8px 15px;">Logout</button>
 </div>
 
 <div class="card">
-    <h3 id="formTitle">Form Input Usulan</h3>
+    <h3><i class="fas fa-edit"></i> Form Usulan Musrenbang 2027</h3>
     <form id="usulanForm">
         <input type="hidden" id="editRow" name="editRow">
         <input type="hidden" id="kelurahan" name="kelurahan">
-
-        <div class="form-group">
-            <label>Bidang</label>
-            <select name="bidang" id="bidang" required>
-                <option value="">-- Pilih Bidang --</option>
-                <option>Bidang Sarana dan Prasarana</option>
-                <option>Bidang Sosial Budaya</option>
-                <option>Bidang Ekonomi</option>
-            </select>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label>Bidang</label>
+                <select name="bidang" id="bidang" required>
+                    <option value="">-- Pilih Bidang --</option>
+                    <option>Bidang Sarana dan Prasarana</option>
+                    <option>Bidang Sosial Budaya</option>
+                    <option>Bidang Ekonomi</option>
+                </select>
+            </div>
+            <div>
+                <label>OPD Tujuan</label>
+                <input type="text" name="opd" id="opd" placeholder="Contoh: DPUTR" required>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Kegiatan (Kamus Usulan)</label>
-            <select name="kegiatan" id="kegiatan" class="js-select2" required>
-                <option value=""></option>
-                <option>Pembangunan Jaringan Irigasi</option>
-                <option>Normalisasi Sungai</option>
-                <option>Pengadaan Ternak Babi</option>
-                <option>Pembangunan Jalan Lingkungan</option>
-            </select>
-        </div>
+        <label>Kegiatan (Kamus Usulan)</label>
+        <select name="kegiatan" id="kegiatan" class="js-select2" required>
+            <option value=""></option>
+            <option>Pembangunan Jaringan Irigasi</option>
+            <option>Normalisasi Sungai</option>
+            <option>Pengadaan Ternak Babi</option>
+            <option>Pembangunan Jalan Lingkungan</option>
+            <option>Rehabilitasi Drainase</option>
+        </select>
 
-        <div class="form-group">
-            <label>Lokasi Spesifik</label>
-            <input type="text" name="lokasi" id="lokasi" placeholder="Contoh: RT 01 Lingkungan Rante" required>
-        </div>
+        <label>Lokasi Spesifik</label>
+        <input type="text" name="lokasi" id="lokasi" placeholder="Contoh: RT. 02 Lingkungan..." required>
 
-        <div class="form-group">
-            <label>OPD Tujuan</label>
-            <input type="text" name="opd" id="opd" placeholder="Contoh: DPUTR" required>
-        </div>
-
-        <div class="form-group">
-            <label>Keterangan Tambahan</label>
-            <textarea name="keterangan" id="keterangan" rows="2"></textarea>
-        </div>
+        <label>Keterangan (Volume/Detail)</label>
+        <textarea name="keterangan" id="keterangan" rows="2" placeholder="Contoh: 500 Meter"></textarea>
 
         <button type="submit" class="btn-save" id="btnSubmit">💾 SIMPAN USULAN</button>
     </form>
 </div>
 
 <div class="card">
-    <h3>Daftar Usulan Anda</h3>
-    <div id="loader" class="loading">Menyinkronkan data...</div>
+    <div class="print-header">
+        <h2>DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
+        <h3 id="printKelurahan">...</h3>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="exportExcel()" class="btn-excel"><i class="fas fa-file-excel"></i> Export Excel</button>
+        <button onclick="window.print()" class="btn-pdf"><i class="fas fa-file-pdf"></i> Print PDF (F4)</button>
+    </div>
+
     <div style="overflow-x: auto;">
-        <table>
+        <table id="tableUsulan">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Bidang</th>
-                    <th>Kegiatan</th>
+                    <th width="30">No</th>
+                    <th width="150">Bidang</th>
+                    <th>Kegiatan & Keterangan</th>
                     <th>Lokasi</th>
-                    <th>OPD</th>
-                    <th>Aksi</th>
+                    <th width="100">OPD</th>
+                    <th class="btn-action" width="70">Aksi</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
+
+    <div id="signatureArea">
+        <div style="float: right; width: 350px; text-align: center;">
+            <p id="sigDate" style="margin-bottom: 5px;"></p>
+            <p id="sigJabatan" style="margin-top: 0; font-weight: bold;"></p>
+            <br><br><br><br>
+            <strong id="sigNama" style="text-decoration: underline; font-size: 15px;"></strong><br>
+            <span id="sigNip"></span>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
 </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
+    
+    const dataPejabat = {
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
+
     const currentKel = localStorage.getItem("kelurahan");
 
-    if (!currentKel) { location.href = "index.html"; }
-    document.getElementById('userDisplay').innerText = currentKel;
-    document.getElementById('kelurahan').value = currentKel;
-
     $(document).ready(function() {
-        $('.js-select2').select2({ placeholder: "Cari Kegiatan..." });
+        if (!currentKel) { window.location.href = "index.html"; return; }
+        
+        document.getElementById('userDisplay').innerText = currentKel;
+        document.getElementById('kelurahan').value = currentKel;
+        document.getElementById('printKelurahan').innerText = currentKel.toUpperCase();
+        
+        $('.js-select2').select2({ placeholder: "Cari Kamus Usulan..." });
+        setupSignature();
         loadData();
     });
 
-    function loadData() {
-        $("#loader").show();
-        fetch(SCRIPT_URL + "?action=read")
-            .then(res => res.json())
-            .then(result => {
-                const myData = result.data.filter(d => d.kelurahan === currentKel);
-                let html = "";
-                myData.forEach((d, idx) => {
-                    html += `<tr>
-                        <td>${idx + 1}</td>
-                        <td>${d.bidang}</td>
-                        <td>${d.kegiatan}</td>
-                        <td>${d.lokasi}</td>
-                        <td>${d.opd}</td>
-                        <td>
-                            <button onclick="editData(${d.row},'${d.bidang}','${d.kegiatan}','${d.lokasi}','${d.opd}','${d.keterangan}')" style="color:orange; border:none; background:none; cursor:pointer;"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteData(${d.row})" style="color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-                });
-                document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='6' align='center'>Belum ada data</td></tr>";
-                $("#loader").hide();
+    function setupSignature() {
+        const p = dataPejabat[currentKel] || { nama: "...................", nip: "..................." };
+        const daftarBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        const tglSekarang = new Date();
+        const tgl = tglSekarang.getDate();
+        const bln = daftarBulan[tglSekarang.getMonth()];
+
+        const namaWilayahSaja = currentKel.replace("Kelurahan ", "").replace("Lembang ", "");
+        
+        // Format Tanggal: Botang, 20 Januari 2026
+        document.getElementById('sigDate').innerText = `${namaWilayahSaja}, ${tgl} ${bln} 2026`;
+        
+        // Format Jabatan
+        let jabatan = "";
+        if (currentKel.includes("Lembang")) {
+            jabatan = "Kepala Lembang " + namaWilayahSaja;
+        } else {
+            jabatan = "Lurah " + namaWilayahSaja;
+        }
+        document.getElementById('sigJabatan').innerText = jabatan + ",";
+
+        document.getElementById('sigNama').innerText = p.nama;
+        const nipElement = document.getElementById('sigNip');
+        if (p.nip && p.nip !== "-") {
+            nipElement.innerText = "NIP. " + p.nip;
+            nipElement.style.display = "block";
+        } else {
+            nipElement.style.display = "none";
+        }
+    }
+
+    async function loadData() {
+        try {
+            const response = await fetch(SCRIPT_URL + "?action=read");
+            const result = await response.json();
+            const myData = result.data.filter(d => d.kelurahan === currentKel);
+            
+            let html = "";
+            myData.forEach((d, idx) => {
+                html += `<tr>
+                    <td align="center">${idx + 1}</td>
+                    <td>${d.bidang}</td>
+                    <td><strong>${d.kegiatan}</strong><br><small>${d.keterangan || ''}</small></td>
+                    <td>${d.lokasi}</td>
+                    <td align="center">${d.opd}</td>
+                    <td class="btn-action" align="center">
+                        <button onclick="deleteRow(${d.row})" style="color:red; background:none; font-size:16px;"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
             });
+            document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='6' align='center'>Belum ada usulan.</td></tr>";
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     document.getElementById('usulanForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        
+        btn.innerText = "⏳ Menyimpan...";
+
         const params = new URLSearchParams(new FormData(this));
-        const action = document.getElementById('editRow').value ? "edit" : "create";
-        params.append("action", action);
+        params.append("action", "create");
 
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() })
             .then(() => {
-                alert("Berhasil!");
-                resetForm();
+                alert("Usulan Berhasil Disimpan!");
+                this.reset();
+                $('#kegiatan').val(null).trigger('change');
                 loadData();
-            }).finally(() => btn.disabled = false);
+            }).finally(() => {
+                btn.disabled = false;
+                btn.innerText = "💾 SIMPAN USULAN";
+            });
     });
 
-    function editData(row, bid, keg, lok, opd, ket) {
-        document.getElementById('editRow').value = row;
-        document.getElementById('bidang').value = bid;
-        $('#kegiatan').val(keg).trigger('change');
-        document.getElementById('lokasi').value = lok;
-        document.getElementById('opd').value = opd;
-        document.getElementById('keterangan').value = ket;
-        document.getElementById('formTitle').innerText = "Edit Usulan Baris " + row;
-    }
-
-    function deleteData(row) {
-        if(confirm("Hapus data ini?")) {
+    function deleteRow(row) {
+        if(confirm("Hapus usulan ini?")) {
             fetch(SCRIPT_URL + "?action=delete&row=" + row).then(() => loadData());
         }
     }
 
-    function resetForm() {
-        document.getElementById('usulanForm').reset();
-        document.getElementById('editRow').value = "";
-        document.getElementById('kelurahan').value = currentKel;
-        $('#kegiatan').val(null).trigger('change');
+    function exportExcel() {
+        const table = document.getElementById("tableUsulan");
+        const wb = XLSX.utils.table_to_book(table);
+        XLSX.writeFile(wb, `Usulan_${currentKel}_2027.xlsx`);
     }
 </script>
+
 </body>
 </html>
