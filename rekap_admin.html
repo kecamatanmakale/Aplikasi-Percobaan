@@ -2,212 +2,95 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Usulan Musrenbang T.A. 2027</title>
+    <title>Rekap Usulan Musrenbang 2027</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #000; background-color: #f4f7f6; }
-        .header-admin { background-color: #1a5bb8; color: white; padding: 15px; text-align: center; position: relative; }
-        .main-container { padding: 20px; }
-
-        /* Tombol Kembali ke Dashboard */
-        .btn-back { 
-            position: absolute; left: 20px; top: 20px; background: #fff; color: #1a5bb8; 
-            padding: 8px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px;
-        }
-
-        /* Filter & Button Action */
-        .filter-box { 
-            background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; 
-            display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        @media print { .filter-box, .header-admin, .btn-back { display: none !important; } }
-
-        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-action { padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; border: none; color: white; }
-        .btn-pdf { background: #27ae60; }
-        .btn-excel { background: #f39c12; }
-
-        /* Rekap Bidang Sejajar */
-        .rekap-bidang-row {
-            display: flex; justify-content: space-around; gap: 5px;
-            border: 1px solid #000; padding: 12px; margin: 15px 0; background: #fff;
-        }
-        .bidang-item { text-align: center; flex: 1; }
-        .bidang-item:not(:last-child) { border-right: 1px solid #000; }
-        .bidang-title { font-size: 10px; font-weight: bold; display: block; text-transform: uppercase; }
-        .bidang-val { font-size: 13px; font-weight: bold; display: block; margin: 2px 0; }
-        .bidang-count { font-size: 10px; color: #333; }
-
-        /* Tabel */
-        .table-wrapper { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #000; }
-        th, td { border: 1px solid #000; padding: 6px; font-size: 10px; word-wrap: break-word; vertical-align: top; color: #000; }
-        th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
-
-        /* Lebar Kolom */
-        .w-no { width: 30px; } .w-kel { width: 90px; } .w-bid { width: 90px; }
-        .w-keg { width: 200px; } .w-lok { width: 140px; } .w-vol { width: 50px; }
-        .w-ang { width: 100px; } .w-opd { width: 110px; } .w-ket { width: auto; }
-
-        .sign-section { margin-top: 40px; display: none; justify-content: flex-end; text-align: center; }
-
-        @media print {
-            @page { size: A4 landscape; margin: 1cm; }
-            .table-wrapper { box-shadow: none; border: none; padding: 0; width: 100%; }
-            .sign-section { display: flex; }
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .header-rekap { background: #1a5bb8; color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; border-left: 5px solid #1a5bb8; }
+        .card-table { background: white; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #eee; }
+        .btn-excel { background: #1f8a50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header-admin">
-    <a href="dashboard_admin.html" class="btn-back">⬅ Kembali ke Dashboard</a>
-    <h2 style="margin:0;">ADMINISTRATOR - REKAP MUSRENBANG</h2>
+<div class="header-rekap">
+    <h2>REKAPITULASI USULAN MUSRENBANG 2027</h2>
+    <button class="btn-excel" onclick="exportToExcel()">📤 EXPORT EXCEL</button>
 </div>
 
-<div class="main-container">
-    <div class="filter-box">
-        <input type="text" id="searchBox" placeholder="Cari kegiatan...">
-        <select id="kelurahanSelect"><option value="">Semua Kelurahan/Lembang</option></select>
-        <button class="btn-action btn-pdf" onclick="window.print()">🖨️ Cetak PDF</button>
-        <button class="btn-action btn-excel" onclick="exportToExcel()">📊 Export ke Excel</button>
+<div class="stat-grid">
+    <div class="stat-card">
+        <h4>SARPRAS</h4>
+        <h2 id="countSarpras">0</h2>
     </div>
-
-    <div class="table-wrapper">
-        <h3 style="text-align: center; margin-bottom: 5px;">DAFTAR USULAN MUSRENBANG T.A. 2027</h3>
-        
-        <div class="rekap-bidang-row">
-            <div class="bidang-item">
-                <span class="bidang-title">Bidang Sarana Prasarana</span>
-                <span class="bidang-val" id="valSarpras">Rp 0</span>
-                <span class="bidang-count" id="countSarpras">0 Usulan</span>
-            </div>
-            <div class="bidang-item">
-                <span class="bidang-title">Bidang Sosial Budaya</span>
-                <span class="bidang-val" id="valSosbud">Rp 0</span>
-                <span class="bidang-count" id="countSosbud">0 Usulan</span>
-            </div>
-            <div class="bidang-item">
-                <span class="bidang-title">Bidang Ekonomi</span>
-                <span class="bidang-val" id="valEkonomi">Rp 0</span>
-                <span class="bidang-count" id="countEkonomi">0 Usulan</span>
-            </div>
-        </div>
-
-        <table id="rekapTable">
-            <thead>
-                <tr>
-                    <th class="w-no">No</th>
-                    <th class="w-kel">Kelurahan</th>
-                    <th class="w-bid">Bidang</th>
-                    <th class="w-keg">Kegiatan</th>
-                    <th class="w-lok">Lokasi</th>
-                    <th class="w-vol">Vol</th>
-                    <th class="w-ang">Anggaran</th>
-                    <th class="w-opd">OPD</th>
-                    <th class="w-ket">Keterangan</th>
-                </tr>
-            </thead>
-            <tbody id="dataBody">
-                <tr><td colspan="9" style="text-align:center;">Memuat data...</td></tr>
-            </tbody>
-            <tfoot>
-                <tr style="font-weight:bold; background:#eee;">
-                    <td colspan="6" style="text-align: right;">TOTAL ANGGARAN:</td>
-                    <td id="totalSemua" colspan="3">Rp 0</td>
-                </tr>
-            </tfoot>
-        </table>
-
-        <div class="sign-section">
-            <div style="width: 250px;">
-                <p>Makale, ________________ 2026</p>
-                <p><strong>Camat Makale,</strong></p>
-                <br><br><br>
-                <p><strong>__________________________</strong></p>
-                <p>NIP. .....................................</p>
-            </div>
-        </div>
+    <div class="stat-card">
+        <h4>SOSBUD</h4>
+        <h2 id="countSosbud">0</h2>
     </div>
+    <div class="stat-card">
+        <h4>EKONOMI</h4>
+        <h2 id="countEkonomi">0</h2>
+    </div>
+</div>
+
+<div class="card-table">
+    <table id="rekapTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Kelurahan</th>
+                <th>Bidang</th>
+                <th>Kegiatan</th>
+                <th>Lokasi</th>
+                <th>OPD</th>
+            </tr>
+        </thead>
+        <tbody id="rekapBody"></tbody>
+    </table>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
-    let masterData = [];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
 
-    async function loadData() {
-        try {
-            const resp = await fetch(API_URL);
-            const res = await resp.json();
-            masterData = res.data || res;
+    async function fetchData() {
+        const res = await fetch(SCRIPT_URL + "?action=read");
+        const json = await res.json();
+        const data = json.data;
+
+        let s = 0, b = 0, e = 0;
+        const html = data.map((d, i) => {
+            if(d.bidang.includes("Sarana")) s++;
+            if(d.bidang.includes("Sosial")) b++;
+            if(d.bidang.includes("Ekonomi")) e++;
             
-            const kels = [...new Set(masterData.map(i => i.kelurahan))].filter(Boolean).sort();
-            const sel = document.getElementById('kelurahanSelect');
-            kels.forEach(k => {
-                let o = document.createElement('option');
-                o.value = k; o.textContent = k;
-                sel.appendChild(o);
-            });
-            render(masterData);
-        } catch (err) {
-            document.getElementById('dataBody').innerHTML = '<tr><td colspan="9">Gagal memuat data.</td></tr>';
-        }
-    }
-
-    function render(data) {
-        const body = document.getElementById('dataBody');
-        let total = 0, sA = 0, sC = 0, bA = 0, bC = 0, eA = 0, eC = 0;
-
-        body.innerHTML = data.map((item, index) => {
-            const ang = Number(item.anggaran) || 0;
-            total += ang;
-            const bdg = (item.bidang || "").toLowerCase();
-            if(bdg.includes("sarana")) { sA += ang; sC++; }
-            else if(bdg.includes("sosial")) { bA += ang; bC++; }
-            else if(bdg.includes("ekonomi")) { eA += ang; eC++; }
-
             return `<tr>
-                <td style="text-align:center;">${index + 1}</td>
-                <td>${item.kelurahan}</td>
-                <td>${item.bidang}</td>
-                <td>${item.kegiatan}</td>
-                <td>${item.lokasi}</td>
-                <td style="text-align:center;">${item.volume}</td>
-                <td>Rp ${ang.toLocaleString('id-ID')}</td>
-                <td>${item.opd}</td>
-                <td>${item.keterangan || '-'}</td>
+                <td>${i+1}</td>
+                <td>${d.kelurahan}</td>
+                <td>${d.bidang}</td>
+                <td>${d.kegiatan}</td>
+                <td>${d.lokasi}</td>
+                <td>${d.opd}</td>
             </tr>`;
         }).join('');
 
-        document.getElementById('totalSemua').innerText = "Rp " + total.toLocaleString('id-ID');
-        document.getElementById('valSarpras').innerText = "Rp " + sA.toLocaleString('id-ID');
-        document.getElementById('countSarpras').innerText = sC + " Usulan";
-        document.getElementById('valSosbud').innerText = "Rp " + bA.toLocaleString('id-ID');
-        document.getElementById('countSosbud').innerText = bC + " Usulan";
-        document.getElementById('valEkonomi').innerText = "Rp " + eA.toLocaleString('id-ID');
-        document.getElementById('countEkonomi').innerText = eC + " Usulan";
+        document.getElementById('rekapBody').innerHTML = html;
+        document.getElementById('countSarpras').innerText = s;
+        document.getElementById('countSosbud').innerText = b;
+        document.getElementById('countEkonomi').innerText = e;
     }
 
-    // Fungsi Export Excel
     function exportToExcel() {
         const table = document.getElementById("rekapTable");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap Usulan 2027" });
-        XLSX.writeFile(wb, "Rekap_Usulan_Musrenbang_2027.xlsx");
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap 2027" });
+        XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
     }
 
-    document.querySelectorAll('#searchBox, #kelurahanSelect').forEach(el => {
-        el.addEventListener('input', () => {
-            const txt = document.getElementById('searchBox').value.toLowerCase();
-            const kel = document.getElementById('kelurahanSelect').value;
-            const filtered = masterData.filter(d => 
-                (d.kegiatan || "").toLowerCase().includes(txt) && (!kel || d.kelurahan === kel)
-            );
-            render(filtered);
-        });
-    });
-
-    loadData();
+    fetchData();
 </script>
 </body>
 </html>
