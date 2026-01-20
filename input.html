@@ -38,17 +38,39 @@
         /* Tanda Tangan */
         #signatureArea { display: none; margin-top: 50px; }
 
-        /* Konfigurasi Khusus Cetak F4 */
+        /* ========================================== */
+        /* CONFIG CETAK (Hanya aktif saat Print/PDF) */
+        /* ========================================== */
         @media print {
+            /* 1. Atur Ukuran Kertas F4 */
             @page { size: 215mm 330mm; margin: 20mm 15mm; }
-            .header, .card:first-child, .btn-group, .btn-action, .no-print { display: none !important; }
+            
+            /* 2. Sembunyikan elemen yang tidak diperlukan */
+            .header, 
+            .card:first-of-type, /* Sembunyikan Card Form Input */
+            .btn-group, 
+            .btn-action, 
+            .no-print { 
+                display: none !important; 
+            }
+            
+            /* 3. Atur layout card agar memenuhi kertas */
             body { background: white; padding: 0; }
-            .card { box-shadow: none !important; border: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+            .card { 
+                box-shadow: none !important; 
+                border: none !important; 
+                padding: 0 !important; 
+                max-width: 100% !important; 
+            }
+            
+            /* 4. Tampilkan Header Cetak & Area Tanda Tangan */
             .print-header { display: block !important; }
             #signatureArea { display: block !important; page-break-inside: avoid; }
+            
+            /* 5. Rapikan Tabel untuk kertas */
             table { font-size: 11pt; width: 100%; border: 1px solid black; }
-            th { background: #eee !important; color: #000 !important; border: 1px solid black; }
-            td { border: 1px solid black; color: #000 !important; }
+            th { background: #eeeeee !important; color: black !important; border: 1px solid black; }
+            td { border: 1px solid black; color: black !important; }
         }
     </style>
 </head>
@@ -118,11 +140,11 @@
             <thead>
                 <tr>
                     <th width="30">No</th>
-                    <th width="180">Bidang</th>
-                    <th width="280">Kegiatan</th>
+                    <th width="150">Bidang</th>
+                    <th width="250">Kegiatan</th>
                     <th>Lokasi & Keterangan</th>
                     <th width="120">OPD Tujuan</th>
-                    <th class="btn-action" width="70">Aksi</th>
+                    <th class="btn-action" width="60">Aksi</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -142,6 +164,7 @@
 </div>
 
 <script>
+    // Gunakan SCRIPT_URL Anda yang asli
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
     
     const dataPejabat = {
@@ -166,12 +189,10 @@
 
     $(document).ready(function() {
         if (!currentKel) { window.location.href = "index.html"; return; }
-        
         document.getElementById('userDisplay').innerText = currentKel;
         document.getElementById('kelurahan').value = currentKel;
         document.getElementById('printKelurahan').innerText = currentKel.toUpperCase();
-        
-        $('.js-select2').select2({ placeholder: "Ketik nama kegiatan..." });
+        $('.js-select2').select2({ placeholder: "Ketik nama kegiatan...", width: '100%' });
         setupSignature();
         loadData();
     });
@@ -182,21 +203,11 @@
         const tglSekarang = new Date();
         const tgl = tglSekarang.getDate();
         const bln = daftarBulan[tglSekarang.getMonth()];
-
         const namaWilayahSaja = currentKel.replace("Kelurahan ", "").replace("Lembang ", "");
         
-        // Baris Tanggal: Botang, 20 Januari 2026
         document.getElementById('sigDate').innerText = `${namaWilayahSaja}, ${tgl} ${bln} 2026`;
-        
-        // Baris Jabatan: Lurah Botang,
-        let jabatan = "";
-        if (currentKel.includes("Lembang")) {
-            jabatan = "Kepala Lembang " + namaWilayahSaja;
-        } else {
-            jabatan = "Lurah " + namaWilayahSaja;
-        }
+        let jabatan = currentKel.includes("Lembang") ? "Kepala Lembang " + namaWilayahSaja : "Lurah " + namaWilayahSaja;
         document.getElementById('sigJabatan').innerText = jabatan + ",";
-
         document.getElementById('sigNama').innerText = p.nama;
         const nipElement = document.getElementById('sigNip');
         if (p.nip && p.nip !== "-") {
@@ -212,7 +223,6 @@
             const response = await fetch(SCRIPT_URL + "?action=read");
             const result = await response.json();
             const myData = result.data.filter(d => d.kelurahan === currentKel);
-            
             let html = "";
             myData.forEach((d, idx) => {
                 html += `<tr>
@@ -222,28 +232,24 @@
                     <td>${d.lokasi} <br><small><em>(Ket: ${d.keterangan || '-'})</em></small></td>
                     <td align="center">${d.opd}</td>
                     <td class="btn-action" align="center">
-                        <button onclick="deleteRow(${d.row})" style="color:#e74c3c; background:none; font-size: 16px;"><i class="fas fa-trash-alt"></i></button>
+                        <button onclick="deleteRow(${d.row})" style="color:#e74c3c; background:none;"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>`;
             });
-            document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='6' align='center'>Belum ada usulan yang diinput.</td></tr>";
-        } catch (e) {
-            console.error("Fetch Error:", e);
-        }
+            document.getElementById('tableBody').innerHTML = html || "<tr><td colspan='6' align='center'>Belum ada data usulan.</td></tr>";
+        } catch (e) { console.error(e); }
     }
 
     document.getElementById('usulanForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerText = "⏳ Menyimpan Data...";
-
+        btn.innerText = "⏳ Menyimpan...";
         const params = new URLSearchParams(new FormData(this));
         params.append("action", "create");
-
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() })
             .then(() => {
-                alert("Usulan berhasil disimpan!");
+                alert("Data berhasil disimpan!");
                 this.reset();
                 $('#kegiatan').val(null).trigger('change');
                 loadData();
@@ -254,10 +260,8 @@
     });
 
     function deleteRow(row) {
-        if(confirm("Yakin ingin menghapus usulan ini?")) {
-            fetch(SCRIPT_URL + "?action=delete&row=" + row).then(() => {
-                loadData();
-            });
+        if(confirm("Hapus usulan ini?")) {
+            fetch(SCRIPT_URL + "?action=delete&row=" + row).then(() => loadData());
         }
     }
 
