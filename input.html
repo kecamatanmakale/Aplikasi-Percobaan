@@ -6,60 +6,51 @@
     <title>Input Usulan Musrenbang 2027</title>
     
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .form-container { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1b5e20; text-align: center; margin-bottom: 25px; text-transform: uppercase; font-size: 1.2rem; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; }
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        textarea { height: 100px; resize: vertical; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .form-container { background: white; max-width: 900px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        h2 { color: #1b5e20; text-align: center; margin-bottom: 25px; text-transform: uppercase; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .btn-submit { background-color: #2e7d32; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
         
-        /* Custom Style untuk Select2 agar sesuai tema */
-        .select2-container--default .select2-selection--single {
-            height: 45px; border: 1px solid #ccc; border-radius: 8px; padding-top: 8px;
-        }
-
-        .btn-submit { background-color: #2e7d32; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
-        .btn-submit:hover { background-color: #1b5e20; }
-        .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
-        .loading { display: none; text-align: center; color: #1b5e20; font-weight: bold; margin-top: 10px; }
+        /* Style Tabel di Bawah Form */
+        .table-container { background: white; max-width: 1100px; margin: auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { background-color: #2e7d32; color: white; padding: 12px; border: 1px solid #ddd; }
+        td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .btn-edit { color: #f39c12; cursor: pointer; margin-right: 10px; border: none; background: none; }
+        .btn-delete { color: #e74c3c; cursor: pointer; border: none; background: none; }
+        .loading { text-align: center; font-weight: bold; color: #2e7d32; display: none; }
     </style>
 </head>
 <body>
 
 <div class="form-container">
-    <h2>Form Input Usulan Musrenbang T.A. 2027</h2>
-    
+    <h2 id="formTitle">Form Input Usulan Musrenbang 2027</h2>
     <form id="usulanForm">
+        <input type="hidden" id="editIndex" name="editIndex" value="">
+
         <div class="form-group">
             <label>Kelurahan/Lembang</label>
-            <select name="kelurahan" required>
+            <select name="kelurahan" id="kelurahan" required>
                 <option value="">-- Pilih Kelurahan --</option>
-                <option>Kelurahan Ariang</option>
-                <option>Kelurahan Batupapan</option>
                 <option>Kelurahan Bombongan</option>
-                <option>Kelurahan Botang</option>
-                <option>Kelurahan Buntu Burake</option>
-                <option>Kelurahan Kamali Pentalluan</option>
-                <option>Kelurahan Lamunan</option>
-                <option>Kelurahan Lapandan</option>
-                <option>Lembang Lea</option>
-                <option>Kelurahan Manggau</option>
-                <option>Kelurahan Pantan</option>
-                <option>Kelurahan Rante</option>
-                <option>Kelurahan Tampo Makale</option>
-                <option>Kelurahan Tarongko</option>
                 <option>Kelurahan Tondon Mamullu</option>
-            </select>
+                <option>Kelurahan Pantan</option>
+                <option>Lembang Lea</option>
+                </select>
         </div>
 
         <div class="form-group">
             <label>Bidang</label>
-            <select name="bidang" required>
+            <select name="bidang" id="bidang" required>
                 <option value="">-- Pilih Bidang --</option>
                 <option>Bidang Sarana dan Prasarana</option>
                 <option>Bidang Sosial Budaya</option>
@@ -68,162 +59,142 @@
         </div>
 
         <div class="form-group">
-            <label>Nama Kegiatan (Kamus Usulan)</label>
-            <select name="kegiatan" id="kegiatanSelect" class="js-select2" required style="width: 100%;">
-                <option value=""></option>
-                <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
-                <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
-                <option>Banyaknya UMKM yang belum memiliki NIB</option>
-                <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
-                <option>Belum ada harmonisasi regulasi daerah dengan regulasi yang dikeluarkan oleh Pemerintah Pusat</option>
-                <option>Belum ada Perbup yang mengatur tentang pemberian fasilitasi/insentif di bidang Penanaman Modal di daerah</option>
-                <option>Belum meratanya infrastruktur teknologi informasi dan komunikasi terutama di wilayah terpencil</option>
-                <option>belum pernah dilaksanakan pelatihan/sosialisasi kepada UMKM utk meningkatkan produktivitas</option>
-                <option>Belum pernah mengikuti Pameran Promosi Investasi Daerah</option>
-                <option>Bimbingan/Orientasi/Adopsi inovasi</option>
-                <option>Bimbingan Teknis dan Supervisi Pengembangan dan Pelaksanaan Upaya Kesehatan Bersumber Daya Masyarakat (UKBM)</option>
-                <option>Bimbingan Teknis kepada Pelaku Usaha Masih belum Optimal</option>
-                <option>Bimbingan Teknis /Sosialisasi /Adopsi inovasi</option>
-                <option>Bimbingan Teknis/ Sosialisasi /Pelatihan</option>
-                <option>Bintek Pengembangan kompetensi Keterampilan dan Ketehnikan Konstruksi Tenaga OAP</option>
-                <option>Deteksi Dini Penyalahgunaan NAPZA di Fasyankes dan Sekolah</option>
-                <option>Distribusi Alat Kesehatan, Obat, Bahan Habis Pakai, Vaksin ke Fasilitas Kesehatan</option>
-                <option>Diversifikasi Tanaman Jagung dan Kacang Tanah</option>
-                <option>Evaluasi dan Konsultasi Evaluasi RTRW Kabupaten Tana Toraja</option>
-                <option>Fasilitasi forum penataan ruang di lingkungan Kabupaten Tana Toraja</option>
-                <option>Fasilitasi Pemenuhan Komitmen Penerbitan Izin Pembangunan Kawasan Permukiman</option>
-                <option>Fasilitasi Penyediaan Rumah bagi Korban Bencana Kabupaten/Kota</option>
-                <option>Fasilitasi Sertifikasi Tenaga Kerja Konstruksi</option>
-                <option>Hadiah/penghargaan terhadap pemuda berprestasi</option>
-                <option>Hibah/bantuan Sarana Prasarana/Rumah Ibadah/ Organisasi Keagamaan</option>
-                <option>HIBAH ke Organisasi Keolahragaan</option>
-                <option>Identifikasi dan Penetapan Lahan Pengembalaan Umum</option>
-                <option>Identifikasi Potensi Kerja Sama dan Pemberdayaan Jasa Konstruksi</option>
-                <option>Kerjasama dengan Badan Promosi Pariwisata Daerah</option>
-                <option>Kerja Sama Penyediaan/ Pengelolaan PSU Perumahan</option>
-                <option>Kerja Sama Perbaikan Rumah Tidak Layak Huni Beserta PSU</option>
-                <option>Koleksi Budaya Etnis</option>
-                <option>Konseling Satyagatra</option>
-                <option>Kurang berkembangnya industri kecil maupun menengah</option>
-                <option>Kurangnya kapasitas SDM di bidang IT Kelurahan/Lembang</option>
-                <option>Kurangnya keterampilan pelaku UMKM</option>
-                <option>Layanan Informasi Jasa Konstruksi</option>
-                <option>Normalisasi Sungai</option>
-                <option>Normalisasi Tebing Sungai</option>
-                <option>Operasional Pelayanan Puskesmas</option>
-                <option>Pelaksanaan event olahraga wisata</option>
-                <option>Pelaksanaan Pendampingan Penggunaan Sarana Pendukung Pertanian</option>
-                <option>Pelaksanaan Vaksin Anti Rabies</option>
-                <option>Pelatihan Pencegahan dan Mitigasi Bencana</option>
-                <option>Pelatihan Pengurus BUMDES</option>
-                <option>Pelebaran Jalan Kabupaten</option>
-                <option>Pelebaran Jembatan Kabupaten</option>
-                <option>Pembangunan Bangunan Perkuatan Tebing</option>
-                <option>Pembangunan Bendungan</option>
-                <option>Pembangunan Embung</option>
-                <option>Pembangunan Infrastruktur Sumber Mata Air</option>
-                <option>Pembangunan Jalan Kabupaten</option>
+            <label>Kegiatan (Kamus Usulan)</label>
+            <select name="kegiatan" id="kegiatan" class="js-select2" required>
+                <option value="">-- Cari Usulan --</option>
                 <option>Pembangunan Jaringan Irigasi</option>
-                <option>Pembangunan Jembatan</option>
-                <option>Pembangunan Perpustakaan Sekolah</option>
-                <option>Pembangunan Puskesmas</option>
-                <option>Pembangunan Ruang Kelas Baru</option>
-                <option>Pembangunan Rumah Baru Layak Huni (Pencegahan Kumuh)</option>
-                <option>Pembangunan Sistem Drainase Lingkungan</option>
-                <option>Pembangunan Sistem Penyediaan Air Minum (SPAM)</option>
-                <option>Pemeliharaan Jalan Kabupaten</option>
-                <option>Pengadaan Alat Kesehatan/Alat Penunjang Medik</option>
-                <option>Pengadaan Benih Sayur (Kangkung, Sawi, Tomat, Cabe Rawit, dll)</option>
-                <option>Pengadaan Hand Traktor</option>
+                <option>Normalisasi Sungai</option>
                 <option>Pengadaan Ternak Babi</option>
-                <option>Pengadaan Ternak Kerbau</option>
-                <option>Peningkatan Jaringan Irigasi</option>
-                <option>Penyediaan Prasarana, Sarana dan Utilitas Umum (Rabat Beton, Talud, Drainase)</option>
-                <option>Penyediaan Jasa Penyedotan Lumpur Tinja</option>
                 </select>
         </div>
 
         <div class="form-group">
-            <label>Lokasi Spesifik</label>
-            <input type="text" name="lokasi" placeholder="Sebutkan Dusun/RT/Lingkungan..." required>
+            <label>Lokasi</label>
+            <input type="text" name="lokasi" id="lokasi" required>
         </div>
 
         <div class="form-group">
-            <label>OPD Tujuan</label>
-            <select name="opd" required>
-                <option value="">-- Pilih OPD --</option>
-                <option>DPUTR</option>
-                <option>DPRKP</option>
-                <option>DPKPP (Pertanian)</option>
-                <option>Dinas Kesehatan</option>
-                <option>Dinas Pendidikan</option>
-                <option>Dinas Pariwisata</option>
-                <option>Diskoperindag</option>
-                <option>Lainnya</option>
-            </select>
+            <label>OPD</label>
+            <input type="text" name="opd" id="opd" required>
         </div>
 
         <div class="form-group">
-            <label>Keterangan Tambahan (Volume/Detail)</label>
-            <textarea name="keterangan" placeholder="Contoh: Panjang 200m, Lebar 3m, atau rincian lainnya..."></textarea>
+            <label>Keterangan Tambahan</label>
+            <textarea name="keterangan" id="keterangan"></textarea>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">💾 SIMPAN USULAN</button>
-        <div class="loading" id="loadingMsg">Sedang mengirim data ke Google Sheets...</div>
+        <button type="submit" class="btn-submit" id="submitBtn">💾 SIMPAN DATA</button>
+        <div class="loading" id="loadingForm">Memproses data...</div>
     </form>
 </div>
 
+<div class="table-container">
+    <h3>Data Usulan Yang Sudah Masuk</h3>
+    <div class="loading" id="loadingTable">Memuat data dari Google Sheets...</div>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Kelurahan</th>
+                <th>Bidang</th>
+                <th>Kegiatan</th>
+                <th>Lokasi</th>
+                <th>OPD</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
 <script>
-    // URL Web App Anda
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNSq8gl8Ll1TevQsa1VZOhr4_S3TTpHsQNMNZNA-3vIvXmd5dSi_DddVnXurR1ioqD/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnDAjZ-IDJ4iPoZGeK8tkTQW3Dk6VTJulufq73aaFKEEMQNnpL-B7OVxJS88ElAwni/exec"; // Ganti dengan URL exec Anda
 
     $(document).ready(function() {
-        // Inisialisasi Fitur Search pada Dropdown Kegiatan
-        $('.js-select2').select2({
-            placeholder: "-- Cari & Pilih Kegiatan di Kamus --",
-            allowClear: true
-        });
+        $('.js-select2').select2();
+        loadData();
+    });
 
-        // Proses Submit Form
-        document.getElementById('usulanForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const loading = document.getElementById('loadingMsg');
-            
-            btn.disabled = true;
-            loading.style.display = "block";
-
-            // Mengambil semua data form
-            const formData = new FormData(this);
-            const params = new URLSearchParams();
-            
-            formData.forEach((value, key) => {
-                params.append(key, value);
+    // Ambil Data dan Tampilkan di Tabel
+    function loadData() {
+        $("#loadingTable").show();
+        fetch(SCRIPT_URL + "?action=read")
+            .then(res => res.json())
+            .then(result => {
+                let html = "";
+                result.data.forEach((d, idx) => {
+                    // Indeks baris sebenarnya di Sheet adalah idx + 2 (karena header)
+                    html += `<tr>
+                        <td>${idx + 1}</td>
+                        <td>${d.kelurahan}</td>
+                        <td>${d.bidang}</td>
+                        <td>${d.kegiatan}</td>
+                        <td>${d.lokasi}</td>
+                        <td>${d.opd}</td>
+                        <td>${d.keterangan}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editData(${idx}, '${d.kelurahan}', '${d.bidang}', '${d.kegiatan}', '${d.lokasi}', '${d.opd}', '${d.keterangan}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="deleteData(${idx + 2})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('tableBody').innerHTML = html;
+                $("#loadingTable").hide();
             });
+    }
 
-            // Kirim data ke Code.gs
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: params.toString(),
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            })
-            .then(() => {
-                alert("Berhasil! Usulan telah tercatat di sistem.");
-                this.reset();
-                $('#kegiatanSelect').val(null).trigger('change'); // Reset pencarian
-            })
-            .catch(err => {
-                alert("Error: " + err);
-            })
-            .finally(() => {
-                btn.disabled = false;
-                loading.style.display = "none";
-            });
+    // Submit Form (Tambah atau Edit)
+    document.getElementById('usulanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        $("#loadingForm").show();
+        $("#submitBtn").disabled = true;
+
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        formData.forEach((value, key) => params.append(key, value));
+        
+        // Cek apakah mode Edit atau Baru
+        const actionType = document.getElementById('editIndex').value === "" ? "create" : "edit";
+        params.append("action", actionType);
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: params.toString()
+        }).then(() => {
+            alert("Berhasil!");
+            this.reset();
+            $('#kegiatan').val(null).trigger('change');
+            document.getElementById('editIndex').value = "";
+            document.getElementById('formTitle').innerText = "Form Input Usulan Musrenbang 2027";
+            loadData();
+            $("#loadingForm").hide();
+            $("#submitBtn").disabled = false;
         });
     });
-</script>
 
+    function editData(idx, kel, bid, keg, lok, opd, ket) {
+        document.getElementById('editIndex').value = idx + 2; // Simpan baris di sheet
+        document.getElementById('kelurahan').value = kel;
+        document.getElementById('bidang').value = bid;
+        $('#kegiatan').val(keg).trigger('change');
+        document.getElementById('lokasi').value = lok;
+        document.getElementById('opd').value = opd;
+        document.getElementById('keterangan').value = ket;
+        document.getElementById('formTitle').innerText = "📍 Edit Data Usulan (Baris " + (idx+1) + ")";
+        window.scrollTo(0,0);
+    }
+
+    function deleteData(row) {
+        if(confirm("Hapus data usulan ini?")) {
+            fetch(SCRIPT_URL + "?action=delete&row=" + row)
+            .then(() => {
+                alert("Data Terhapus");
+                loadData();
+            });
+        }
+    }
+</script>
 </body>
 </html>
