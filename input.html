@@ -1,57 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Usulan Musrenbang 2027</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        h2 { color: #2e7d32; text-align: center; border-bottom: 2px solid #2e7d32; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+        .btn-save { background: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        
+        /* Table Style */
+        .table-res { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #2e7d32; color: white; padding: 12px; border: 1px solid #ddd; }
+        td { padding: 10px; border: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-edit { color: #f39c12; background: none; border: none; cursor: pointer; }
+        .btn-del { color: #e74c3c; background: none; border: none; cursor: pointer; }
+        .loading { display: none; text-align: center; font-weight: bold; color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2 id="formTitle">INPUT USULAN MUSRENBANG 2027</h2>
+        <form id="usulanForm">
+            <input type="hidden" id="editRow" name="editRow">
+            
+            <div class="form-group">
+                <label>Kelurahan/Lembang</label>
+                <select name="kelurahan" id="kelurahan" required onchange="loadTableData()">
+                    <option value="">-- Pilih Kelurahan --</option>
+                    <option>Kelurahan Bombongan</option>
+                    <option>Kelurahan Tondon Mamullu</option>
+                    <option>Kelurahan Pantan</option>
+                    <option>Lembang Lea</option>
+                    <option>Kelurahan Manggau</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Bidang</label>
+                <select name="bidang" id="bidang" required>
+                    <option value="">-- Pilih Bidang --</option>
+                    <option>Bidang Sarana dan Prasarana</option>
+                    <option>Bidang Sosial Budaya</option>
+                    <option>Bidang Ekonomi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nama Kegiatan</label>
+                <select name="kegiatan" id="kegiatan" class="js-select2" required>
+                    <option value=""></option>
+                    <option>Pembangunan Jaringan Irigasi</option>
+                    <option>Normalisasi Sungai</option>
+                    <option>Pengadaan Ternak Babi</option>
+                    <option>Rekonstruksi Jalan Kabupaten</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Lokasi Spesifik</label>
+                <input type="text" name="lokasi" id="lokasi" required placeholder="Contoh: RT. 01 Lingkungan Lamba">
+            </div>
+
+            <div class="form-group">
+                <label>OPD Tujuan</label>
+                <input type="text" name="opd" id="opd" required placeholder="Contoh: DPUTR / DPKPP">
+            </div>
+
+            <div class="form-group">
+                <label>Keterangan (Volume/Detail)</label>
+                <textarea name="keterangan" id="keterangan" placeholder="Contoh: Panjang 200m"></textarea>
+            </div>
+
+            <button type="submit" class="btn-save" id="btnSubmit">💾 SIMPAN USULAN</button>
+            <div id="loaderForm" class="loading">Sedang memproses...</div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Rekap Usulan Kelurahan Terpilih</h3>
+        <div id="loaderTable" class="loading">Mengambil data dari server...</div>
+        <div class="table-res">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Bidang</th>
+                        <th>Kegiatan</th>
+                        <th>Lokasi</th>
+                        <th>OPD</th>
+                        <th>Keterangan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="7" align="center">Pilih Kelurahan di atas untuk melihat data</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnDAjZ-IDJ4iPoZGeK8tkTQW3Dk6VTJulufq73aaFKEEMQNnpL-B7OVxJS88ElAwni/exec"; // Masukkan URL exec Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6iFxu0HBoCnHTZtFEkc3E2uPPks6gaFxpPX5Xef7OvXnp5y_VhC26FF9gwVMovcnV/exec"; // Ganti dengan URL Deployment Anda
 
     $(document).ready(function() {
-        $('.js-select2').select2();
-        
-        // Panggil loadData setiap kali dropdown Kelurahan berubah
-        document.getElementById('kelurahan').addEventListener('change', loadData);
-        
-        loadData();
+        $('.js-select2').select2({ placeholder: "-- Cari Kegiatan --" });
     });
 
-    function loadData() {
+    // Fungsi memuat data yang difilter sesuai dropdown Kelurahan
+    function loadTableData() {
         const kelurahanAktif = document.getElementById('kelurahan').value;
-        const tableBody = document.getElementById('tableBody');
+        const tbody = document.getElementById('tableBody');
         
         if (!kelurahanAktif) {
-            tableBody.innerHTML = "<tr><td colspan='8' align='center'>Pilih Kelurahan untuk melihat usulan yang sudah masuk</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='7' align='center'>Pilih Kelurahan di atas untuk melihat data</td></tr>";
             return;
         }
 
-        $("#loadingTable").show();
+        $("#loaderTable").show();
         fetch(SCRIPT_URL + "?action=read")
             .then(res => res.json())
             .then(result => {
+                // Filter data berdasarkan Kelurahan
+                const filtered = result.data.filter(d => d.kelurahan === kelurahanAktif);
+                
                 let html = "";
-                // FILTER DATA: Hanya ambil usulan yang kelurahannya sama dengan pilihan di form
-                const filteredData = result.data.filter(d => d.kelurahan === kelurahanAktif);
-
-                if (filteredData.length === 0) {
-                    html = `<tr><td colspan='8' align='center'>Belum ada usulan masuk untuk ${kelurahanAktif}</td></tr>`;
+                if (filtered.length === 0) {
+                    html = "<tr><td colspan='7' align='center'>Belum ada usulan masuk.</td></tr>";
                 } else {
-                    filteredData.forEach((d, idx) => {
-                        // idx di sini adalah indeks array terfilter, 
-                        // untuk Edit/Delete kita perlu indeks asli di Sheet (akan ditangani Code.gs melalui pencarian unik atau kirim ID)
+                    filtered.forEach((d, idx) => {
                         html += `<tr>
                             <td>${idx + 1}</td>
-                            <td>${d.kelurahan}</td>
                             <td>${d.bidang}</td>
                             <td>${d.kegiatan}</td>
                             <td>${d.lokasi}</td>
                             <td>${d.opd}</td>
                             <td>${d.keterangan}</td>
-                            <td>
-                                <button class="btn-edit" onclick="editData('${d.kegiatan}', '${d.lokasi}', '${d.opd}', '${d.keterangan}')"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete" onclick="deleteData('${d.kegiatan}')"><i class="fas fa-trash"></i></button>
+                            <td class="action-btns">
+                                <button class="btn-edit" onclick="editData(${d.row},'${d.bidang}','${d.kegiatan}','${d.lokasi}','${d.opd}','${d.keterangan}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn-del" onclick="deleteData(${d.row})"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>`;
                     });
                 }
-                tableBody.innerHTML = html;
-                $("#loadingTable").hide();
+                tbody.innerHTML = html;
+                $("#loaderTable").hide();
             });
     }
-    
-    // ... (Fungsi submit tetap sama, pastikan memanggil loadData() setelah sukses) ...
+
+    // Fungsi Kirim Data (Simpan/Update)
+    document.getElementById('usulanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        $("#loaderForm").show();
+        $("#btnSubmit").hide();
+
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        formData.forEach((v, k) => params.append(k, v));
+        
+        const isEdit = document.getElementById('editRow').value !== "";
+        params.append("action", isEdit ? "edit" : "create");
+
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() })
+            .then(() => {
+                alert("Data Berhasil Disimpan!");
+                resetForm();
+                loadTableData();
+            })
+            .catch(err => alert("Error: " + err))
+            .finally(() => {
+                $("#loaderForm").hide();
+                $("#btnSubmit").show();
+            });
+    });
+
+    function editData(row, bid, keg, lok, opd, ket) {
+        document.getElementById('editRow').value = row;
+        document.getElementById('bidang').value = bid;
+        $('#kegiatan').val(keg).trigger('change');
+        document.getElementById('lokasi').value = lok;
+        document.getElementById('opd').value = opd;
+        document.getElementById('keterangan').value = ket;
+        document.getElementById('formTitle').innerText = "MODE EDIT DATA USULAN";
+        window.scrollTo(0, 0);
+    }
+
+    function deleteData(row) {
+        if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+            fetch(SCRIPT_URL + "?action=delete&row=" + row)
+                .then(() => {
+                    alert("Data Terhapus!");
+                    loadTableData();
+                });
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('usulanForm').reset();
+        document.getElementById('editRow').value = "";
+        document.getElementById('formTitle').innerText = "INPUT USULAN MUSRENBANG 2027";
+        $('#kegiatan').val(null).trigger('change');
+    }
 </script>
+
+</body>
+</html>
