@@ -6,43 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f7f6; }
-        
-        /* Navigasi Atas */
         .navbar { background: #1b5e20; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
         .btn-back { background: #fff; color: #1b5e20; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 13px; }
-
         .container { padding: 20px; max-width: 1300px; margin: auto; }
 
-        /* Ringkasan Bidang */
+        /* Summary Boxes */
         .summary-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-        .summary-item { background: white; padding: 20px; text-align: center; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .summary-item strong { display: block; text-transform: uppercase; font-size: 13px; color: #333; margin-bottom: 8px; }
+        .summary-item { background: white; padding: 20px; text-align: center; border-radius: 10px; border: 1px solid #ddd; }
         .summary-item .count { font-size: 24px; font-weight: bold; color: #1e88e5; display: block; }
-        .summary-item .percent { font-size: 12px; color: #888; }
 
-        /* Area Kontrol (Pencarian & Filter) */
-        .control-bar { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; gap: 10px; margin-bottom: 20px; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; flex: 1; font-size: 14px; }
+        /* Control Bar */
+        .control-bar { background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; flex: 1; }
         .btn-print { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* Tabel Data */
+        /* Tabel */
         .table-responsive { background: white; border-radius: 8px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f1f3f4; padding: 12px; border: 1px solid #ddd; font-size: 13px; text-align: center; }
+        th { background: #f1f3f4; padding: 12px; border: 1px solid #ddd; font-size: 13px; }
         td { padding: 10px; border: 1px solid #ddd; font-size: 13px; vertical-align: top; }
 
-        /* Area Tanda Tangan */
-        .signature-area { display: none; margin-top: 50px; justify-content: flex-end; }
-        .signature-box { width: 350px; text-align: center; line-height: 1.2; }
+        /* Area Tanda Tangan Dinamis */
+        .signature-area { display: none; margin-top: 50px; justify-content: flex-end; page-break-inside: avoid; }
+        .signature-box { width: 400px; text-align: center; line-height: 1.3; }
 
-        /* PENGATURAN CETAK PDF */
         @media print {
             .navbar, .control-bar, .btn-back { display: none !important; }
             .signature-area { display: flex !important; }
             @page { size: landscape; margin: 1.5cm; }
             body { background: white; }
             .container { padding: 0; max-width: 100%; }
-            .table-responsive { box-shadow: none; border: none; }
             th { background-color: #eee !important; -webkit-print-color-adjust: exact; }
         }
     </style>
@@ -56,28 +49,16 @@
 </div>
 
 <div class="container">
-    <h3 style="text-align: center; text-transform: uppercase; margin-bottom: 25px;">Daftar Usulan Musrenbang T.A. 2027</h3>
+    <h3 style="text-align: center; text-transform: uppercase;">Daftar Usulan Musrenbang T.A. 2027</h3>
 
     <div class="summary-box">
-        <div class="summary-item">
-            <strong>Bidang Sarana Prasarana</strong>
-            <span class="count" id="s_count">0 Usulan</span>
-            <span class="percent" id="s_percent">0% dari total</span>
-        </div>
-        <div class="summary-item">
-            <strong>Bidang Sosial Budaya</strong>
-            <span class="count" id="sb_count">0 Usulan</span>
-            <span class="percent" id="sb_percent">0% dari total</span>
-        </div>
-        <div class="summary-item">
-            <strong>Bidang Ekonomi</strong>
-            <span class="count" id="e_count">0 Usulan</span>
-            <span class="percent" id="e_percent">0% dari total</span>
-        </div>
+        <div class="summary-item"><strong>Sarpras</strong><span class="count" id="s_count">0</span><span id="s_percent" class="percent">0%</span></div>
+        <div class="summary-item"><strong>Sosbud</strong><span class="count" id="sb_count">0</span><span id="sb_percent" class="percent">0%</span></div>
+        <div class="summary-item"><strong>Ekonomi</strong><span class="count" id="e_count">0</span><span id="e_percent" class="percent">0%</span></div>
     </div>
 
     <div class="control-bar">
-        <input type="text" id="searchInput" placeholder="Cari berdasarkan kegiatan atau lokasi...">
+        <input type="text" id="searchInput" placeholder="Cari kegiatan...">
         <select id="filterKelurahan">
             <option value="">Semua Kelurahan/Lembang</option>
         </select>
@@ -88,35 +69,43 @@
         <table>
             <thead>
                 <tr>
-                    <th width="40">No</th>
-                    <th width="150">Kelurahan</th>
-                    <th width="150">Bidang</th>
-                    <th>Kegiatan</th>
-                    <th>Lokasi</th>
-                    <th width="80">OPD</th>
-                    <th>Keterangan</th>
+                    <th>No</th><th>Kelurahan</th><th>Bidang</th><th>Kegiatan</th><th>Lokasi</th><th>OPD</th><th>Keterangan</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="7" style="text-align:center;">Memuat data usulan...</td></tr>
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 
     <div class="signature-area">
-        <div class="signature-box">
-            <p style="margin-bottom: 5px;">Makale, ................ 2026</p>
-            <p style="margin-top: 0;"><strong>CAMAT MAKALE,</strong></p>
-            <br><br><br><br>
-            <p><strong><u>BENYAMIN DENGEN, S.S., M.M</u></strong></p>
-            <p style="margin-top: 5px;">Pangkat : Pembina</p>
-            <p style="margin-top: 2px;">NIP. 19720831 200701 1 011</p>
-        </div>
+        <div class="signature-box" id="signatureBox">
+            </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7nH89Rnil0q0bz0e50hFoVK7C0qRdxAOsYWRQQygY29S29L6ysavup2K2rY8_TXQ/exec"; 
+    const SCRIPT_URL = "URL_WEB_APP_GOOGLE_SHEET_ANDA"; 
+    
+    // DATABASE PEJABAT [Sesuai Data Anda]
+    const dataPejabat = {
+        "Kelurahan Ariang": { jabatan: "LURAH ARIANG", nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { jabatan: "LURAH BATUPAPAN", nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { jabatan: "LURAH BOMBONGAN", nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { jabatan: "LURAH BOTANG", nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { jabatan: "LURAH BUNTU BURAKE", nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { jabatan: "LURAH KAMALI PENTALLUAN", nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { jabatan: "LURAH LAMUNAN", nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { jabatan: "LURAH LAPANDAN", nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { jabatan: "KEPALA LEMBANG LEA", nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { jabatan: "LURAH MANGGAU", nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { jabatan: "LURAH PANTAN", nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { jabatan: "LURAH RANTE", nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { jabatan: "LURAH TAMPO MAKALE", nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+        "Kelurahan Tarongko": { jabatan: "LURAH TARONGKO", nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { jabatan: "LURAH TONDON MAMULLU", nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
+
+    const camatMakale = { jabatan: "CAMAT MAKALE", nama: "BENYAMIN DENGEN, S.S., M.M", nip: "19720831 200701 1 011", pangkat: "Pembina" };
+
     let allData = [];
 
     async function fetchData() {
@@ -125,20 +114,16 @@
             const result = await response.json();
             allData = result.data;
 
-            // Populate Dropdown Kelurahan
-            const kelurahanSet = [...new Set(allData.map(item => item.kelurahan))].sort();
+            const kelSet = [...new Set(allData.map(item => item.kelurahan))].sort();
             const select = document.getElementById('filterKelurahan');
-            kelurahanSet.forEach(kel => {
+            kelSet.forEach(kel => {
                 const opt = document.createElement('option');
                 opt.value = kel; opt.textContent = kel;
                 select.appendChild(opt);
             });
 
-            applyFilters(); 
-            updateSummary(allData);
-        } catch (error) {
-            document.getElementById("tableBody").innerHTML = "<tr><td colspan='7' style='color:red; text-align:center;'>Gagal mengambil data dari server.</td></tr>";
-        }
+            applyFilters();
+        } catch (error) { console.error(error); }
     }
 
     function applyFilters() {
@@ -146,34 +131,35 @@
         const selectedKel = document.getElementById('filterKelurahan').value;
 
         const filtered = allData.filter(item => {
-            const kegiatan = (item.usulan || "").toLowerCase();
-            const lokasi = (item.lokasi || "").toLowerCase();
-            const matchesSearch = kegiatan.includes(searchTerm) || lokasi.includes(searchTerm);
-            const matchesKel = selectedKel === "" || item.kelurahan === selectedKel;
-            return matchesSearch && matchesKel;
+            return ((item.usulan || "").toLowerCase().includes(searchTerm)) &&
+                   (selectedKel === "" || item.kelurahan === selectedKel);
         });
 
         renderTable(filtered);
+        updateSummary(filtered);
+        updateSignature(selectedKel); // Update Tanda Tangan
+    }
+
+    function updateSignature(kelurahan) {
+        const box = document.getElementById('signatureBox');
+        let pejabat = (kelurahan && dataPejabat[kelurahan]) ? dataPejabat[kelurahan] : camatMakale;
+        
+        box.innerHTML = `
+            <p>Makale, ................ 2026</p>
+            <p><strong>${pejabat.jabatan}</strong></p>
+            <br><br><br><br>
+            <p><strong><u>${pejabat.nama}</u></strong></p>
+            ${pejabat.pangkat ? `<p>Pangkat : ${pejabat.pangkat}</p>` : ''}
+            <p>NIP. ${pejabat.nip}</p>
+        `;
     }
 
     function renderTable(data) {
         let html = "";
-        if (data.length === 0) {
-            html = "<tr><td colspan='7' style='text-align:center;'>Data tidak ditemukan.</td></tr>";
-        } else {
-            data.forEach((item, index) => {
-                html += `<tr>
-                    <td style="text-align:center;">${index + 1}</td>
-                    <td>${item.kelurahan}</td>
-                    <td>${item.bidang}</td>
-                    <td>${item.usulan || "-"}</td>
-                    <td>${item.lokasi || "-"}</td>
-                    <td>${item.opd || "-"}</td>
-                    <td>${item.keterangan || "-"}</td>
-                </tr>`;
-            });
-        }
-        document.getElementById("tableBody").innerHTML = html;
+        data.forEach((item, index) => {
+            html += `<tr><td>${index+1}</td><td>${item.kelurahan}</td><td>${item.bidang}</td><td>${item.usulan || "-"}</td><td>${item.lokasi || "-"}</td><td>${item.opd || "-"}</td><td>${item.keterangan || "-"}</td></tr>`;
+        });
+        document.getElementById("tableBody").innerHTML = html || "<tr><td colspan='7' style='text-align:center;'>Data tidak ditemukan.</td></tr>";
     }
 
     function updateSummary(data) {
@@ -181,20 +167,17 @@
         const s = data.filter(d => d.bidang.includes("Sarana")).length;
         const sb = data.filter(d => d.bidang.includes("Sosial")).length;
         const e = data.filter(d => d.bidang.includes("Ekonomi")).length;
-
-        document.getElementById("s_count").innerText = s + " Usulan";
-        document.getElementById("sb_count").innerText = sb + " Usulan";
-        document.getElementById("e_count").innerText = e + " Usulan";
-
-        const calcPercent = (val) => total > 0 ? ((val / total) * 100).toFixed(1) + "% dari total" : "0% dari total";
-        document.getElementById("s_percent").innerText = calcPercent(s);
-        document.getElementById("sb_percent").innerText = calcPercent(sb);
-        document.getElementById("e_percent").innerText = calcPercent(e);
+        document.getElementById("s_count").innerText = s;
+        document.getElementById("sb_count").innerText = sb;
+        document.getElementById("e_count").innerText = e;
+        const calc = (v) => total > 0 ? ((v/total)*100).toFixed(1) + "%" : "0%";
+        document.getElementById("s_percent").innerText = calc(s);
+        document.getElementById("sb_percent").innerText = calc(sb);
+        document.getElementById("e_percent").innerText = calc(e);
     }
 
     document.getElementById('searchInput').addEventListener('input', applyFilters);
     document.getElementById('filterKelurahan').addEventListener('change', applyFilters);
-
     window.onload = fetchData;
 </script>
 </body>
