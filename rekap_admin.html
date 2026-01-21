@@ -24,13 +24,66 @@
         .btn-pdf { background: #e74c3c; color: white; }
 
         /* Summary Boxes */
-        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
-        .summary-box { padding: 10px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .box-sarpras { background: #2980b9; border-left: 8px solid #1c5982; }
-        .box-sosbud { background: #8e44ad; border-left: 8px solid #5e2d73; }
-        .box-ekonomi { background: #27ae60; border-left: 8px solid #1a7541; }
-        .summary-box .val { font-size: 14px; font-weight: bold; margin: 8px 0; display: block; }
-        .summary-box .pct { font-size: 12px; background: rgba(255,255,255,0.25); padding: 3px 12px; border-radius: 10px; }
+       /* Summary Boxes */
+.summary-container { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; 
+    margin-bottom: 10px; 
+}
+
+.summary-box { 
+    min-height: 85px;                 /* ⬅️ tinggi kotak diperkecil */
+    padding: 8px 10px; 
+    border-radius: 12px; 
+    color: white; 
+    text-align: center; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+    display: flex;                    /* ⬅️ center vertikal */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.box-sarpras { 
+    background: #2980b9; 
+    border-left: 6px solid #1c5982;   /* border diperkecil */
+}
+
+.box-sosbud { 
+    background: #8e44ad; 
+    border-left: 6px solid #5e2d73; 
+}
+
+.box-ekonomi { 
+    background: #27ae60; 
+    border-left: 6px solid #1a7541; 
+}
+
+/* Judul */
+.summary-box h4 {
+    font-size: 13px;                  /* ⬅️ huruf lebih kecil */
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Jumlah usulan */
+.summary-box .val { 
+    font-size: 16px;                  /* ⬅️ diperkecil */
+    font-weight: bold; 
+    margin: 4px 0; 
+    display: block; 
+}
+
+/* Persentase */
+.summary-box .pct { 
+    font-size: 11px;                  /* ⬅️ diperkecil */
+    background: rgba(255,255,255,0.25); 
+    padding: 2px 10px; 
+    border-radius: 10px; 
+}
+
 
         /* Filter Section */
         .filter-area { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -239,5 +292,6 @@
 
 </body>
 </html>
+
 
 
