@@ -11,140 +11,150 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header-app { background: #1f8a50; color: white; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1300px; margin: auto; margin-bottom: 20px; }
+        .header-app { background: #1f8a50; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         label { font-weight: bold; display: block; margin-top: 15px; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px; box-sizing: border-box; }
-        .btn-submit { background: #1f8a50; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 5px; }
+        .btn-submit { background: #1f8a50; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
-        th, td { border: 1px solid #ddd; padding: 10px; font-size: 13px; word-wrap: break-word; vertical-align: top; }
-        th { background: #f8f9fa; color: #1f8a50; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; font-size: 12px; }
+        th { background: #f8f9fa; color: #1f8a50; text-align: center; }
+
         @media print {
-            .no-print { display: none !important; }
-            @page { size: 330mm 215mm landscape; margin: 10mm; }
-            table { width: 100%; font-size: 10pt; border: 1px solid black; }
-            th, td { border: 1px solid black !important; }
+            @page { size: 330mm 215mm landscape; margin: 15mm 10mm; }
+            .no-print, #areaInput, .header-app, .btn-action { display: none !important; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: none; max-width: 100%; padding: 0; }
+            table { font-size: 10pt; width: 100%; border: 1px solid black; }
+            th, td { border: 1px solid black !important; color: black; }
+            .print-only { display: block !important; }
         }
+        .print-only { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-app no-print">
-        <span>Login: <strong id="userDisplay"></strong></span>
-        <button onclick="localStorage.clear(); location.href='index.html';" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Keluar</button>
-    </div>
+<div class="header-app no-print">
+    <div>Login: <strong id="userDisplay"></strong></div>
+    <button onclick="localStorage.clear(); location.href='index.html';" style="background:#b03a2e; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Logout</button>
+</div>
 
-    <div id="areaInput" class="no-print">
-        <h3 style="color:#1f8a50">Tambah Usulan Baru</h3>
-        <form id="usulanForm">
-            <input type="hidden" id="kelurahan" name="kelurahan">
-            <div style="display: flex; gap: 20px;">
-                <div style="flex: 1;">
-                    <label>Bidang</label>
-                    <select name="bidang" required>
-                        <option value="">-- Pilih Bidang --</option>
-                        <option>Bidang Sarana dan Prasarana</option>
-                        <option>Bidang Sosial Budaya</option>
-                        <option>Bidang Ekonomi</option>
-                    </select>
-                </div>
-                <div style="flex: 1;">
-                    <label>OPD Tujuan</label>
-                    <input type="text" name="opd" required placeholder="Contoh: DPUTR">
-                </div>
+<div class="card no-print" id="areaInput">
+    <h3><i class="fas fa-edit"></i> Form Input Usulan</h3>
+    <form id="usulanForm">
+        <input type="hidden" id="kelurahan" name="kelurahan">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label>Bidang</label>
+                <select name="bidang" required>
+                    <option value="">-- Pilih Bidang --</option>
+                    <option>Bidang Sarana dan Prasarana</option>
+                    <option>Bidang Sosial Budaya</option>
+                    <option>Bidang Ekonomi</option>
+                </select>
             </div>
-            
-            <label>Nama Kegiatan</label>
-            <select name="kegiatan" id="kegiatan" class="js-select2" required>
-                <option value=""></option>
-                <option>Pembangunan Jaringan Irigasi</option>
-                <option>Normalisasi Sungai</option>
-                <option>Pengadaan Ternak Babi</option>
-                <option>Rekonstruksi Jalan Kabupaten</option>
-            </select>
-
-            <label>Lokasi Spesifik</label>
-            <input type="text" name="lokasi" required placeholder="Contoh: RT 02 Lingkungan Pantan">
-
-            <label>Keterangan Tambahan</label>
-            <textarea name="keterangan" rows="3" placeholder="Volume/Detail usulan..."></textarea>
-
-            <button type="submit" id="btnSubmit" class="btn-submit">SIMPAN DATA USULAN</button>
-        </form>
-    </div>
-
-    <hr class="no-print" style="margin: 30px 0;">
-
-    <div id="printArea">
-        <h2 style="text-align:center">DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
-        <h3 style="text-align:center; margin-top:-10px" id="namaKelurahan"></h3>
-        
-        <div class="no-print" style="margin-bottom: 10px;">
-            <button onclick="window.print()" style="padding:10px; background:#e74c3c; color:white; border:none; border-radius:5px; cursor:pointer;"><i class="fas fa-print"></i> Cetak PDF (F4 Landscape)</button>
+            <div>
+                <label>OPD Tujuan</label>
+                <input type="text" name="opd" placeholder="Contoh: DPUTR / Dinas Pertanian" required>
+            </div>
         </div>
 
-        <table id="tableUsulan">
-            <thead>
-                <tr>
-                    <th style="width:30px">No</th>
-                    <th style="width:120px">Bidang</th>
-                    <th style="width:200px">Kegiatan</th>
-                    <th>Lokasi & Keterangan</th>
-                    <th style="width:100px">OPD</th>
-                    <th class="no-print" style="width:50px">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+        <label>Nama Kegiatan</label>
+        <select name="kegiatan" id="kegiatan" class="js-select2" required>
+            <option value=""></option>
+            <option>Pembangunan Jaringan Irigasi</option>
+            <option>Normalisasi Sungai / Drainase</option>
+            <option>Pembangunan Jalan Lingkungan</option>
+            <option>Pengadaan Sarana Air Bersih</option>
+            <option>Pembangunan Ruang Kelas Baru</option>
+        </select>
+
+        <label>Lokasi Spesifik</label>
+        <input type="text" name="lokasi" placeholder="Contoh: Dusun Rante, RT 02" required>
+
+        <label>Keterangan (Detail/Alasan/Volume)</label>
+        <textarea name="keterangan" rows="2" placeholder="Contoh: Panjang 500 Meter. Kondisi saat ini rusak parah."></textarea>
+
+        <button type="submit" id="btnSubmit" class="btn-submit">💾 SIMPAN USULAN</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="print-only">
+        <h2 style="margin:0">DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
+        <h2 id="printKelurahan" style="margin:5px 0"></h2>
+        <hr style="border: 1px solid black;">
     </div>
+
+    <div class="no-print" style="margin-bottom:20px; display:flex; gap:10px">
+        <button onclick="window.print()" style="background:#e74c3c; color:white; padding:10px; border-radius:5px; cursor:pointer; border:none"><i class="fas fa-print"></i> Cetak PDF (F4 Landscape)</button>
+        <button onclick="exportExcel()" style="background:#27ae60; color:white; padding:10px; border-radius:5px; cursor:pointer; border:none"><i class="fas fa-file-excel"></i> Export Excel</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:35px">No</th>
+                <th style="width:130px">Bidang</th>
+                <th style="width:200px">Nama Kegiatan</th>
+                <th style="width:180px">Lokasi</th>
+                <th>Keterangan</th>
+                <th style="width:100px">OPD Tujuan</th>
+                <th class="btn-action" style="width:50px">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvToo_BpBL6g_V7tngZOUPWbI5roGsEHPEWZtkgWL0dKcleww7KSDiBugckqVEOH15/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzntGeH8UcKP0C1SaPqofHMqMymh-lXde-IqXyYnU6Tuwtf63fwwxt2dUB3h9bYAFEI/exec"; 
     const currentKel = localStorage.getItem("kelurahan");
 
     $(document).ready(function() {
         if (!currentKel) { window.location.href = "index.html"; return; }
-        $('#userDisplay, #namaKelurahan').text(currentKel);
+        $('#userDisplay').text(currentKel);
+        $('#printKelurahan').text(currentKel.toUpperCase());
         $('#kelurahan').val(currentKel);
-        $('.js-select2').select2({ placeholder: "Cari kegiatan...", width: '100%' });
+        $('.js-select2').select2({ placeholder: "Cari/Pilih Kegiatan...", width: '100%' });
         loadData();
     });
 
     async function loadData() {
-        $('#tableBody').html("<tr><td colspan='6' align='center'>Memuat data...</td></tr>");
+        $('#tableBody').html("<tr><td colspan='7' align='center'>Memuat data...</td></tr>");
         const res = await fetch(SCRIPT_URL + "?action=read");
         const json = await res.json();
         const filtered = json.data.filter(d => d.kelurahan === currentKel);
         
-        let rows = "";
+        let html = "";
         filtered.forEach((d, i) => {
-            rows += `<tr>
+            html += `<tr>
                 <td align="center">${i+1}</td>
                 <td>${d.bidang}</td>
                 <td><strong>${d.kegiatan}</strong></td>
-                <td>${d.lokasi}<br><small><i>(Ket: ${d.keterangan || '-'})</i></small></td>
+                <td>${d.lokasi}</td>
+                <td>${d.keterangan || '-'}</td>
                 <td align="center">${d.opd}</td>
-                <td class="no-print" align="center">
-                    <button onclick="deleteRow(${d.row})" style="color:red; background:none; border:none; cursor:pointer"><i class="fas fa-trash"></i></button>
+                <td class="btn-action" align="center">
+                    <button onclick="deleteRow(${d.row})" style="color:red; background:none; border:none; cursor:pointer"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`;
         });
-        $('#tableBody').html(rows || "<tr><td colspan='6' align='center'>Data tidak ditemukan</td></tr>");
+        $('#tableBody').html(html || "<tr><td colspan='7' align='center'>Belum ada data usulan.</td></tr>");
     }
 
     $('#usulanForm').on('submit', function(e) {
         e.preventDefault();
-        $('#btnSubmit').prop('disabled', true).text("Sedang menyimpan...");
+        $('#btnSubmit').prop('disabled', true).text("Menyimpan...");
         $.post(SCRIPT_URL, $(this).serialize(), function() {
-            alert("Data Berhasil Disimpan!");
+            alert("Berhasil!");
             $('#usulanForm')[0].reset();
             $('.js-select2').val(null).trigger('change');
             loadData();
         }).always(() => {
-            $('#btnSubmit').prop('disabled', false).text("SIMPAN DATA USULAN");
+            $('#btnSubmit').prop('disabled', false).text("💾 SIMPAN USULAN");
         });
     });
 
@@ -152,6 +162,11 @@
         if(confirm("Hapus usulan ini?")) {
             fetch(SCRIPT_URL + "?action=delete&row=" + r).then(() => loadData());
         }
+    }
+
+    function exportExcel() {
+        const wb = XLSX.utils.table_to_book(document.querySelector("table"));
+        XLSX.writeFile(wb, `Rekap_Usulan_${currentKel}.xlsx`);
     }
 </script>
 </body>
