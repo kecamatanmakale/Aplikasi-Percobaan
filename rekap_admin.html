@@ -11,63 +11,48 @@
         /* Base Style */
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         
-        /* Header & Dashboard */
+        /* Header */
         .header-rekap { 
             background: #1a5bb8; color: white; padding: 25px; 
             text-align: center; border-radius: 12px; margin-bottom: 20px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .btn-group { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        
-        /* Buttons */
         .btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 13px; }
         .btn-dash { background: #34495e; color: white; }
         .btn-excel { background: #1f8a50; color: white; }
         .btn-pdf { background: #e74c3c; color: white; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* Stats Card */
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 10px; text-align: center; border-bottom: 4px solid #1a5bb8; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .stat-card h4 { margin: 0; color: #666; font-size: 12px; }
-        .stat-card h2 { margin: 8px 0 0; color: #1a5bb8; font-size: 24px; }
+        /* Summary Boxes */
+        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .summary-box { padding: 20px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .box-sarpras { background: #2980b9; border-left: 8px solid #1c5982; }
+        .box-sosbud { background: #8e44ad; border-left: 8px solid #5e2d73; }
+        .box-ekonomi { background: #27ae60; border-left: 8px solid #1a7541; }
+        .summary-box .val { font-size: 24px; font-weight: bold; margin: 8px 0; display: block; }
+        .summary-box .pct { font-size: 14px; background: rgba(255,255,255,0.25); padding: 3px 12px; border-radius: 20px; }
 
         /* Filter Section */
-        .filter-area { background: white; padding: 12px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        select { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
+        .filter-area { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        select { flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
 
         /* Table Style */
         .card-table { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
         th, td { border: 1px solid #eef0f2; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; }
-        th { background: #f8f9fa; color: #444; text-transform: uppercase; font-size: 10px; text-align: center; }
-        
-        /* Pengaturan Lebar Kolom */
-        .col-no { width: 30px; }
-        .col-kel { width: 110px; }
-        .col-bid { width: 110px; }
-        .col-keg { width: 180px; }
-        .col-lok { width: 150px; }
-        .col-opd { width: 90px; }
-        .col-ket { width: auto; }
+        th { background: #f8f9fa; color: #444; font-size: 10px; text-align: center; }
 
         /* Signature Area */
-        .print-footer { display: block; margin-top: 30px; }
-        .signature-box { float: right; text-align: center; width: 350px; font-size: 12px; line-height: 1.5; }
+        .print-footer { display: block; margin-top: 50px; }
+        .signature-box { float: right; text-align: center; width: 380px; font-size: 13px; line-height: 1.6; }
 
-        /* Print Logic (F4 Landscape) */
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
-            body { background: white; padding: 0; }
             .no-print { display: none !important; }
-            .header-rekap { background: none !important; color: black !important; box-shadow: none; padding: 0; margin-bottom: 10px; }
-            .stat-grid { margin-bottom: 10px; }
-            .stat-card { border: 1px solid #ddd; box-shadow: none; padding: 5px; }
-            .card-table { box-shadow: none; padding: 0; width: 100%; }
-            table { border: 1px solid black !important; font-size: 10px; }
-            th, td { border: 1px solid black !important; color: black; padding: 6px; }
-            th { background: #eee !important; }
-            .print-footer { display: block; width: 100%; }
+            .header-rekap { background: none !important; color: black !important; box-shadow: none; padding: 0; }
+            .summary-box { color: black !important; border: 1px solid #ccc !important; background: none !important; }
+            .card-table { box-shadow: none; padding: 0; }
+            table, th, td { border: 1px solid black !important; color: black; }
         }
     </style>
 </head>
@@ -82,12 +67,6 @@
         <button class="btn btn-excel" onclick="exportToExcel()">📊 EXCEL</button>
         <button class="btn btn-pdf" onclick="window.print()">📋 CETAK PDF (LANDSCAPE)</button>
     </div>
-</div>
-
-<div class="stat-grid">
-    <div class="stat-card"><h4>SARPRAS</h4><h2 id="countSarpras">0</h2></div>
-    <div class="stat-card"><h4>SOSBUD</h4><h2 id="countSosbud">0</h2></div>
-    <div class="stat-card"><h4>EKONOMI</h4><h2 id="countEkonomi">0</h2></div>
 </div>
 
 <div class="filter-area no-print">
@@ -112,17 +91,35 @@
     </select>
 </div>
 
+<div class="summary-container">
+    <div class="summary-box box-sarpras">
+        <h3>Bidang Sarpras</h3>
+        <span class="val" id="valSarpras">0 Usulan</span>
+        <span class="pct" id="pctSarpras">0%</span>
+    </div>
+    <div class="summary-box box-sosbud">
+        <h3>Bidang Sosial Budaya</h3>
+        <span class="val" id="valSosbud">0 Usulan</span>
+        <span class="pct" id="pctSosbud">0%</span>
+    </div>
+    <div class="summary-box box-ekonomi">
+        <h3>Bidang Ekonomi</h3>
+        <span class="val" id="valEkonomi">0 Usulan</span>
+        <span class="pct" id="pctEkonomi">0%</span>
+    </div>
+</div>
+
 <div class="card-table">
     <table id="rekapTable">
         <thead>
             <tr>
-                <th class="col-no">No</th>
-                <th class="col-kel">Kelurahan</th>
-                <th class="col-bid">Bidang</th>
-                <th class="col-keg">Nama Kegiatan</th>
-                <th class="col-lok">Lokasi Spesifik</th>
-                <th class="col-opd">OPD Tujuan</th>
-                <th class="col-ket">Keterangan</th>
+                <th style="width:30px">No</th>
+                <th style="width:110px">Kelurahan</th>
+                <th style="width:110px">Bidang</th>
+                <th style="width:180px">Nama Kegiatan</th>
+                <th style="width:150px">Lokasi Spesifik</th>
+                <th style="width:90px">OPD Tujuan</th>
+                <th>Keterangan</th>
             </tr>
         </thead>
         <tbody id="rekapBody">
@@ -132,9 +129,9 @@
 
     <div class="print-footer">
         <div class="signature-box">
-            <p>Makale, <span id="currentDateFooter"></span></p>
-            <p id="txtJabatan" style="margin-bottom: 70px;">Camat Makale,</p>
-            <p><strong id="txtNamaPejabat">Benyamin Dengen, S.S., M.M.</strong></p>
+            <p id="txtTempatTgl">Makale, ............................................ 2026</p>
+            <p id="txtJabatan" style="margin-bottom: 85px; font-weight: bold;">Camat Makale,</p>
+            <p><strong id="txtNamaPejabat" style="text-decoration: underline;">Benyamin Dengen, S.S., M.M.</strong></p>
             <p id="txtNIPPejabat">NIP. 197208312007011011</p>
         </div>
         <div style="clear: both;"></div>
@@ -145,7 +142,6 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
     let masterData = [];
 
-    // DATABASE PEJABAT
     const dataPejabat = {
         "Camat": { nama: "Benyamin Dengen, S.S., M.M.", nip: "197208312007011011" },
         "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
@@ -165,11 +161,6 @@
         "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
     };
 
-    // Format Tanggal
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const dateStr = new Date().toLocaleDateString('id-ID', options);
-    document.getElementById('currentDateFooter').innerText = dateStr;
-
     async function fetchData() {
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
@@ -184,55 +175,63 @@
     function updateView() {
         const filter = document.getElementById('filterKelurahan').value;
         const filtered = (filter === "Semua") ? masterData : masterData.filter(d => d.kelurahan === filter);
-        
+        const total = filtered.length;
+
         let s = 0, b = 0, e = 0;
         const html = filtered.map((d, i) => {
-            if(d.bidang.includes("Sarana")) s++;
-            else if(d.bidang.includes("Sosial")) b++;
-            else if(d.bidang.includes("Ekonomi")) e++;
+            const bdn = d.bidang.toLowerCase();
+            if(bdn.includes("sarana")) s++;
+            else if(bdn.includes("sosial") || bdn.includes("budaya")) b++;
+            else if(bdn.includes("ekonomi")) e++;
 
-            return `<tr>
-                <td align="center">${i+1}</td>
-                <td>${d.kelurahan}</td>
-                <td>${d.bidang}</td>
-                <td><strong>${d.kegiatan}</strong></td>
-                <td>${d.lokasi}</td>
-                <td align="center">${d.opd}</td>
-                <td>${d.keterangan || '-'}</td>
-            </tr>`;
+            return `<tr><td align="center">${i+1}</td><td>${d.kelurahan}</td><td>${d.bidang}</td><td><strong>${d.kegiatan}</strong></td><td>${d.lokasi}</td><td align="center">${d.opd}</td><td>${d.keterangan || '-'}</td></tr>`;
         }).join('');
 
         document.getElementById('rekapBody').innerHTML = html || '<tr><td colspan="7" align="center">Data Kosong</td></tr>';
-        document.getElementById('countSarpras').innerText = s;
-        document.getElementById('countSosbud').innerText = b;
-        document.getElementById('countEkonomi').innerText = e;
+        
+        // Update Statistik
+        document.getElementById('valSarpras').innerText = s + " Usulan";
+        document.getElementById('valSosbud').innerText = b + " Usulan";
+        document.getElementById('valEkonomi').innerText = e + " Usulan";
+        document.getElementById('pctSarpras').innerText = total > 0 ? ((s / total) * 100).toFixed(1) + "%" : "0%";
+        document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
+        document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
 
         // UPDATE TANDA TANGAN
-        const txtJabatan = document.getElementById('txtJabatan');
-        const txtNama = document.getElementById('txtNamaPejabat');
-        const txtNIP = document.getElementById('txtNIPPejabat');
+        const lblTgl = document.getElementById('txtTempatTgl');
+        const lblJabatan = document.getElementById('txtJabatan');
+        const lblNama = document.getElementById('txtNamaPejabat');
+        const lblNIP = document.getElementById('txtNIPPejabat');
 
         if (filter === "Semua") {
-            txtJabatan.innerText = "Camat Makale,";
-            txtNama.innerText = dataPejabat["Camat"].nama;
-            txtNIP.innerText = "NIP. " + dataPejabat["Camat"].nip;
-            txtNIP.style.display = "block";
-        } else if (dataPejabat[filter]) {
-            if (filter.includes("Lembang")) {
-                txtJabatan.innerText = "Kepala " + filter + ",";
-                txtNIP.style.display = "none";
+            lblTgl.innerText = "Makale, ..................... 2026";
+            lblJabatan.innerText = "Camat Makale,";
+            lblNama.innerText = dataPejabat["Camat"].nama;
+            lblNIP.innerText = "NIP. " + dataPejabat["Camat"].nip;
+            lblNIP.style.display = "block";
+        } else {
+            // Logika Nama Kota di Tanggal
+            const namaWilayah = filter.replace("Kelurahan ", "").replace("Lembang ", "");
+            lblTgl.innerText = namaWilayah + ", ..................... 2026";
+
+            // Logika Jabatan Khusus Buntu Burake
+            if (filter === "Kelurahan Buntu Burake") {
+                lblJabatan.innerText = "Plt. Lurah Buntu Burake,";
+            } else if (filter.includes("Lembang")) {
+                lblJabatan.innerText = "Kepala " + filter + ",";
             } else {
-                txtJabatan.innerText = "Lurah " + filter.replace("Kelurahan ", "") + ",";
-                txtNIP.style.display = "block";
+                lblJabatan.innerText = "Lurah " + namaWilayah + ",";
             }
-            txtNama.innerText = dataPejabat[filter].nama;
-            txtNIP.innerText = "NIP. " + dataPejabat[filter].nip;
+
+            lblNama.innerText = dataPejabat[filter].nama;
+            lblNIP.innerText = "NIP. " + dataPejabat[filter].nip;
+            lblNIP.style.display = (dataPejabat[filter].nip === "-" ? "none" : "block");
         }
     }
 
     function exportToExcel() {
         const wb = XLSX.utils.table_to_book(document.getElementById("rekapTable"), { sheet: "Rekap" });
-        XLSX.writeFile(wb, `Rekap_Makale_2027.xlsx`);
+        XLSX.writeFile(wb, `Rekap_Musrenbang_2027.xlsx`);
     }
 
     fetchData();
