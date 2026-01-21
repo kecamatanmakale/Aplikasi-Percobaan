@@ -14,14 +14,13 @@
         button { background: #1f8a50; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 25px; transition: 0.3s; }
         button:hover { background: #145a32; transform: translateY(-2px); }
         
-        /* Pesan Khusus Sesuai Permintaan */
         .note { margin-top: 25px; font-size: 12px; color: #145a32; font-weight: bold; line-height: 1.5; padding: 10px; background: #f0faf4; border-radius: 8px; border-left: 4px solid #1f8a50; text-align: center; }
         .footer { margin-top: 20px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="box">
-        <img src="logo.png" class="logo" alt="Logo Tana Toraja">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/Logo_Tana_Toraja.png" class="logo" alt="Logo Tana Toraja">
         
         <h2>LOGIN SISTEM</h2>
         <div class="sub-title">Musrenbang Kecamatan Makale<br>Tahun Anggaran 2027</div>
@@ -64,21 +63,38 @@
             const u = document.getElementById("user").value;
             const p = document.getElementById("pass").value;
             const selectElement = document.getElementById("user");
-            const text = selectElement.options[selectElement.selectedIndex].text;
             
-            if (!u) { alert("Silakan pilih wilayah terlebih dahulu!"); return; }
+            // Mengambil teks label (Contoh: "Kelurahan Bombongan")
+            const textLabel = selectElement.options[selectElement.selectedIndex].text;
+            
+            if (!u) { 
+                alert("Silakan pilih wilayah terlebih dahulu!"); 
+                return; 
+            }
 
+            // Validasi Login Admin
             if(u === "admin" && p === "admin123") {
                 localStorage.setItem("role", "admin");
-                localStorage.setItem("kelurahan", "ADMIN KECAMATAN");
-                window.location.href = "dashboard_admin.html";
-            } else if(u && p === u + "2027") {
+                localStorage.setItem("username", "ADMIN KECAMATAN"); // Konsistensi key "username"
+                window.location.href = "rekap_admin.html";
+            } 
+            // Validasi Login Operator (Password: value + 2027)
+            else if(u !== "admin" && p === u + "2027") {
                 localStorage.setItem("role", "operator");
-                localStorage.setItem("kelurahan", text);
+                
+                // PENTING: Simpan Nama Lengkap agar input.html bisa mengenali kelurahannya
+                localStorage.setItem("username", textLabel); 
+                
                 window.location.href = "dashboard.html";
-            } else { 
-                alert("Login Gagal! Pastikan pilihan wilayah dan password benar."); 
+            } 
+            else { 
+                alert("Login Gagal! Pastikan pilihan wilayah dan password benar.\nContoh Password Kelurahan Bombongan: bombongan2027"); 
             }
+        }
+
+        // Hapus sesi lama saat kembali ke halaman login
+        window.onload = function() {
+            localStorage.clear();
         }
     </script>
 </body>
