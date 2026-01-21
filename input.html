@@ -619,6 +619,15 @@
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
+    <div id="areaTandaTangan" class="print-only" style="margin-top: 30px; display: none;">
+    <div style="float: right; text-align: center; width: 350px;">
+        <p id="tglTandaTangan">Nama Kelurahan, ............................ 2026</p>
+        <p id="jabatanTandaTangan" style="margin-bottom: 60px;">Lurah ...</p>
+        <p><strong id="namaPejabat">Nama Pejabat</strong></p>
+        <p id="nipPejabat">NIP. ............................</p>
+    </div>
+    <div style="clear: both;"></div>
+</div>
 </div>
 
 <script>
@@ -680,9 +689,58 @@
         const wb = XLSX.utils.table_to_book(document.querySelector("table"));
         XLSX.writeFile(wb, `Rekap_Usulan_${currentKel}.xlsx`);
     }
+    // ... kode Anda yang sudah ada ...
+
+// DATABASE PEJABAT
+const dataPejabat = {
+    "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+    "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+    "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+    "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+    "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+    "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+    "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+    "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+    "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+    "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+    "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+    "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+    "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+    "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+    "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+};
+
+// Fungsi untuk setting area tanda tangan
+function setupTandaTangan(userAktif) {
+    const info = dataPejabat[userAktif];
+    if (info) {
+        // Set Baris Tanggal
+        const namaWilayah = userAktif.replace("Kelurahan ", "").replace("Lembang ", "");
+        document.getElementById('tglTandaTangan').innerText = `${namaWilayah}, ............................ 2026`;
+
+        // Set Jabatan (Pengecualian Plt. Buntu Burake)
+        let jabatan = "";
+        if (userAktif === "Kelurahan Buntu Burake") {
+            jabatan = "Plt. Lurah Buntu Burake";
+        } else if (userAktif.includes("Kelurahan")) {
+            jabatan = "Lurah " + namaWilayah;
+        } else {
+            jabatan = "Kepala Lembang " + namaWilayah;
+        }
+        document.getElementById('jabatanTandaTangan').innerText = jabatan;
+
+        // Set Nama dan NIP
+        document.getElementById('namaPejabat').innerText = info.nama;
+        document.getElementById('nipPejabat').innerText = (info.nip !== "-") ? "NIP. " + info.nip : "";
+        
+        // Tampilkan area secara visual
+        document.getElementById('areaTandaTangan').style.display = "block";
+    }
+}
 </script>
 </body>
 </html>
+
 
 
 
