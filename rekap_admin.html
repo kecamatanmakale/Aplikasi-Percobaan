@@ -36,9 +36,9 @@
         .filter-area { background: white; padding: 12px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         select { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
 
-        /* Table Style - Optimasi Kolom Keterangan */
+        /* Table Style */
         .card-table { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; } /* Menggunakan fixed agar lebar kolom terkontrol */
+        table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
         th, td { border: 1px solid #eef0f2; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; }
         th { background: #f8f9fa; color: #444; text-transform: uppercase; font-size: 10px; text-align: center; }
         
@@ -49,11 +49,11 @@
         .col-keg { width: 180px; }
         .col-lok { width: 150px; }
         .col-opd { width: 90px; }
-        .col-ket { width: auto; } /* Kolom keterangan mengambil sisa ruang */
+        .col-ket { width: auto; }
 
         /* Signature Area */
-        .print-footer { display: none; margin-top: 30px; }
-        .signature-box { float: right; text-align: center; width: 350px; font-size: 12px; }
+        .print-footer { display: block; margin-top: 30px; }
+        .signature-box { float: right; text-align: center; width: 350px; font-size: 12px; line-height: 1.5; }
 
         /* Print Logic (F4 Landscape) */
         @media print {
@@ -67,7 +67,7 @@
             table { border: 1px solid black !important; font-size: 10px; }
             th, td { border: 1px solid black !important; color: black; padding: 6px; }
             th { background: #eee !important; }
-            .print-footer { display: block; }
+            .print-footer { display: block; width: 100%; }
         }
     </style>
 </head>
@@ -132,10 +132,10 @@
 
     <div class="print-footer">
         <div class="signature-box">
-            <p>Makale, <span id="currentDate"></span></p>
-            <p style="margin-bottom: 70px;">Camat Makale,</p>
-            <p><strong>Benyamin Dengen, S.S., M.M.</strong></p>
-            <p>NIP. 197208312007011011</p>
+            <p>Makale, <span id="currentDateFooter"></span></p>
+            <p id="txtJabatan" style="margin-bottom: 70px;">Camat Makale,</p>
+            <p><strong id="txtNamaPejabat">Benyamin Dengen, S.S., M.M.</strong></p>
+            <p id="txtNIPPejabat">NIP. 197208312007011011</p>
         </div>
         <div style="clear: both;"></div>
     </div>
@@ -145,9 +145,30 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
     let masterData = [];
 
-    // Format Tanggal Indonesia
+    // DATABASE PEJABAT
+    const dataPejabat = {
+        "Camat": { nama: "Benyamin Dengen, S.S., M.M.", nip: "197208312007011011" },
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "...............................", nip: ".............................." },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
+
+    // Format Tanggal
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', options);
+    const dateStr = new Date().toLocaleDateString('id-ID', options);
+    document.getElementById('currentDateFooter').innerText = dateStr;
 
     async function fetchData() {
         try {
@@ -185,6 +206,28 @@
         document.getElementById('countSarpras').innerText = s;
         document.getElementById('countSosbud').innerText = b;
         document.getElementById('countEkonomi').innerText = e;
+
+        // UPDATE TANDA TANGAN
+        const txtJabatan = document.getElementById('txtJabatan');
+        const txtNama = document.getElementById('txtNamaPejabat');
+        const txtNIP = document.getElementById('txtNIPPejabat');
+
+        if (filter === "Semua") {
+            txtJabatan.innerText = "Camat Makale,";
+            txtNama.innerText = dataPejabat["Camat"].nama;
+            txtNIP.innerText = "NIP. " + dataPejabat["Camat"].nip;
+            txtNIP.style.display = "block";
+        } else if (dataPejabat[filter]) {
+            if (filter.includes("Lembang")) {
+                txtJabatan.innerText = "Kepala " + filter + ",";
+                txtNIP.style.display = "none";
+            } else {
+                txtJabatan.innerText = "Lurah " + filter.replace("Kelurahan ", "") + ",";
+                txtNIP.style.display = "block";
+            }
+            txtNama.innerText = dataPejabat[filter].nama;
+            txtNIP.innerText = "NIP. " + dataPejabat[filter].nip;
+        }
     }
 
     function exportToExcel() {
