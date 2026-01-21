@@ -2,25 +2,93 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Rekap Usulan Musrenbang 2027</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekapitulasi Usulan Musrenbang 2027</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
-        .header-rekap { background: #1a5bb8; color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; border-left: 5px solid #1a5bb8; }
-        .card-table { background: white; padding: 20px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background: #eee; }
-        .btn-excel { background: #1f8a50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        
+        .header-rekap { 
+            background: #1a5bb8; 
+            color: white; 
+            padding: 30px; 
+            text-align: center; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Grid Statistik */
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center; 
+            border-bottom: 5px solid #1a5bb8; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stat-card h4 { margin: 0; color: #666; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card h2 { margin: 10px 0 0; font-size: 32px; color: #1a5bb8; }
+
+        /* Area Filter */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            flex-grow: 1;
+            font-size: 14px;
+        }
+
+        /* Tabel */
+        .card-table { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid #eef0f2; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; color: #555; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        tr:hover { background-color: #f9fbff; }
+
+        .btn-excel { 
+            background: #1f8a50; 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+        .btn-excel:hover { background: #16633a; }
+
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="header-rekap">
-    <h2>REKAPITULASI USULAN MUSRENBANG 2027</h2>
-    <button class="btn-excel" onclick="exportToExcel()">📤 EXPORT EXCEL</button>
+    <h2 style="margin:0">REKAPITULASI USULAN MUSRENBANG 2027</h2>
+    <p style="margin:10px 0 0; opacity:0.8">Halaman Administrator - Pengelolaan Data Terpadu</p>
+    <button class="btn-excel no-print" onclick="exportToExcel()">📊 EXPORT KE EXCEL</button>
 </div>
 
 <div class="stat-grid">
@@ -38,59 +106,112 @@
     </div>
 </div>
 
+<div class="filter-section no-print">
+    <label style="font-weight:bold; color:#555">Pilih Wilayah:</label>
+    <select id="filterKelurahan" onchange="updateView()">
+        <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
+        <option>Kelurahan Ariang</option>
+        <option>Kelurahan Batupapan</option>
+        <option>Kelurahan Bombongan</option>
+        <option>Kelurahan Botang</option>
+        <option>Kelurahan Buntu Burake</option>
+        <option>Kelurahan Kamali Pentalluan</option>
+        <option>Kelurahan Lamunan</option>
+        <option>Kelurahan Lapandan</option>
+        <option>Lembang Lea</option>
+        <option>Kelurahan Manggau</option>
+        <option>Kelurahan Pantan</option>
+        <option>Kelurahan Rante</option>
+        <option>Kelurahan Tampo Makale</option>
+        <option>Kelurahan Tarongko</option>
+        <option>Kelurahan Tondon Mamullu</option>
+    </select>
+</div>
+
 <div class="card-table">
     <table id="rekapTable">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Kelurahan</th>
-                <th>Bidang</th>
+                <th style="width: 30px; text-align: center;">No</th>
+                <th style="width: 150px;">Kelurahan</th>
+                <th style="width: 150px;">Bidang</th>
                 <th>Kegiatan</th>
                 <th>Lokasi</th>
-                <th>OPD</th>
+                <th style="width: 100px;">OPD</th>
             </tr>
         </thead>
-        <tbody id="rekapBody"></tbody>
+        <tbody id="rekapBody">
+            <tr><td colspan="6" align="center">Sedang memuat data dari database...</td></tr>
+        </tbody>
     </table>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzntGeH8UcKP0C1SaPqofHMqMymh-lXde-IqXyYnU6Tuwtf63fwwxt2dUB3h9bYAFEI/exec";
+    let masterData = []; // Menyimpan data asli untuk difilter
 
     async function fetchData() {
-        const res = await fetch(SCRIPT_URL + "?action=read");
-        const json = await res.json();
-        const data = json.data;
+        try {
+            const res = await fetch(SCRIPT_URL + "?action=read");
+            const json = await res.json();
+            masterData = json.data;
+            updateView(); // Tampilkan data awal
+        } catch (error) {
+            console.error("Gagal mengambil data:", error);
+            document.getElementById('rekapBody').innerHTML = '<tr><td colspan="6" align="center" style="color:red">Gagal mengambil data dari Google Sheets. Periksa koneksi atau URL Script.</td></tr>';
+        }
+    }
 
+    function updateView() {
+        const filterValue = document.getElementById('filterKelurahan').value;
+        const rekapBody = document.getElementById('rekapBody');
+        
+        // Filter Data
+        const filteredData = (filterValue === "Semua") 
+            ? masterData 
+            : masterData.filter(d => d.kelurahan === filterValue);
+
+        // Reset Counter Statistik
         let s = 0, b = 0, e = 0;
-        const html = data.map((d, i) => {
+
+        // Generate HTML Baris Tabel
+        const html = filteredData.map((d, i) => {
+            // Hitung statistik berdasarkan data yang terfilter
             if(d.bidang.includes("Sarana")) s++;
-            if(d.bidang.includes("Sosial")) b++;
-            if(d.bidang.includes("Ekonomi")) e++;
+            else if(d.bidang.includes("Sosial")) b++;
+            else if(d.bidang.includes("Ekonomi")) e++;
             
             return `<tr>
-                <td>${i+1}</td>
+                <td align="center">${i+1}</td>
                 <td>${d.kelurahan}</td>
-                <td>${d.bidang}</td>
-                <td>${d.kegiatan}</td>
+                <td><span style="font-size:11px; padding:2px 6px; background:#f0f0f0; border-radius:4px">${d.bidang}</span></td>
+                <td><strong>${d.kegiatan}</strong></td>
                 <td>${d.lokasi}</td>
-                <td>${d.opd}</td>
+                <td align="center">${d.opd}</td>
             </tr>`;
         }).join('');
 
-        document.getElementById('rekapBody').innerHTML = html;
+        // Tampilkan ke layar
+        rekapBody.innerHTML = html || '<tr><td colspan="6" align="center">Tidak ada data untuk wilayah ini.</td></tr>';
+        
+        // Update Widget Statistik
         document.getElementById('countSarpras').innerText = s;
         document.getElementById('countSosbud').innerText = b;
         document.getElementById('countEkonomi').innerText = e;
     }
 
     function exportToExcel() {
+        const selectedKel = document.getElementById('filterKelurahan').value;
+        const filename = selectedKel === "Semua" ? "Rekap_Seluruh_Usulan_2027.xlsx" : `Rekap_Usulan_2027_${selectedKel}.xlsx`;
+        
         const table = document.getElementById("rekapTable");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap 2027" });
-        XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap" });
+        XLSX.writeFile(wb, filename);
     }
 
+    // Jalankan pengambilan data saat halaman dibuka
     fetchData();
 </script>
+
 </body>
 </html>
