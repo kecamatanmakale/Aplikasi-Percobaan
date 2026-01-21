@@ -3,53 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Usulan Musrenbang 2027</title>
+    <title>Input Usulan - Musrenbang 2027</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { background: #27ae60; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: #27ae60; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Form Styling */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px; }
-        select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        textarea { height: 80px; resize: none; }
-        .btn-simpan { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         
-        /* Table Styling */
-        .card-table { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; word-wrap: break-word; }
-        th { background: #f8f9fa; text-align: center; }
+        .btn-simpan { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn-simpan:hover { background: #219150; }
 
-        /* Print & PDF Settings (F4 Landscape) */
+        .card-table { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; }
+        th { background: #f8f9fa; text-align: center; text-transform: uppercase; }
+
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
-            .no-print, .header, .form-grid, .btn-simpan, label, textarea, input, select { display: none !important; }
+            .no-print, .header, form, label, .btn-simpan { display: none !important; }
             body { padding: 0; background: white; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
-            table { border: 1px solid black !important; width: 100%; }
+            table { border: 1px solid black !important; }
             th, td { border: 1px solid black !important; color: black; }
             #areaTandaTangan { display: block !important; }
         }
 
-        /* Area Tanda Tangan */
-        .signature-section { margin-top: 30px; display: none; }
-        .sig-box { float: right; text-align: center; width: 350px; font-size: 14px; }
+        .signature-section { margin-top: 40px; display: none; }
+        .sig-box { float: right; text-align: center; width: 350px; font-size: 14px; color: black; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div id="userDisplay">Login: Kelurahan Ariang</div> <button class="no-print" onclick="location.href='index.html'" style="background:red; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Logout</button>
+        <div id="userDisplay" style="font-weight: bold; font-size: 16px;">Memuat Sesi...</div>
+        <button class="no-print" onclick="logout()" style="background:#c0392b; color:white; border:none; padding:6px 15px; border-radius:4px; cursor:pointer;">Logout</button>
     </div>
 
-    <h3 class="no-print">📝 Form Input Usulan Baru</h3>
     <form id="usulanForm" class="no-print">
+        <h3 style="margin-top:0">📝 Tambah Usulan Baru</h3>
         <input type="hidden" name="kelurahan" id="inputKelurahan">
         
         <div class="form-grid">
@@ -64,50 +62,64 @@
             </div>
             <div>
                 <label>OPD Tujuan</label>
-                <select name="opd" required> <option value="">-- Pilih OPD --</option>
+                <select name="opd" required>
+                    <option value="">-- Pilih OPD --</option>
                     <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                    <option>Dinas Pendidikan & Kebudayaan</option><option>DPKPP (Pertanian)</option>
-                    </select>
+                    <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+                    <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
+                    <option>BPBD</option><option>Disparpora</option>
+                    <option>Dinas Koperasi & UKM</option><option>DLHD</option>
+                    <option>DPML</option><option>DPMPTSP</option>
+                    <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
+                    <option>Disnakertans</option><option>Bappelitbangda</option>
+                    <option>BPKPD (Badan Pengelola Keuangan)</option><option>Bakesbangpol</option>
+                    <option>Inspektorat Daerah</option><option>Satpol PP</option>
+                    <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
+                    <option>RSUD Lakipadada</option>
+                </select>
             </div>
         </div>
 
         <label>Nama Kegiatan</label>
-        <input type="text" name="kegiatan" placeholder="Cari/Pilih Kegiatan..." required>
+        <input type="text" name="kegiatan" placeholder="Ketik nama kegiatan usulan..." required>
 
         <label>Lokasi Spesifik</label>
         <input type="text" name="lokasi" placeholder="Contoh: RT 02 Lingkungan..." required>
 
-        <label>Keterangan (Detail/Alasan/Volume)</label>
-        <textarea name="keterangan" placeholder="Contoh: Panjang 500 Meter. Kondisi saat ini rusak parah."></textarea>
+        <label>Keterangan (Volume/Alasan/Detail)</label>
+        <textarea name="keterangan" placeholder="Contoh: Panjang 500m, Kondisi rusak berat..."></textarea>
 
-        <button type="submit" class="btn-simpan">💾 SIMPAN DATA USULAN</button>
+        <button type="submit" class="btn-simpan" id="btnSimpan">💾 SIMPAN DATA USULAN</button>
     </form>
 
     <div class="card-table">
-        <center><h3>DAFTAR USULAN MUSRENBANG T.A. 2027</h3></center>
-        <div class="no-print" style="margin-bottom: 10px;">
-            <button onclick="window.print()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">📋 Cetak PDF (F4 Landscape)</button>
+        <center><h2 style="margin-bottom:5px">DAFTAR USULAN MUSRENBANG T.A. 2027</h2></center>
+        <center><h3 id="tableTitle" style="margin-top:0; color:#2c3e50;">-</h3></center>
+        
+        <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <button onclick="window.print()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">📋 CETAK PDF (LANDSCAPE)</button>
         </div>
         
         <table id="usulanTable">
             <thead>
                 <tr>
-                    <th style="width:30px">No</th>
-                    <th style="width:120px">Bidang</th>
+                    <th style="width:35px">No</th>
+                    <th style="width:130px">Bidang</th>
                     <th>Nama Kegiatan</th>
-                    <th style="width:150px">Lokasi</th>
+                    <th style="width:160px">Lokasi</th>
                     <th>Keterangan</th>
-                    <th style="width:100px">OPD Tujuan</th>
+                    <th style="width:110px">OPD Tujuan</th>
                 </tr>
             </thead>
             <tbody id="usulanBody">
-                </tbody>
+                <tr><td colspan="6" align="center">Memuat data...</td></tr>
+            </tbody>
         </table>
 
         <div id="areaTandaTangan" class="signature-section">
             <div class="sig-box">
                 <p id="tglTandaTangan">Nama Kelurahan, ............................ 2026</p>
-                <p id="jabatanTandaTangan" style="margin-bottom: 70px;">Lurah ...</p>
+                <p id="jabatanTandaTangan" style="margin-bottom: 75px;">Lurah ...</p>
                 <p><strong id="namaPejabat">Nama Pejabat</strong></p>
                 <p id="nipPejabat">NIP. ............................</p>
             </div>
@@ -117,9 +129,19 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbMwXPzrpzzeelIpwasGtJIRriCLQ06XxL24rgb5Zq23vdfkQ393K-AtmQliTV65F-/exec"; // Ganti dengan URL Deployment Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbMwXPzrpzzeelIpwasGtJIRriCLQ06XxL24rgb5Zq23vdfkQ393K-AtmQliTV65F-/exec"; 
 
-    // DATABASE PEJABAT
+    // 1. CEK SESI LOGIN
+    const userLogin = localStorage.getItem("username");
+    if (!userLogin) {
+        window.location.href = "index.html";
+    } else {
+        document.getElementById('userDisplay').innerText = "Login: " + userLogin;
+        document.getElementById('tableTitle').innerText = userLogin;
+        document.getElementById('inputKelurahan').value = userLogin;
+    }
+
+    // 2. DATABASE PEJABAT
     const dataPejabat = {
         "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
         "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
@@ -138,62 +160,62 @@
         "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
     };
 
-    // Fungsi Setup Tanda Tangan
-    function setupTandaTangan(userAktif) {
-        const info = dataPejabat[userAktif];
+    // 3. SETUP TANDA TANGAN DINAMIS
+    function setupTandaTangan(user) {
+        const info = dataPejabat[user];
         if (info) {
-            const namaWilayah = userAktif.replace("Kelurahan ", "").replace("Lembang ", "");
-            document.getElementById('tglTandaTangan').innerText = `${namaWilayah}, ............................ 2026`;
-
-            let jabatan = "";
-            if (userAktif === "Kelurahan Buntu Burake") {
-                jabatan = "Plt. Lurah Buntu Burake";
-            } else if (userAktif.includes("Kelurahan")) {
-                jabatan = "Lurah " + namaWilayah;
-            } else {
-                jabatan = "Kepala Lembang " + namaWilayah;
-            }
-            document.getElementById('jabatanTandaTangan').innerText = jabatan;
+            const wilayah = user.replace("Kelurahan ", "").replace("Lembang ", "");
+            document.getElementById('tglTandaTangan').innerText = `${wilayah}, ............................ 2026`;
+            
+            let jab = "";
+            if (user === "Kelurahan Buntu Burake") jab = "Plt. Lurah Buntu Burake";
+            else if (user.includes("Kelurahan")) jab = "Lurah " + wilayah;
+            else jab = "Kepala Lembang " + wilayah;
+            
+            document.getElementById('jabatanTandaTangan').innerText = jab;
             document.getElementById('namaPejabat').innerText = info.nama;
             document.getElementById('nipPejabat').innerText = (info.nip !== "-") ? "NIP. " + info.nip : "NIP. -";
             document.getElementById('areaTandaTangan').style.display = "block";
         }
     }
+    setupTandaTangan(userLogin);
 
-    // Ambil User Aktif & Jalankan Setup
-    const currentLogin = document.getElementById('userDisplay').innerText.replace("Login: ", "");
-    document.getElementById('inputKelurahan').value = currentLogin;
-    setupTandaTangan(currentLogin);
-
-    // Form Submission ke Google Sheets
+    // 4. SUBMIT DATA
     $('#usulanForm').submit(function(e) {
         e.preventDefault();
-        const btn = $('.btn-simpan');
-        btn.html("⏳ Menyimpan...").prop('disabled', true);
-
-        $.post(SCRIPT_URL, $(this).serialize(), function(response) {
-            alert("Data Berhasil Disimpan!");
+        $('#btnSimpan').html("⌛ Menyimpan...").prop('disabled', true);
+        $.post(SCRIPT_URL, $(this).serialize(), function() {
+            alert("Berhasil disimpan!");
             location.reload();
         });
     });
 
-    // Load Data Otomatis (Read)
+    // 5. LOAD DATA
     async function loadData() {
-        const res = await fetch(SCRIPT_URL + "?action=read");
-        const json = await res.json();
-        const filtered = json.data.filter(d => d.kelurahan === currentLogin);
-        
-        const html = filtered.map((d, i) => `
-            <tr>
-                <td align="center">${i+1}</td>
-                <td>${d.bidang}</td>
-                <td><strong>${d.kegiatan}</strong></td>
-                <td>${d.lokasi}</td>
-                <td>${d.keterangan}</td>
-                <td align="center">${d.opd}</td>
-            </tr>
-        `).join('');
-        document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="6" align="center">Belum ada data usulan.</td></tr>';
+        try {
+            const res = await fetch(SCRIPT_URL + "?action=read");
+            const json = await res.json();
+            const filtered = json.data.filter(d => d.kelurahan === userLogin);
+            
+            const html = filtered.map((d, i) => `
+                <tr>
+                    <td align="center">${i+1}</td>
+                    <td>${d.bidang}</td>
+                    <td><strong>${d.kegiatan}</strong></td>
+                    <td>${d.lokasi}</td>
+                    <td>${d.keterangan || '-'}</td>
+                    <td align="center">${d.opd}</td>
+                </tr>
+            `).join('');
+            document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="6" align="center">Belum ada usulan.</td></tr>';
+        } catch (e) {
+            document.getElementById('usulanBody').innerHTML = '<tr><td colspan="6" align="center">Gagal memuat data.</td></tr>';
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("username");
+        window.location.href = "index.html";
     }
 
     loadData();
