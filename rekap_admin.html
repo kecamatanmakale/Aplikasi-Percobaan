@@ -33,18 +33,20 @@
 }
 
 .summary-box { 
-    min-height: 85px;                 /* ⬅️ tinggi kotak diperkecil */
-    padding: 8px 10px; 
+    min-height: 65px;          /* ⬅️ dari 85px → 65px */
+    padding: 6px 8px;          /* ⬅️ padding diperkecil */
     border-radius: 12px; 
     color: white; 
-    text-align: center; 
+    text-align: center;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 
-    display: flex;                    /* ⬅️ center vertikal */
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 2px;                  /* ⬅️ jarak antar teks dipersempit */
 }
+
 
 .box-sarpras { 
     background: #2980b9; 
@@ -65,26 +67,21 @@
 .summary-box h4 {
     font-size: 13px;
     font-weight: 600;
-    margin: 0 0 2px 0;   /* ⬅️ jarak ke bawah DIPERPENDEK */
+    margin: 0;                 /* ⬅️ HILANGKAN margin default */
 }
 
-
-/* Jumlah usulan */
 .summary-box .val { 
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold; 
-    margin: 0;          /* ⬅️ hilangkan jarak default */
-    display: block; 
+    margin: 0;                 /* ⬅️ penting */
 }
 
-
-/* Persentase */
 .summary-box .pct { 
-    font-size: 11px;                  /* ⬅️ diperkecil */
-    background: rgba(255,255,255,0.25); 
-    padding: 2px 10px; 
-    border-radius: 10px; 
+    font-size: 11px;
+    padding: 1px 8px;          /* ⬅️ badge lebih tipis */
+    margin: 0;
 }
+
 
 
         /* Filter Section */
@@ -294,6 +291,7 @@
 
 </body>
 </html>
+
 
 
 
