@@ -90,13 +90,13 @@
 
         /* Table Style */
         .card-table { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
         th, td { border: 1px solid #eef0f2; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; }
-        th { background: #f8f9fa; color: #444; font-size: 10px; text-align: center; }
+        th { background: #f8f9fa; color: #444; font-size: 12px; text-align: center; }
 
         /* Signature Area */
         .print-footer { display: block; margin-top: 50px; }
-        .signature-box { float: right; text-align: center; width: 380px; font-size: 13px; line-height: 1.6; }
+        .signature-box { float: right; text-align: center; width: 380px; font-size: 14px; line-height: 1.6; }
 
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
@@ -164,16 +164,15 @@
 <div class="card-table">
     <table id="rekapTable">
         <thead>
-            <tr>
-                <th style="width:30px">No</th>
-                <th style="width:110px">Kelurahan</th>
-                <th style="width:110px">Bidang</th>
-                <th style="width:180px">Nama Kegiatan</th>
-                <th style="width:150px">Lokasi Spesifik</th>
-                <th style="width:90px">OPD Tujuan</th>
-                <th>Keterangan</th>
-            </tr>
-        </thead>
+        <tr>
+            <th width="30">No</th>
+            <th width="120">Bidang</th>
+            <th>Kegiatan</th>
+            <th width="150">Lokasi</th>
+            <th width="200">Keterangan</th> 
+            <th width="100">OPD</th>
+        </tr>
+    </thead>
         <tbody id="rekapBody">
             <tr><td colspan="7" align="center">Memuat data...</td></tr>
         </tbody>
@@ -291,7 +290,6 @@
 
 </body>
 </html>
-
 
 
 
