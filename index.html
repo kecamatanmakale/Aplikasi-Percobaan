@@ -58,48 +58,40 @@
         </div>
     </div>
 
-    <script>
-        function login() {
-            const u = document.getElementById("user").value;
-            const p = document.getElementById("pass").value;
-            const selectElement = document.getElementById("user");
-            
-            // Mengambil teks label wilayah
-            const textLabel = selectElement.options[selectElement.selectedIndex].text;
-            
-            // Definisi Link Tujuan
-            const LINK_ADMIN = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/dashboard_admin.html";
-            const LINK_INPUT = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/input.html";
-            
-            if (!u) { 
-                alert("Silakan pilih wilayah terlebih dahulu!"); 
-                return; 
-            }
-
-            // Validasi Login Admin Kecamatan
-            if(u === "admin" && p === "admin123") {
-                localStorage.setItem("role", "admin");
-                localStorage.setItem("username", "ADMIN KECAMATAN");
-                window.location.href = LINK_ADMIN;
-            } 
-            
-            // Validasi Login Wilayah (Lurah/Lembang)
-            else if(u !== "admin" && p === u + "2027") {
-                localStorage.setItem("role", "operator");
-                localStorage.setItem("username", textLabel); 
-                window.location.href = LINK_INPUT;
-            } 
-            
-            else { 
-                alert("Login Gagal! Pastikan pilihan wilayah dan password benar.\nContoh Password Kelurahan Bombongan: bombongan2027"); 
-            }
+       <script>
+    /**
+     * PERLINDUNGAN LAPIS 1: ANTI-INSPECT ELEMENT
+     */
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123 || 
+           (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
+           (e.ctrlKey && e.keyCode == 85)) {
+            return false;
         }
+    };
 
-        // Hapus sesi lama saat kembali ke halaman login
-        window.onload = function() {
-            localStorage.clear();
+    /**
+     * PERLINDUNGAN LAPIS 2: OBFUSCATED LOGIN LOGIC
+     * Password dan URL disandikan ke Base64 agar tidak terbaca 'View Source'
+     */
+    function login() {
+        // "admin" di-encode ke Base64 menjadi "YWRtaW4="
+        // "admin123" di-encode ke Base64 menjadi "YWRtaW4xMjM="
+        const _0x4a21 = ["YWRtaW4=", "YWRtaW4xMjM=", "cmVrYXBfYWRtaW4uaHRtbA=="];
+        
+        const user = document.getElementById("user").value;
+        const pass = document.getElementById("pass").value;
+
+        if (btoa(user) === _0x4a21[0] && btoa(pass) === _0x4a21[1]) {
+            alert("Login Berhasil!");
+            window.location.href = atob(_0x4a21[2]);
+        } else {
+            alert("Username atau Password Salah!");
         }
+    }
     </script>
 </body>
 </html>
+
 
