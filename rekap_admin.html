@@ -11,200 +11,98 @@
         /* Base Style */
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         
-        /* Header */
+        /* Header dengan Logo Kiri & Kanan */
         .header-rekap { 
             background: #1a5bb8; color: white; padding: 25px; 
-            text-align: center; border-radius: 12px; margin-bottom: 20px; 
+            border-radius: 12px; margin-bottom: 20px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .logo-header { height: 80px; width: auto; object-fit: contain; }
+        .header-content { text-align: center; flex-grow: 1; }
+        .header-content h2 { margin: 0; font-size: 22px; }
+        
         .btn-group { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        .btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 13px; }
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; font-size: 13px; }
         .btn-dash { background: #34495e; color: white; }
         .btn-excel { background: #1f8a50; color: white; }
         .btn-pdf { background: #e74c3c; color: white; }
 
         /* Summary Boxes */
-       /* Summary Boxes */
-.summary-container { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 8px; 
-    margin-bottom: 10px; 
-}
-
-.summary-box { 
-    min-height: 65px;          /* ⬅️ dari 85px → 65px */
-    padding: 6px 8px;          /* ⬅️ padding diperkecil */
-    border-radius: 12px; 
-    color: white; 
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2px;                  /* ⬅️ jarak antar teks dipersempit */
-}
-
-
-.box-sarpras { 
-    background: #2980b9; 
-    border-left: 6px solid #1c5982;   /* border diperkecil */
-}
-
-.box-sosbud { 
-    background: #8e44ad; 
-    border-left: 6px solid #5e2d73; 
-}
-
-.box-ekonomi { 
-    background: #27ae60; 
-    border-left: 6px solid #1a7541; 
-}
-
-/* Judul */
-.summary-box h4 {
-    font-size: 13px;
-    font-weight: 600;
-    margin: 0;                 /* ⬅️ HILANGKAN margin default */
-}
-
-.summary-box .val { 
-    font-size: 15px;
-    font-weight: bold; 
-    margin: 0;                 /* ⬅️ penting */
-}
-
-.summary-box .pct { 
-    font-size: 11px;
-    padding: 1px 8px;          /* ⬅️ badge lebih tipis */
-    margin: 0;
-}
-
-
+        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .summary-box { padding: 15px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .box-sarpras { background: #2980b9; }
+        .box-sosbud { background: #8e44ad; }
+        .box-ekonomi { background: #27ae60; }
 
         /* Filter Section */
         .filter-area { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         select { flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
 
-       /* Ganti bagian Table Style lama dengan ini */
-.card-table { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 12px; 
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
-    overflow-x: auto; 
-}
+        /* Table Style */
+        .card-table { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+        th, td { border: 1px solid #eef0f2; padding: 12px; text-align: left; vertical-align: top; word-wrap: break-word; line-height: 1.4; }
+        th { background: #f8f9fa; color: #444; font-size: 13px; text-align: center; font-weight: bold; }
 
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 14px; /* Font isi tabel diperbesar */
-    table-layout: fixed; /* Kunci agar lebar kolom patuh pada instruksi */
-}
+        /* Lebar Kolom Spesifik */
+        table th:nth-child(1) { width: 40px; }  /* No */
+        table th:nth-child(2) { width: 140px; } /* Kelurahan */
+        table th:nth-child(3) { width: 120px; } /* Bidang */
+        table th:nth-child(4) { width: 230px; } /* Kegiatan */
+        table th:nth-child(5) { width: 140px; } /* Lokasi */
+        table th:nth-child(6) { width: 100px; } /* OPD Tujuan */
+        table th:nth-child(7) { width: 300px; } /* Keterangan */
 
-th, td { 
-    border: 1px solid #eef0f2; 
-    padding: 12px; 
-    text-align: left; 
-    vertical-align: top; 
-    word-wrap: break-word; 
-    line-height: 1.4; 
-}
-
-th { 
-    background: #f8f9fa; 
-    color: #444; 
-    font-size: 13px; 
-    text-align: center; 
-    font-weight: bold;
-}
-
-/* --- Pengaturan Lebar Kolom Spesifik --- */
-table th:nth-child(1) { width: 30px; }  /* No */
-table th:nth-child(2) { width: 140px; } /* Kelurahan */
-table th:nth-child(3) { width: 120px; } /* Bidang */
-table th:nth-child(4) { width: 230px; } /* Kegiatan */
-table th:nth-child(5) { width: 140px; } /* Lokasi */
-table th:nth-child(6) { width: 90px; }  /* OPD Tujuan (Diperkecil) */
-table th:nth-child(7) { width: 300px; } /* Keterangan (Diperbesar) */
-        /* Signature Area */
-        .print-footer { display: block; margin-top: 50px; }
-        .signature-box { float: right; text-align: center; width: 380px; font-size: 14px; line-height: 1.6; }
-
+        .print-footer { display: none; margin-top: 50px; }
+        
         @media print {
-            @page { size: 330mm 215mm landscape; margin: 10mm; }
             .no-print { display: none !important; }
-            .header-rekap { background: none !important; color: black !important; box-shadow: none; padding: 0; }
-            .summary-box { color: black !important; border: 1px solid #ccc !important; background: none !important; }
-            .card-table { box-shadow: none; padding: 0; }
-            table, th, td { border: 1px solid black !important; color: black; }
+            .print-footer { display: block !important; }
+            .logo-header { height: 60px; }
+            table { font-size: 11px; }
         }
     </style>
 </head>
 <body>
 
 <div class="header-rekap">
-    <h2 style="margin:0">REKAPITULASI USULAN MUSRENBANG 2027</h2>
-    <p style="margin:5px 0 0; opacity:0.8">Kecamatan Makale - Kabupaten Tana Toraja</p>
-    
-    <div class="btn-group no-print">
-        <button class="btn btn-dash" onclick="location.href='dashboard.html'">🏠 DASHBOARD</button>
-        <button class="btn btn-excel" onclick="exportToExcel()">📊 EXCEL</button>
-        <button class="btn btn-pdf" onclick="window.print()">📋 CETAK PDF (LANDSCAPE)</button>
+    <img src="Logo Toraja Masero.png" class="logo-header" alt="Logo Masero"> <div class="header-content">
+        <h2>REKAPITULASI USULAN MUSRENBANG 2027</h2>
+        <p>Kecamatan Makale - Kabupaten Tana Toraja</p>
+        <div class="btn-group no-print">
+            <button class="btn btn-dash" onclick="location.href='dashboard_admin.html'">🏠 DASHBOARD</button>
+            <button class="btn btn-excel" onclick="exportToExcel()">📊 EXCEL</button>
+            <button class="btn btn-pdf" onclick="window.print()">📋 PDF</button>
+        </div>
     </div>
+    <img src="logo-makale.png" class="logo-header" alt="Logo Tator">
 </div>
 
 <div class="filter-area no-print">
     <label style="font-weight:bold">Filter Wilayah:</label>
     <select id="filterKelurahan" onchange="updateView()">
         <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
-        <option>Kelurahan Ariang</option>
-        <option>Kelurahan Batupapan</option>
         <option>Kelurahan Bombongan</option>
-        <option>Kelurahan Botang</option>
-        <option>Kelurahan Buntu Burake</option>
-        <option>Kelurahan Kamali Pentalluan</option>
-        <option>Kelurahan Lamunan</option>
-        <option>Kelurahan Lapandan</option>
-        <option>Lembang Lea</option>
-        <option>Kelurahan Manggau</option>
-        <option>Kelurahan Pantan</option>
-        <option>Kelurahan Rante</option>
-        <option>Kelurahan Tampo Makale</option>
-        <option>Kelurahan Tarongko</option>
         <option>Kelurahan Tondon Mamullu</option>
-    </select>
+        <option>Lembang Lea</option>
+        </select>
 </div>
 
-<div class="summary-container">
-    <div class="summary-box box-sarpras">
-        <h3>Bidang Sarpras</h3>
-        <span class="val" id="valSarpras">0 Usulan</span>
-        <span class="pct" id="pctSarpras">0%</span>
-    </div>
-    <div class="summary-box box-sosbud">
-        <h3>Bidang Sosial Budaya</h3>
-        <span class="val" id="valSosbud">0 Usulan</span>
-        <span class="pct" id="pctSosbud">0%</span>
-    </div>
-    <div class="summary-box box-ekonomi">
-        <h3>Bidang Ekonomi</h3>
-        <span class="val" id="valEkonomi">0 Usulan</span>
-        <span class="pct" id="pctEkonomi">0%</span>
-    </div>
+<div class="summary-container no-print">
+    <div class="summary-box box-sarpras"><h4>Bidang Sarpras</h4><span class="val" id="valSarpras">0</span></div>
+    <div class="summary-box box-sosbud"><h4>Bidang Sosbud</h4><span class="val" id="valSosbud">0</span></div>
+    <div class="summary-box box-ekonomi"><h4>Bidang Ekonomi</h4><span class="val" id="valEkonomi">0</span></div>
 </div>
 
 <div class="card-table">
     <table id="rekapTable">
         <thead>
             <tr>
-                <th width="40">No</th>
-                <th width="150">Kelurahan</th> <th width="120">Bidang</th>
-                <th width="250">Kegiatan</th>
-                <th width="150">Lokasi</th>
-                <th width="100">OPD Tujuan</th> <th>Keterangan</th>
+                <th>No</th><th>Kelurahan</th><th>Bidang</th><th>Kegiatan</th><th>Lokasi</th><th>OPD Tujuan</th><th>Keterangan</th>
             </tr>
         </thead>
         <tbody id="rekapBody">
@@ -213,39 +111,9 @@ table th:nth-child(7) { width: 300px; } /* Keterangan (Diperbesar) */
     </table>
 </div>
 
-    <div class="print-footer">
-        <div class="signature-box">
-            <p id="txtTempatTgl">Makale, ............................................ 2026</p>
-            <p id="txtJabatan" style="margin-bottom: 85px; font-weight: bold;">Camat Makale,</p>
-            <p><strong id="txtNamaPejabat" style="text-decoration: underline;">Benyamin Dengen, S.S., M.M.</strong></p>
-            <p id="txtNIPPejabat">NIP. 197208312007011011</p>
-        </div>
-        <div style="clear: both;"></div>
-    </div>
-</div>
-
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec";
     let masterData = [];
-
-    const dataPejabat = {
-        "Camat": { nama: "Benyamin Dengen, S.S., M.M.", nip: "197208312007011011" },
-        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
-        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
-        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
-        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
-        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
-        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
-        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
-        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
-        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
-        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
-        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
-        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
-        "Kelurahan Tampo Makale": { nama: "...............................", nip: ".............................." },
-        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
-        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
-    };
 
     async function fetchData() {
         try {
@@ -254,84 +122,45 @@ table th:nth-child(7) { width: 300px; } /* Keterangan (Diperbesar) */
             masterData = json.data;
             updateView();
         } catch (e) {
-            document.getElementById('rekapBody').innerHTML = '<tr><td colspan="7" align="center" style="color:red">Gagal memuat data.</td></tr>';
+            document.getElementById('rekapBody').innerHTML = '<tr><td colspan="7" align="center" style="color:red">Gagal memuat data. Periksa koneksi atau izin Apps Script.</td></tr>';
         }
     }
 
     function updateView() {
         const filter = document.getElementById('filterKelurahan').value;
         const filtered = (filter === "Semua") ? masterData : masterData.filter(d => d.kelurahan === filter);
-        const total = filtered.length;
-
+        
         let s = 0, b = 0, e = 0;
         const html = filtered.map((d, i) => {
-            const bdn = d.bidang.toLowerCase();
+            const bdn = (d.bidang || "").toLowerCase();
             if(bdn.includes("sarana")) s++;
-            else if(bdn.includes("sosial") || bdn.includes("budaya")) b++;
+            else if(bdn.includes("sosial")) b++;
             else if(bdn.includes("ekonomi")) e++;
 
-            return `<tr><td align="center">${i+1}</td><td>${d.kelurahan}</td><td>${d.bidang}</td><td><strong>${d.kegiatan}</strong></td><td>${d.lokasi}</td><td align="center">${d.opd}</td><td>${d.keterangan || '-'}</td></tr>`;
+            // Urutan kolom disesuaikan agar tidak bergeser
+            return `<tr>
+                <td align="center">${i+1}</td>
+                <td>${d.kelurahan}</td>
+                <td>${d.bidang}</td>
+                <td><strong>${d.kegiatan}</strong></td>
+                <td>${d.lokasi}</td>
+                <td>${d.opd}</td>
+                <td>${d.keterangan || '-'}</td>
+            </tr>`;
         }).join('');
 
         document.getElementById('rekapBody').innerHTML = html || '<tr><td colspan="7" align="center">Data Kosong</td></tr>';
-        
-        // Update Statistik
         document.getElementById('valSarpras').innerText = s + " Usulan";
         document.getElementById('valSosbud').innerText = b + " Usulan";
         document.getElementById('valEkonomi').innerText = e + " Usulan";
-        document.getElementById('pctSarpras').innerText = total > 0 ? ((s / total) * 100).toFixed(1) + "%" : "0%";
-        document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
-        document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
-
-        // UPDATE TANDA TANGAN
-        const lblTgl = document.getElementById('txtTempatTgl');
-        const lblJabatan = document.getElementById('txtJabatan');
-        const lblNama = document.getElementById('txtNamaPejabat');
-        const lblNIP = document.getElementById('txtNIPPejabat');
-
-        if (filter === "Semua") {
-            lblTgl.innerText = "Makale, ..................... 2026";
-            lblJabatan.innerText = "Camat Makale,";
-            lblNama.innerText = dataPejabat["Camat"].nama;
-            lblNIP.innerText = "NIP. " + dataPejabat["Camat"].nip;
-            lblNIP.style.display = "block";
-        } else {
-            // Logika Nama Kota di Tanggal
-            const namaWilayah = filter.replace("Kelurahan ", "").replace("Lembang ", "");
-            lblTgl.innerText = namaWilayah + ", ..................... 2026";
-
-            // Logika Jabatan Khusus Buntu Burake
-            if (filter === "Kelurahan Buntu Burake") {
-                lblJabatan.innerText = "Plt. Lurah Buntu Burake,";
-            } else if (filter.includes("Lembang")) {
-                lblJabatan.innerText = "Kepala " + filter + ",";
-            } else {
-                lblJabatan.innerText = "Lurah " + namaWilayah + ",";
-            }
-
-            lblNama.innerText = dataPejabat[filter].nama;
-            lblNIP.innerText = "NIP. " + dataPejabat[filter].nip;
-            lblNIP.style.display = (dataPejabat[filter].nip === "-" ? "none" : "block");
-        }
     }
 
     function exportToExcel() {
         const wb = XLSX.utils.table_to_book(document.getElementById("rekapTable"), { sheet: "Rekap" });
-        XLSX.writeFile(wb, `Rekap_Musrenbang_2027.xlsx`);
+        XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
     }
 
     fetchData();
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
