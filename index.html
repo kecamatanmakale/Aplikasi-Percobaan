@@ -58,50 +58,47 @@
         </div>
     </div>
 
-       <script>
-    /**
-     * PERLINDUNGAN LAPIS 1: ANTI-INSPECT ELEMENT
-     */
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.onkeydown = function(e) {
-        if (e.keyCode == 123 || 
-           (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
-           (e.ctrlKey && e.keyCode == 85)) {
-            return false;
+    <script>
+        function login() {
+            const u = document.getElementById("user").value;
+            const p = document.getElementById("pass").value;
+            const selectElement = document.getElementById("user");
+            
+            // Mengambil teks label wilayah
+            const textLabel = selectElement.options[selectElement.selectedIndex].text;
+            
+            // Definisi Link Tujuan
+            const LINK_ADMIN = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/dashboard_admin.html";
+            const LINK_INPUT = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/input.html";
+            
+            if (!u) { 
+                alert("Silakan pilih wilayah terlebih dahulu!"); 
+                return; 
+            }
+
+            // Validasi Login Admin Kecamatan
+            if(u === "admin" && p === "admin123") {
+                localStorage.setItem("role", "admin");
+                localStorage.setItem("username", "ADMIN KECAMATAN");
+                window.location.href = LINK_ADMIN;
+            } 
+            
+            // Validasi Login Wilayah (Lurah/Lembang)
+            else if(u !== "admin" && p === u + "2027") {
+                localStorage.setItem("role", "operator");
+                localStorage.setItem("username", textLabel); 
+                window.location.href = LINK_INPUT;
+            } 
+            
+            else { 
+                alert("Login Gagal! Pastikan pilihan wilayah dan password benar.\nContoh Password Kelurahan Bombongan: bombongan2027"); 
+            }
         }
-    };
 
-    /**
-     * PERLINDUNGAN LAPIS 2: OBFUSCATED LOGIN LOGIC
-     * Password dan URL disandikan ke Base64 agar tidak terbaca 'View Source'
-     */
-  function login() {
-    // Mengambil elemen input
-    const wilayah = document.getElementById("wilayah").value; // Pastikan ID select adalah 'wilayah'
-    const user = document.getElementById("user").value;
-    const pass = document.getElementById("pass").value;
-
-    // Logika pengecekan sederhana (Contoh untuk Admin)
-    // Username: admin, Pass: admin123
-    if (user === "admin" && pass === "admin123") {
-        alert("Login Admin Berhasil!");
-        window.location.href = "rekap_admin.html";
-        return;
-    }
-
-    // Logika untuk Operator Kelurahan (Contoh: Bombongan)
-    if (wilayah === "Kelurahan Bombongan" && pass === "bombongan2027") {
-        alert("Login Kelurahan Berhasil!");
-        window.location.href = "input.html";
-        return;
-    }
-
-    // Jika tidak ada yang cocok
-    alert("Username atau Password Salah! Pastikan wilayah dan password sesuai.");
-}
+        // Hapus sesi lama saat kembali ke halaman login
+        window.onload = function() {
+            localStorage.clear();
+        }
     </script>
 </body>
 </html>
-
-
-
