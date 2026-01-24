@@ -47,7 +47,7 @@
         .signature-box { float: right; text-align: center; width: 350px; font-size: 14px; }
         
         /* Teknik merapatkan Nama dan NIP */
-        .signature-box p { margin: 0; line-height: 1.0; } 
+        .signature-box p { margin: 0; line-height: 1.1; } 
         .signature-box .tgl-area { margin-bottom: 5px; }
         .signature-box .jabatan-area { margin-bottom: 70px; font-weight: bold; }
         .signature-box .nama-area { font-weight: bold; text-decoration: underline; }
@@ -148,6 +148,25 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec"; // Ganti dengan URL Apps Script Anda
     let masterData = [];
 
+   const dataPejabat = {
+        "Camat": { nama: "Benyamin Dengen, S.S., M.M.", nip: "197208312007011011" },
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "...............................", nip: ".............................." },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
+
     async function fetchData() {
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
@@ -155,7 +174,7 @@
             masterData = json.data;
             updateView();
         } catch (e) {
-            console.error(e);
+            document.getElementById('rekapBody').innerHTML = '<tr><td colspan="7" align="center" style="color:red">Gagal memuat data. Periksa koneksi atau izin Apps Script.</td></tr>';
         }
     }
 
@@ -164,7 +183,7 @@
         const filtered = (filter === "Semua") ? masterData : masterData.filter(d => d.kelurahan === filter);
         const total = filtered.length;
 
-        let s=0, b=0, e=0;
+        let s = 0, b = 0, e = 0;
         const html = filtered.map((d, i) => {
             const bdn = (d.bidang || "").toLowerCase();
             if(bdn.includes("sarana")) s++;
@@ -184,6 +203,7 @@
 
         document.getElementById('rekapBody').innerHTML = html || '<tr><td colspan="7" align="center">Data Kosong</td></tr>';
         
+        // Update Statistik & Persentase
         document.getElementById('valSarpras').innerText = s + " Usulan";
         document.getElementById('valSosbud').innerText = b + " Usulan";
         document.getElementById('valEkonomi').innerText = e + " Usulan";
@@ -191,6 +211,35 @@
         document.getElementById('pctSarpras').innerText = total > 0 ? ((s / total) * 100).toFixed(1) + "%" : "0%";
         document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
         document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
+
+        // Update Tanda Tangan Otomatis
+        const lblTgl = document.getElementById('txtTempatTgl');
+        const lblJabatan = document.getElementById('txtJabatan');
+        const lblNama = document.getElementById('txtNamaPejabat');
+        const lblNIP = document.getElementById('txtNIPPejabat');
+
+        if (filter === "Semua") {
+            lblTgl.innerText = "Makale, ..................... 2026";
+            lblJabatan.innerText = "Camat Makale,";
+            lblNama.innerText = dataPejabat["Camat"].nama;
+            lblNIP.innerText = "NIP. " + dataPejabat["Camat"].nip;
+            lblNIP.style.display = "block";
+        } else {
+            const namaWilayah = filter.replace("Kelurahan ", "").replace("Lembang ", "");
+            lblTgl.innerText = namaWilayah + ", ..................... 2026";
+            
+            if (filter === "Kelurahan Buntu Burake") {
+                lblJabatan.innerText = "Plt. Lurah Buntu Burake,";
+            } else if (filter.includes("Lembang")) {
+                lblJabatan.innerText = "Kepala " + filter + ",";
+            } else {
+                lblJabatan.innerText = "Lurah " + namaWilayah + ",";
+            }
+
+            lblNama.innerText = dataPejabat[filter].nama;
+            lblNIP.innerText = "NIP. " + dataPejabat[filter].nip;
+            lblNIP.style.display = (dataPejabat[filter].nip === "-" ? "none" : "block");
+        }
     }
 
     function exportToExcel() {
@@ -198,9 +247,11 @@
         XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
     }
 
+
     fetchData();
 </script>
 </body>
 </html>
+
 
 
