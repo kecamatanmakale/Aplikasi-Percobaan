@@ -15,7 +15,17 @@
         button:hover { background: #145a32; transform: translateY(-2px); }
         
         .note { margin-top: 25px; font-size: 12px; color: #145a32; font-weight: bold; line-height: 1.5; padding: 10px; background: #f0faf4; border-radius: 8px; border-left: 4px solid #1f8a50; text-align: center; }
-        .footer { margin-top: 20px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
+        
+        /* CSS UNTUK MEMPERBESAR TULISAN FOOTER */
+        .footer { 
+            margin-top: 20px; 
+            font-size: 14px; /* Ukuran diperbesar */
+            color: #555; 
+            border-top: 1px solid #eee; 
+            padding-top: 15px; 
+            text-align: center; 
+        }
+        .footer strong { color: #145a32; }
     </style>
 </head>
 <body>
@@ -54,51 +64,44 @@
         </div>
 
         <div class="footer">
-            Created by : Fuad Amry - 2026
+            Created by : <strong>Fuad Amry - 2026</strong>
         </div>
     </div>
 
     <script>
+        // ANTI-KLIK KANAN & INSPECT
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
+            }
+        };
+
         function login() {
             const u = document.getElementById("user").value;
             const p = document.getElementById("pass").value;
-            const selectElement = document.getElementById("user");
+            const sel = document.getElementById("user");
+            const textLabel = sel.options[sel.selectedIndex].text;
             
-            // Mengambil teks label wilayah
-            const textLabel = selectElement.options[selectElement.selectedIndex].text;
-            
-            // Definisi Link Tujuan
-            const LINK_ADMIN = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/dashboard_admin.html";
-            const LINK_INPUT = "https://kecamatanmakale.github.io/Aplikasi-Percobaan/input.html";
-            
-            if (!u) { 
-                alert("Silakan pilih wilayah terlebih dahulu!"); 
-                return; 
-            }
+            if (!u) { alert("Silakan pilih wilayah terlebih dahulu!"); return; }
 
-            // Validasi Login Admin Kecamatan
+            // Logika Login (Sama seperti sebelumnya namun lebih aman dari intipan sederhana)
             if(u === "admin" && p === "admin123") {
                 localStorage.setItem("role", "admin");
                 localStorage.setItem("username", "ADMIN KECAMATAN");
-                window.location.href = LINK_ADMIN;
+                window.location.href = "dashboard_admin.html";
             } 
-            
-            // Validasi Login Wilayah (Lurah/Lembang)
             else if(u !== "admin" && p === u + "2027") {
                 localStorage.setItem("role", "operator");
                 localStorage.setItem("username", textLabel); 
-                window.location.href = LINK_INPUT;
+                window.location.href = "input.html";
             } 
-            
             else { 
-                alert("Login Gagal! Pastikan pilihan wilayah dan password benar.\nContoh Password Kelurahan Bombongan: bombongan2027"); 
+                alert("Login Gagal! Pastikan pilihan wilayah dan password benar.\nContoh Password Kelurahan Rante: rante2027"); 
             }
         }
 
-        // Hapus sesi lama saat kembali ke halaman login
-        window.onload = function() {
-            localStorage.clear();
-        }
+        window.onload = function() { localStorage.clear(); }
     </script>
 </body>
 </html>
