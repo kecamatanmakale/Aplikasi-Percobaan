@@ -162,9 +162,14 @@
         }).join('');
 
         document.getElementById('rekapBody').innerHTML = html || '<tr><td colspan="7" align="center">Data Kosong</td></tr>';
-        document.getElementById('valSarpras').innerText = s + " Usulan";
+       document.getElementById('valSarpras').innerText = s + " Usulan";
         document.getElementById('valSosbud').innerText = b + " Usulan";
         document.getElementById('valEkonomi').innerText = e + " Usulan";
+
+        // Menghitung dan menampilkan persentase
+        document.getElementById('pctSarpras').innerText = total > 0 ? ((s / total) * 100).toFixed(1) + "%" : "0%";
+        document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
+        document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
     }
 
     function exportToExcel() {
@@ -176,5 +181,6 @@
 </script>
 </body>
 </html>
+
 
 
