@@ -4,99 +4,54 @@
     <meta charset="UTF-8">
     <title>Dashboard Admin Musrenbang Makale</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
         
         /* SIDEBAR */
-        .sidebar { width: 250px; background: #1a5bb8; height: 100vh; position: fixed; color: #fff; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+        .sidebar { width: 250px; background: #1a5bb8; height: 100vh; position: fixed; color: #fff; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; z-index: 100; }
         .logo { width: 80px; height: auto; margin-bottom: 10px; }
         .btn-nav, .btn-logout { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.3s; }
         .btn-nav { background: #1a5bb8; color: #fff; text-align: left; text-decoration: none; display: block; }
         .btn-nav:hover, .btn-nav.active { background: rgba(255,255,255,0.2); }
-        .btn-logout { background: #c0392b; color: #fff; margin-top: auto; }
+        
+        /* Tombol Logout dipindah ke atas, margin auto dihapus */
+        .btn-logout { background: #c0392b; color: #fff; margin-top: 10px; text-align: center; }
+        .btn-logout:hover { background: #a93226; }
 
         /* MAIN CONTENT */
-        .main-content { margin-left: 270px; padding: 30px; width: calc(100% - 270px); }
+        .main-content { margin-left: 270px; padding: 30px; width: calc(100% - 270px); flex: 1; }
         
-        /* GRID STATISTIK - DIPERBESAR */
+        /* GRID STATISTIK */
         .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
         .card { background: #fff; padding: 30px 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,.08); text-align: center; border-bottom: 5px solid #ddd; }
         .stat-value { font-size: 42px; font-weight: bold; margin: 10px 0; }
         
-        /* Warna Identitas Bidang */
         .card.total { border-color: #1a5bb8; } .card.total .stat-value { color: #1a5bb8; }
         .card.sarpras { border-color: #3498db; } .card.sarpras .stat-value { color: #3498db; }
         .card.sosbud { border-color: #9b59b6; } .card.sosbud .stat-value { color: #9b59b6; }
         .card.ekonomi { border-color: #27ae60; } .card.ekonomi .stat-value { color: #27ae60; }
 
-      /* TABEL REKAPITULASI - RINCIAN BIDANG */
-.rekap-kelurahan { 
-    background: #fff; 
-    padding: 30px; 
-    border-radius: 15px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,.08); 
-}
+        .rekap-kelurahan { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+        .rekap-kelurahan h3 { margin-top: 0; color: #333; border-left: 8px solid #1a5bb8; padding-left: 15px; font-size: 24px; }
 
-/* Judul Tabel (Diperbesar) */
-.rekap-kelurahan h3 { 
-    margin-top: 0; 
-    color: #333; 
-    border-left: 8px solid #1a5bb8; 
-    padding-left: 15px; 
-    font-size: 24px; /* Ukuran Judul */
-}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8f9fa; color: #444; padding: 18px 10px; font-size: 16px; border: 1px solid #eee; text-align: center; text-transform: uppercase; }
+        td { padding: 18px 10px; border: 1px solid #eee; text-align: center; font-size: 18px; color: #444; }
+        .text-left { text-align: left; font-weight: 600; color: #222; font-size: 20px; }
+        .total-bold { font-weight: 800; color: #1a5bb8; background: #f0f4f8; font-size: 22px; }
 
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    margin-top: 20px; 
-}
+        /* FOOTER */
+        footer {
+            margin-left: 250px;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            width: calc(100% - 250px);
+            box-sizing: border-box;
+        }
 
-/* Header Tabel (Diperbesar) */
-th { 
-    background: #f8f9fa; 
-    color: #444; 
-    padding: 18px 10px; 
-    font-size: 16px; /* Header lebih besar */
-    border: 1px solid #eee; 
-    text-align: center; 
-    text-transform: uppercase;
-}
-
-/* ISI DAFTAR (DIPERBESAR) */
-td { 
-    padding: 18px 10px; /* Jarak baris lebih lega */
-    border: 1px solid #eee; 
-    text-align: center; 
-    font-size: 18px; /* Huruf isi daftar jauh lebih besar */
-    color: #444; 
-}
-
-/* Nama Kelurahan (Dibuat Tebal & Lebih Besar) */
-.text-left { 
-    text-align: left; 
-    font-weight: 600; 
-    color: #222; 
-    font-size: 20px; /* Nama kelurahan paling menonjol */
-}
-
-/* Angka Total (Paling Jelas) */
-.total-bold { 
-    font-weight: 800; 
-    color: #1a5bb8; 
-    background: #f0f4f8; 
-    font-size: 22px; /* Angka total dibuat sangat besar */
-}
-
-/* Efek Sorot Baris */
-tr:hover { 
-    background: #f1f5f9; 
-    transition: 0.2s;
-}
-
-/* Penataan baris selang-seling agar tidak pusing membaca */
-tbody tr:nth-child(even) {
-    background-color: #fafafa;
-}
+        tr:hover { background: #f1f5f9; transition: 0.2s; }
+        tbody tr:nth-child(even) { background-color: #fafafa; }
     </style>
 </head>
 <body>
@@ -106,8 +61,10 @@ tbody tr:nth-child(even) {
     <h3>ADMIN PANEL</h3>
     <p style="font-size: 12px; opacity: 0.8;">Kecamatan Makale</p>
     <hr style="width:100%; opacity: 0.2; margin: 20px 0;">
+    
     <a href="dashboard_admin.html" class="btn-nav active">🏠 Dashboard</a>
     <a href="rekap_admin.html" class="btn-nav">📊 Rekap Usulan</a>
+    
     <button class="btn-logout" onclick="localStorage.clear();location.href='index.html'">LOGOUT</button>
 </div>
 
@@ -152,17 +109,18 @@ tbody tr:nth-child(even) {
                     <th style="color: #27ae60;">Ekonomi</th>
                 </tr>
             </thead>
-            <tbody id="bodyKelurahan">
-                </tbody>
+            <tbody id="bodyKelurahan"></tbody>
         </table>
     </div>
 </div>
 
+<footer>
+    Dikembangkan oleh TIM IT Kecamatan Makale, Kabupaten Tana Toraja @ 2026
+</footer>
+
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
     const URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
-    
-    // Daftar 15 Kelurahan/Lembang Makale
     const daftarKelurahan = [
         "Kelurahan Ariang", "Kelurahan Batupapan", "Kelurahan Bombongan", "Kelurahan Botang",
         "Kelurahan Buntu Burake", "Kelurahan Kamali Pentalluan", "Kelurahan Lamunan",
@@ -178,7 +136,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         let stats = { total: 0, sarpras: 0, sosbud: 0, ekonomi: 0 };
         const rekap = {};
 
-        // Inisialisasi daftar kelurahan agar tetap muncul meski data masih 0
         daftarKelurahan.forEach(name => {
             rekap[name] = { sarpras: 0, sosbud: 0, ekonomi: 0, total: 0 };
         });
@@ -186,7 +143,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         rawData.forEach(d => {
             const b = (d.bidang || "").toLowerCase();
             const n = d.kelurahan || "";
-
             if (rekap[n]) {
                 stats.total++;
                 rekap[n].total++;
@@ -196,13 +152,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // Update Kotak Statistik Atas
         document.getElementById("totalUsulan").innerText = stats.total;
         document.getElementById("valSarpras").innerText = stats.sarpras;
         document.getElementById("valSosbud").innerText = stats.sosbud;
         document.getElementById("valEkonomi").innerText = stats.ekonomi;
 
-        // Render Tabel
         const bodyKel = document.getElementById("bodyKelurahan");
         bodyKel.innerHTML = daftarKelurahan.map(name => `
             <tr>
@@ -216,10 +170,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (e) {
         console.error("Fetch error:", e);
-        document.getElementById("bodyKelurahan").innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">Gagal memuat data. Periksa koneksi internet atau URL API.</td></tr>';
+        document.getElementById("bodyKelurahan").innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">Gagal memuat data.</td></tr>';
     }
 });
 </script>
 </body>
 </html>
-
