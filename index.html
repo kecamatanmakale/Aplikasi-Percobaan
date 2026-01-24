@@ -75,23 +75,33 @@
      * PERLINDUNGAN LAPIS 2: OBFUSCATED LOGIN LOGIC
      * Password dan URL disandikan ke Base64 agar tidak terbaca 'View Source'
      */
-    function login() {
-        // "admin" di-encode ke Base64 menjadi "YWRtaW4="
-        // "admin123" di-encode ke Base64 menjadi "YWRtaW4xMjM="
-        const _0x4a21 = ["YWRtaW4=", "YWRtaW4xMjM=", "cmVrYXBfYWRtaW4uaHRtbA=="];
-        
-        const user = document.getElementById("user").value;
-        const pass = document.getElementById("pass").value;
+  function login() {
+    // Mengambil elemen input
+    const wilayah = document.getElementById("wilayah").value; // Pastikan ID select adalah 'wilayah'
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
 
-        if (btoa(user) === _0x4a21[0] && btoa(pass) === _0x4a21[1]) {
-            alert("Login Berhasil!");
-            window.location.href = atob(_0x4a21[2]);
-        } else {
-            alert("Username atau Password Salah!");
-        }
+    // Logika pengecekan sederhana (Contoh untuk Admin)
+    // Username: admin, Pass: admin123
+    if (user === "admin" && pass === "admin123") {
+        alert("Login Admin Berhasil!");
+        window.location.href = "rekap_admin.html";
+        return;
     }
+
+    // Logika untuk Operator Kelurahan (Contoh: Bombongan)
+    if (wilayah === "Kelurahan Bombongan" && pass === "bombongan2027") {
+        alert("Login Kelurahan Berhasil!");
+        window.location.href = "input.html";
+        return;
+    }
+
+    // Jika tidak ada yang cocok
+    alert("Username atau Password Salah! Pastikan wilayah dan password sesuai.");
+}
     </script>
 </body>
 </html>
+
 
 
