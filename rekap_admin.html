@@ -27,21 +27,31 @@
         .btn-excel { background: #1f8a50; color: white; }
         .btn-pdf { background: #e74c3c; color: white; }
 
-        /* Filter Area - PERBAIKAN JARAK */
+        /* Filter Area - DIBUAT SEJAJAR (Flexbox) */
         .filter-area { 
-            margin-bottom: 30px; /* Jarak ke kotak statistik di bawahnya */
+            margin-bottom: 30px;
             background: white;
             padding: 15px 20px;
             border-radius: 10px;
-            display: inline-block;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; /* Mengaktifkan Flexbox */
+            justify-content: space-between; /* Sejajar kiri dan kanan */
+            align-items: center; /* Sejajar secara vertikal */
         }
+
+        .deadline-text {
+            color: #e74c3c; /* Merah */
+            font-weight: bold;
+            font-size: 14px;
+        }
+
         select {
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-left: 10px;
             font-family: inherit;
+            cursor: pointer;
         }
 
         /* Summary Boxes */
@@ -94,25 +104,30 @@
 </div>
 
 <div class="filter-area no-print">
-    <label for="filterKelurahan" style="font-weight: bold;">Filter Wilayah:</label>
-    <select id="filterKelurahan" onchange="updateView()">
-        <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
-        <option>Kelurahan Ariang</option>
-        <option>Kelurahan Batupapan</option>
-        <option>Kelurahan Bombongan</option>
-        <option>Kelurahan Botang</option>
-        <option>Kelurahan Buntu Burake</option>
-        <option>Kelurahan Kamali Pentalluan</option>
-        <option>Kelurahan Lamunan</option>
-        <option>Kelurahan Lapandan</option>
-        <option>Lembang Lea</option>
-        <option>Kelurahan Manggau</option>
-        <option>Kelurahan Pantan</option>
-        <option>Kelurahan Rante</option>
-        <option>Kelurahan Tampo Makale</option>
-        <option>Kelurahan Tarongko</option>
-        <option>Kelurahan Tondon Mamullu</option>
-    </select>
+    <div>
+        <label for="filterKelurahan" style="font-weight: bold;">Filter Wilayah:</label>
+        <select id="filterKelurahan" onchange="updateView()">
+            <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
+            <option>Kelurahan Ariang</option>
+            <option>Kelurahan Batupapan</option>
+            <option>Kelurahan Bombongan</option>
+            <option>Kelurahan Botang</option>
+            <option>Kelurahan Buntu Burake</option>
+            <option>Kelurahan Kamali Pentalluan</option>
+            <option>Kelurahan Lamunan</option>
+            <option>Kelurahan Lapandan</option>
+            <option>Lembang Lea</option>
+            <option>Kelurahan Manggau</option>
+            <option>Kelurahan Pantan</option>
+            <option>Kelurahan Rante</option>
+            <option>Kelurahan Tampo Makale</option>
+            <option>Kelurahan Tarongko</option>
+            <option>Kelurahan Tondon Mamullu</option>
+        </select>
+    </div>
+    <div class="deadline-text">
+        ⚠️ Penginputan Usulan Musrenbang Kelurahan/Lembang berakhir tanggal 29-01-2026 pukul 11:59 WIB
+    </div>
 </div>
 
 <div class="summary-container">
@@ -227,7 +242,6 @@
         document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
         document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
 
-        // Update Tanda Tangan
         const lblTgl = document.getElementById('txtTempatTgl');
         const lblJabatan = document.getElementById('txtJabatan');
         const lblNama = document.getElementById('txtNamaPejabat');
