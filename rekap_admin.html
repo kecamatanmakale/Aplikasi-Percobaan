@@ -78,7 +78,12 @@
 </div>
 
 <div class="filter-area no-print">
-    <label style="font-weight:bold">Filter Wilayah:</label>
+    
+    <div style="margin-bottom: 25px;"> 
+    <label for="filterKelurahan" style="font-weight: bold;">Filter Wilayah:</label>
+    <select id="filterKelurahan" onchange="filterData()">
+        </select>
+</div>
     <select id="filterKelurahan" onchange="updateView()">
         <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
         <option>Kelurahan Ariang</option>
@@ -97,6 +102,7 @@
         <option>Kelurahan Tarongko</option>
         <option>Kelurahan Tondon Mamullu</option>
     </select>
+    
 </div>
 
 <div class="summary-container">
@@ -252,6 +258,7 @@
 </script>
 </body>
 </html>
+
 
 
 
