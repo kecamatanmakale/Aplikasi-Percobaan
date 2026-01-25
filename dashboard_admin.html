@@ -6,23 +6,13 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; display: flex; }
         
-       /* SIDEBAR */
+        /* SIDEBAR */
         .sidebar { width: 250px; background: #1a5bb8; height: 100vh; position: fixed; color: #fff; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
         .logo { width: 80px; height: auto; margin-bottom: 10px; }
         
-        /* PERBAIKAN JARAK BARIS RAPAT */
-        .sidebar h3 { 
-            margin-bottom: 0; 
-            margin-top: 10px; 
-            line-height: 1.2; 
-        }
-        .sidebar .sub-title { 
-            margin-top: 0; 
-            font-size: 12px; 
-            opacity: 0.8; 
-            text-align: center;
-            line-height: 1.2;
-        }
+        /* JARAK BARIS RAPAT PADA LOGO */
+        .sidebar h3 { margin-bottom: 0; margin-top: 10px; line-height: 1.2; }
+        .sidebar .sub-title { margin-top: 0; font-size: 12px; opacity: 0.8; text-align: center; line-height: 1.2; }
 
         .btn-nav, .btn-logout { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.3s; }
         .btn-nav { background: #1a5bb8; color: #fff; text-align: left; text-decoration: none; display: block; }
@@ -42,11 +32,10 @@
 
         /* MAIN CONTENT */
         .main-content { margin-left: 270px; padding: 30px; width: calc(100% - 270px); }
-        
-        /* GRID STATISTIK */
         .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
         .card { background: #fff; padding: 30px 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,.08); text-align: center; border-bottom: 5px solid #ddd; }
         .stat-value { font-size: 42px; font-weight: bold; margin: 10px 0; }
+        .stat-percentage { color: #666; font-weight: bold; font-size: 16px; }
         
         .card.total { border-color: #1a5bb8; } .card.total .stat-value { color: #1a5bb8; }
         .card.sarpras { border-color: #3498db; } .card.sarpras .stat-value { color: #3498db; }
@@ -85,28 +74,28 @@
 </div>
 
 <div class="main-content">
-    <h1>Dashboard Monitoring Usulan Musrenbang T.A. 2027</h1>
+    <h1>Dashboard Monitoring T.A. 2027</h1>
 
     <div class="grid-container">
         <div class="card total">
             <h4>Total Usulan</h4>
             <div class="stat-value" id="totalUsulan">0</div>
-            <p style="color:#666">Seluruh Bidang</p>
+            <p class="stat-percentage">Seluruh Bidang</p>
         </div>
         <div class="card sarpras">
             <h4>Bidang Sarpras</h4>
             <div class="stat-value" id="valSarpras">0</div>
-            <p style="color:#666">Infrastruktur</p>
+            <p class="stat-percentage" id="pctSarpras">0%</p>
         </div>
         <div class="card sosbud">
             <h4>Bidang Sosbud</h4>
             <div class="stat-value" id="valSosbud">0</div>
-            <p style="color:#666">Sosial Budaya</p>
+            <p class="stat-percentage" id="pctSosbud">0%</p>
         </div>
         <div class="card ekonomi">
             <h4>Bidang Ekonomi</h4>
             <div class="stat-value" id="valEkonomi">0</div>
-            <p style="color:#666">Pemberdayaan</p>
+            <p class="stat-percentage" id="pctEkonomi">0%</p>
         </div>
     </div>
 
@@ -131,7 +120,6 @@
 </div>
 
 <script>
-// (Script tetap sama seperti sebelumnya untuk fungsionalitas data)
 document.addEventListener("DOMContentLoaded", async () => {
     const URL = "https://script.google.com/macros/s/AKfycbyh4Q6HyTlG3fAA8FOd3fV1tJrfbb4IGshQ4wAWzHyoGsAWpeg7Gpur7FmxUp_G65q8/exec";
     const daftarKelurahan = [
@@ -165,10 +153,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
+        // Update Angka Statistik
         document.getElementById("totalUsulan").innerText = stats.total;
         document.getElementById("valSarpras").innerText = stats.sarpras;
         document.getElementById("valSosbud").innerText = stats.sosbud;
         document.getElementById("valEkonomi").innerText = stats.ekonomi;
+
+        // Hitung dan Update Persentase
+        if (stats.total > 0) {
+            document.getElementById("pctSarpras").innerText = ((stats.sarpras / stats.total) * 100).toFixed(1) + "%";
+            document.getElementById("pctSosbud").innerText = ((stats.sosbud / stats.total) * 100).toFixed(1) + "%";
+            document.getElementById("pctEkonomi").innerText = ((stats.ekonomi / stats.total) * 100).toFixed(1) + "%";
+        }
 
         const bodyKel = document.getElementById("bodyKelurahan");
         bodyKel.innerHTML = daftarKelurahan.map(name => `
@@ -189,11 +185,3 @@ document.addEventListener("DOMContentLoaded", async () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
