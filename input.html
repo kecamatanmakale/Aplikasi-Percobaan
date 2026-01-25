@@ -25,13 +25,22 @@
         .btn-simpan { width: 100%; padding: 12px; background: #1f8a50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
         .btn-simpan:hover { background: #145a32; }
         
+        /* Styling Text Deadline */
+        .deadline-alert {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
         table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
         th { background: #f8f9fa; text-align: center; text-transform: uppercase; }
 
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
-            .no-print, .header, form, .btn-simpan { display: none !important; }
+            .no-print, .header, form, .btn-simpan, .deadline-alert { display: none !important; }
             body { padding: 0; background: white; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
             table { border: 1px solid black !important; }
@@ -68,20 +77,18 @@
                 <label>OPD Tujuan</label>
                 <select name="opd" required>
                     <option value="">-- Pilih OPD --</option>
-                <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
-                <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
-                <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
-                <option>BPBD</option><option>Disparpora</option>
-               <option>Diskominfo</option>
+                    <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
+                    <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
+                    <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
+                    <option>BPBD</option><option>Disparpora</option><option>Diskominfo</option>
                     <option>Dinas Koperasi & UKM</option><option>DLHD</option>
-                <option>DPML</option><option>DPMPTSP</option>
-                <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
-                <option>Disnakertans</option><option>Bappelitbangda</option>
-                <option>BPKPD (Badan Pengelola Keuangan)</option><option>Bakesbangpol</option>
-                <option>Inspektorat Daerah</option><option>Satpol PP</option>
-                <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
-                <option>RSUD Lakipadada</option>
-                    
+                    <option>DPML</option><option>DPMPTSP</option>
+                    <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
+                    <option>Disnakertans</option><option>Bappelitbangda</option>
+                    <option>BPKPD (Badan Pengelola Keuangan)</option><option>Bakesbangpol</option>
+                    <option>Inspektorat Daerah</option><option>Satpol PP</option>
+                    <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
+                    <option>RSUD Lakipadada</option>
                 </select>
             </div>
         </div>
@@ -89,7 +96,7 @@
         <label>Nama Kegiatan (Kamus Usulan)</label>
         <select name="kegiatan" id="kegiatan" class="js-select2" required>
             <option value=""></option>
-            <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
+             <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
                 <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
                 <option>Banyaknya UMKM yang belum memiliki NIB</option>
 <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
@@ -581,7 +588,6 @@
 <option>Upaya untuk meningkatkan keterampilan bagi pencari kerja</option>
 <option>Upaya untuk Meningkatkan Keterampilan Warga Transmigrasi yang Dibina</option>
 <option>Verifikasi dan Penyerahan PSU Perumahan dari Pengembang</option>
-            </select>
         </select>
 
         <div style="margin-top: 15px;">
@@ -599,6 +605,10 @@
 
     <div class="card-table">
         <center>
+            <div class="deadline-alert">
+                Penginputan Usulan Musrenbang Kelurahan/Lembang berakhir tanggal 29-01-2026 pukul 11:59 WIB
+            </div>
+            
             <h2 style="margin-bottom:5px">DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
             <h3 id="tableSubTitle" style="margin-top:0; color:#1f8a50;">-</h3>
         </center>
@@ -606,41 +616,37 @@
         <button class="no-print" onclick="window.print()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold; margin-bottom: 10px;">🖨️ CETAK PDF </button>
         
         <table id="usulanTable">
-            <table id="usulanTable">
-    <thead>
-        <tr>
-            <th width="30">No</th>
-            <th width="120">Bidang</th>
-            <th>Kegiatan</th>
-            <th width="150">Lokasi</th>
-            <th width="200">Keterangan</th> 
-            <th width="100">OPD</th>
-        </tr>
-    </thead>
+            <thead>
+                <tr>
+                    <th width="30">No</th>
+                    <th width="120">Bidang</th>
+                    <th>Kegiatan</th>
+                    <th width="150">Lokasi</th>
+                    <th width="200">Keterangan</th> 
+                    <th width="100">OPD</th>
+                </tr>
+            </thead>
             <tbody id="usulanBody">
                 <tr><td colspan="6" align="center">Memuat data...</td></tr>
             </tbody>
         </table>
 
-    <div id="areaTandaTangan" class="signature-section">
-    <div class="sig-box" style="float: right; text-align: center; width: 350px;">
-        <p id="tglTandaTangan" style="margin-bottom: 5px;">Makale, ............................ 2026</p>
-        <p id="jabatanTandaTangan" style="margin-bottom: 70px; font-weight: bold;">Camat Makale,</p>
-        
-        <p style="margin: 0; line-height: 1.0;">
-            <strong id="namaPejabat" style="text-decoration: underline;">Benyamin Dengen, S.S., M.M.</strong>
-        </p>
-        <p id="nipPejabat" style="margin: 0; line-height: 1.0;">NIP. 197208312007011011</p>
-    </div>
-</div>
-</div>
+        <div id="areaTandaTangan" class="signature-section">
+            <div class="sig-box">
+                <p id="tglTandaTangan">Makale, ............................ 2026</p>
+                <p id="jabatanTandaTangan" style="margin-bottom: 70px; font-weight: bold;">Camat Makale,</p>
+                <p style="margin: 0; line-height: 1.0;">
+                    <strong id="namaPejabat" style="text-decoration: underline;">Benyamin Dengen, S.S., M.M.</strong>
+                </p>
+                <p id="nipPejabat" style="margin: 0; line-height: 1.0;">NIP. 197208312007011011</p>
+            </div>
             <div style="clear: both;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbMwXPzrpzzeelIpwasGtJIRriCLQ06XxL24rgb5Zq23vdfkQ393K-AtmQliTV65F-/exec"; // GANTI DENGAN URL DEPLOYMENT ANDA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbMwXPzrpzzeelIpwasGtJIRriCLQ06XxL24rgb5Zq23vdfkQ393K-AtmQliTV65F-/exec"; 
 
     const userAktif = localStorage.getItem("username");
     if (!userAktif) { window.location.href = "index.html"; }
@@ -704,11 +710,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
