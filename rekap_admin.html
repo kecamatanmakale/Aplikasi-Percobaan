@@ -27,6 +27,23 @@
         .btn-excel { background: #1f8a50; color: white; }
         .btn-pdf { background: #e74c3c; color: white; }
 
+        /* Filter Area - PERBAIKAN JARAK */
+        .filter-area { 
+            margin-bottom: 30px; /* Jarak ke kotak statistik di bawahnya */
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            font-family: inherit;
+        }
+
         /* Summary Boxes */
         .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .summary-box { padding: 12px; border-radius: 12px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -42,11 +59,9 @@
         th, td { border: 1px solid #eef0f2; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; }
         th { background: #f8f9fa; font-weight: bold; text-align: center; }
 
-        /* Signature Section - PERBAIKAN JARAK BARIS */
+        /* Signature Section */
         .print-footer { margin-top: 40px; display: block; width: 100%; }
         .signature-box { float: right; text-align: center; width: 350px; font-size: 14px; }
-        
-        /* Teknik merapatkan Nama dan NIP */
         .signature-box p { margin: 0; line-height: 1.1; } 
         .signature-box .tgl-area { margin-bottom: 5px; }
         .signature-box .jabatan-area { margin-bottom: 70px; font-weight: bold; }
@@ -58,6 +73,7 @@
             body { background: white; padding: 0; }
             .header-rekap { background: none !important; color: black !important; box-shadow: none; border: 1px solid #ddd; }
             .summary-box { color: black !important; border: 1px solid #ccc !important; background: none !important; }
+            .card-table { box-shadow: none; padding: 0; }
         }
     </style>
 </head>
@@ -79,10 +95,6 @@
 
 <div class="filter-area no-print">
     <label for="filterKelurahan" style="font-weight: bold;">Filter Wilayah:</label>
-    <select id="filterKelurahan" onchange="filterData()">
-            <div style="margin-bottom: 25px;"> 
-        </select>
-</div>
     <select id="filterKelurahan" onchange="updateView()">
         <option value="Semua">-- Tampilkan Semua Kelurahan/Lembang --</option>
         <option>Kelurahan Ariang</option>
@@ -101,7 +113,6 @@
         <option>Kelurahan Tarongko</option>
         <option>Kelurahan Tondon Mamullu</option>
     </select>
-    
 </div>
 
 <div class="summary-container">
@@ -150,10 +161,10 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec"; // Ganti dengan URL Apps Script Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlCEWi3-1e425Xqg0diGuec3S2nBqZjpdbuUdup7vO-F50HYnnVhWeq72SRUGGxdI/exec"; 
     let masterData = [];
 
-   const dataPejabat = {
+    const dataPejabat = {
         "Camat": { nama: "Benyamin Dengen, S.S., M.M.", nip: "197208312007011011" },
         "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
         "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
@@ -191,8 +202,8 @@
         let s = 0, b = 0, e = 0;
         const html = filtered.map((d, i) => {
             const bdn = (d.bidang || "").toLowerCase();
-            if(bdn.includes("sarana")) s++;
-            else if(bdn.includes("sosial") || bdn.includes("budaya")) b++;
+            if(bdn.includes("sarana") || bdn.includes("sarpras")) s++;
+            else if(bdn.includes("sosial") || bdn.includes("budaya") || bdn.includes("sosbud")) b++;
             else if(bdn.includes("ekonomi")) e++;
 
             return `<tr>
@@ -208,7 +219,6 @@
 
         document.getElementById('rekapBody').innerHTML = html || '<tr><td colspan="7" align="center">Data Kosong</td></tr>';
         
-        // Update Statistik & Persentase
         document.getElementById('valSarpras').innerText = s + " Usulan";
         document.getElementById('valSosbud').innerText = b + " Usulan";
         document.getElementById('valEkonomi').innerText = e + " Usulan";
@@ -217,7 +227,7 @@
         document.getElementById('pctSosbud').innerText = total > 0 ? ((b / total) * 100).toFixed(1) + "%" : "0%";
         document.getElementById('pctEkonomi').innerText = total > 0 ? ((e / total) * 100).toFixed(1) + "%" : "0%";
 
-        // Update Tanda Tangan Otomatis
+        // Update Tanda Tangan
         const lblTgl = document.getElementById('txtTempatTgl');
         const lblJabatan = document.getElementById('txtJabatan');
         const lblNama = document.getElementById('txtNamaPejabat');
@@ -252,14 +262,7 @@
         XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
     }
 
-
     fetchData();
 </script>
 </body>
 </html>
-
-
-
-
-
-
