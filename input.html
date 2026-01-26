@@ -25,10 +25,15 @@
         .btn-edit { background: #f39c12; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
         .btn-delete { background: #e74c3c; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
 
-        /* Tabel & Pengaturan Print agar Keterangan tidak terpotong */
+        /* Tabel */
         table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; white-space: normal; }
         th { background: #f8f9fa; text-align: center; text-transform: uppercase; }
+
+        /* Area Tanda Tangan */
+        .signature-wrapper { margin-top: 30px; display: flex; justify-content: flex-end; width: 100%; }
+        .signature-box { text-align: center; min-width: 300px; }
+        #sigNama { font-weight: bold; text-decoration: underline; margin-top: 60px; display: block; }
 
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
@@ -37,7 +42,7 @@
             .container { box-shadow: none; max-width: 100%; padding: 0; }
             table { width: 100% !important; border: 1px solid black !important; }
             th, td { border: 1px solid black !important; color: black !important; }
-            th:nth-child(6), td:nth-child(6) { width: 35% !important; } /* Fokus pada kolom Keterangan */
+            .signature-wrapper { display: flex !important; }
         }
     </style>
 </head>
@@ -65,7 +70,7 @@
                 </select>
             </div>
             <div>
-               <label>OPD Tujuan</label>
+                 <label>OPD Tujuan</label>
                 <select name="opd" required>
                     <option value="">-- Pilih OPD --</option>
                     <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
@@ -87,23 +92,6 @@
         <label>Nama Kegiatan (Kamus Usulan)</label>
         <select name="kegiatan" id="kegiatan" class="js-select2" required>
             <option value=""></option>
-           <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
-                <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
-                <option>Banyaknya UMKM yang belum memiliki NIB</option>
-<option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
-<option>Belum ada harmonisasi regulasi daerah dengan regulasi yang dikeluarkan oleh Pemerintah Pusat</option>
-<option>Belum ada harmonisasi regulasi daerah dengan regulasi yang dikeluarkan oleh Pemerintah Pusat</option>
-<option>Belum ada Perbup yang mengatur tentang pemberian fasilitasi/insentif di bidang Penanaman Modal di daerah</option>
-<option>Belum meratanya infrastruktur teknologi informasi dan komunikasi terutama di wilayah terpencil membuat masyarakat sulit mendapatkan informasi yang akurat dan terkini</option>
-<option>belum pernah dilaksanakan pelatihan/sosialisasi kepada UMKM utk meningkatkan produktivitas dan daya saing</option>
-<option>Belum pernah mengikuti Pameran Promosi Investasi Daerah</option>
-<option>Bimbingan/Orientasi/Adopsi inovasi</option>
-<option>Bimbingan Teknis dan Supervisi Pengembangan dan Pelaksanaan Upaya Kesehatan Bersumber Daya Masyarakat (UKBM)</option>
-<option>Bimbingan Teknis kepada Pelaku Usaha Masih belum Optimal</option>
-<option>Bimbingan Teknis /Sosialisasi /Adopsi inovasi</option>
-<option>Bimbingan Teknis /Sosialisasi /Adopsi inovasi</option>
-<option>Bimbingan Teknis/ Sosialisasi /Pelatihan</option>
-<option>Bimbingan Teknis/ Sosialisasi /Pelatihan / Prasarana</option>
             <option>Penyediaan Prasarana Pembudidayaan Ikan</option>
 <option>Bintek Pengembangan kompetensi Keterampilan dan Ketehnikan Konstruksi Tenaga OAP</option>
 <option>Deteksi Dini Penyalahgunaan NAPZA di Fasyankes dan Sekolah</option>
@@ -619,35 +607,71 @@
                 <tr><td colspan="7" align="center">Sedang memuat data...</td></tr>
             </tbody>
         </table>
+
+        <div class="signature-wrapper">
+            <div class="signature-box">
+                <p id="sigDate"></p>
+                <p id="sigJabatan" style="font-weight: bold;"></p>
+                <p id="sigNama"></p>
+                <p id="sigNip"></p>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL DEPLOY BARU ANDA DI SINI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKOgUkjhOG14vlKC4GWZk5GJ2zf-s6GPdvkn2VEoc4g316yBNvyS2oMtL3OdcQBng2/exec"; 
 
-    const userAktif = localStorage.getItem("username") || "Kelurahan Kamali Pentalluan";
-    document.getElementById('userDisplay').innerText = "📍 " + userAktif;
-    document.getElementById('tableSubTitle').innerText = userAktif;
-    document.getElementById('inputKelurahan').value = userAktif;
+    // DATABASE PEJABAT
+    const dataPejabat = {
+        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
+        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
+        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
+        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
+        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
+        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
+        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
+        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
+        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
+        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
+    };
 
-    let allData = [];
+    const userAktif = localStorage.getItem("username") || "Kelurahan Kamali Pentalluan";
 
     $(document).ready(function() {
+        document.getElementById('userDisplay').innerText = "📍 " + userAktif;
+        document.getElementById('tableSubTitle').innerText = userAktif;
+        document.getElementById('inputKelurahan').value = userAktif;
+        
         $('.js-select2').select2({ placeholder: "Cari di Kamus Usulan...", allowClear: true });
+        
+        setupSignature();
         loadData();
     });
+
+    function setupSignature() {
+        const p = dataPejabat[userAktif] || { nama: "...................", nip: "..................." };
+        const d = new Date();
+        const bln = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        const wilayah = userAktif.replace("Kelurahan ", "").replace("Lembang ", "");
+
+        document.getElementById('sigDate').innerText = `Makale, ${d.getDate()} ${bln[d.getMonth()]} ${d.getFullYear()}`;
+        document.getElementById('sigJabatan').innerText = (userAktif.includes("Lembang") ? "Kepala Lembang " : "Lurah ") + wilayah + ",";
+        document.getElementById('sigNama').innerText = p.nama;
+        document.getElementById('sigNip').innerText = (p.nip && p.nip !== "-") ? "NIP. " + p.nip : "";
+    }
 
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
             const json = await res.json();
             allData = json.data;
-
-            // Filter berdasarkan kelurahan user aktif
-            const filtered = allData.filter(d => 
-                d.kelurahan && d.kelurahan.toString().trim() === userAktif.trim()
-            );
+            const filtered = allData.filter(d => d.kelurahan && d.kelurahan.trim() === userAktif.trim());
             
             const html = filtered.map((d, i) => `
                 <tr>
@@ -658,20 +682,17 @@
                     <td align="center">${d.opd}</td>
                     <td>${d.keterangan || '-'}</td>
                     <td class="no-print" align="center">
-                        <button class="btn-edit" onclick="prepareEdit('${d.rowId}')" title="Edit">✎</button>
-                        <button class="btn-delete" onclick="deleteData('${d.rowId}')" title="Hapus">🗑</button>
+                        <button class="btn-edit" onclick="prepareEdit('${d.rowId}')">✎</button>
+                        <button class="btn-delete" onclick="deleteData('${d.rowId}')">🗑</button>
                     </td>
                 </tr>`).join('');
-            document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="7" align="center">Belum ada data usulan untuk wilayah ini.</td></tr>';
-        } catch (e) { 
-            document.getElementById('usulanBody').innerHTML = '<tr><td colspan="7" align="center">Gagal memuat data dari server.</td></tr>'; 
-        }
+            document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="7" align="center">Tidak ada data.</td></tr>';
+        } catch (e) { document.getElementById('usulanBody').innerHTML = '<tr><td colspan="7" align="center">Gagal memuat data.</td></tr>'; }
     }
 
     function prepareEdit(rowId) {
         const item = allData.find(d => d.rowId == rowId);
         if (!item) return;
-
         $('#rowId').val(rowId);
         $('#formAction').val("update");
         $('#f_bidang').val(item.bidang);
@@ -679,8 +700,7 @@
         $('#kegiatan').val(item.kegiatan).trigger('change');
         $('#f_lokasi').val(item.lokasi);
         $('#f_keterangan').val(item.keterangan);
-
-        $('#btnSimpan').text("🆙 UPDATE DATA USULAN").css("background", "#f39c12");
+        $('#btnSimpan').text("🆙 UPDATE DATA").css("background", "#f39c12");
         $('#btnBatal').show();
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
@@ -694,18 +714,17 @@
     }
 
     async function deleteData(rowId) {
-        if (confirm("Hapus usulan ini secara permanen?")) {
+        if (confirm("Hapus usulan?")) {
             await fetch(`${SCRIPT_URL}?action=delete&rowId=${rowId}`);
-            alert("Data berhasil dihapus!");
             loadData();
         }
     }
 
     $('#usulanForm').submit(function(e) {
         e.preventDefault();
-        $('#btnSimpan').text("⌛ Sedang Menyimpan...").prop('disabled', true);
+        $('#btnSimpan').text("⌛ Menyimpan...").prop('disabled', true);
         $.post(SCRIPT_URL, $(this).serialize(), function() {
-            alert("Data Berhasil Disimpan!");
+            alert("Berhasil!");
             resetForm();
             loadData();
             $('#btnSimpan').prop('disabled', false);
@@ -714,5 +733,3 @@
 </script>
 </body>
 </html>
-
-
