@@ -19,11 +19,9 @@
         select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         textarea { height: 80px; resize: none; }
         
-        /* Select2 Custom Styling */
         .select2-container--default .select2-selection--single { height: 40px; border: 1px solid #ccc; border-radius: 6px; padding-top: 5px; }
         
         .btn-simpan { width: 100%; padding: 12px; background: #1f8a50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
-        .btn-simpan:hover { background: #145a32; }
         .btn-batal { width: 100%; padding: 12px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 5px; display: none; }
         
         .btn-edit { background: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; font-size: 12px; }
@@ -31,7 +29,7 @@
 
         .deadline-alert { color: #e74c3c; font-weight: bold; font-size: 18px; margin-bottom: 10px; text-align: center; }
 
-        /* Tabel Responsif & Wrap Text */
+        /* Solusi Kolom Terpotong: Gunakan fixed table layout dan word-wrap */
         table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; white-space: normal; }
         th { background: #f8f9fa; text-align: center; text-transform: uppercase; }
@@ -43,8 +41,8 @@
             .container { box-shadow: none; max-width: 100%; padding: 0; }
             table { width: 100% !important; border: 1px solid black !important; }
             th, td { border: 1px solid black !important; color: black !important; }
-            /* Memperlebar kolom keterangan agar tidak terpotong saat print */
-            th:nth-child(5), td:nth-child(5) { width: 30% !important; }
+            /* Memberikan ruang lebih pada kolom Keterangan agar tidak terpotong */
+            th:nth-child(5), td:nth-child(5) { width: 35% !important; }
             .signature-section { display: block !important; }
         }
 
@@ -82,7 +80,6 @@
                     <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
                     <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
                     <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
-                    <option>BPBD</option><option>Disparpora</option><option>Diskominfo</option>
                 </select>
             </div>
         </div>
@@ -591,7 +588,7 @@
 
         <div style="margin-top: 15px;">
             <label>Keterangan (Detail Usulan/Volume)</label>
-            <textarea name="keterangan" id="f_keterangan" placeholder="Contoh: Jalan rusak, Volume 500 Meter..."></textarea>
+            <textarea name="keterangan" id="f_keterangan" placeholder="Jelaskan detail usulan..."></textarea>
         </div>
 
         <button type="submit" class="btn-simpan" id="btnSimpan">💾 SIMPAN DATA USULAN</button>
@@ -600,9 +597,7 @@
 
     <div class="card-table">
         <center>
-            <div class="deadline-alert no-print">
-                Penginputan Usulan Musrenbang Kelurahan/Lembang berakhir tanggal 29-01-2026 pukul 11:59 WIB
-            </div>
+            <div class="deadline-alert no-print">Penginputan berakhir 29-01-2026 pukul 11:59 WIB</div>
             <h2 style="margin-bottom:5px">DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
             <h3 id="tableSubTitle" style="margin-top:0; color:#1f8a50;">-</h3>
         </center>
@@ -640,7 +635,7 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWomzzUqFazfQsFZ1xgknbMz-Q5UJL8B9Dmu0BIanXZH2DzTq9du20BZvKWvZ6a_LV/exec"; 
 
-    const userAktif = localStorage.getItem("username") || "Kelurahan Pantan";
+    const userAktif = localStorage.getItem("username") || "Memuat...";
     document.getElementById('userDisplay').innerText = userAktif;
     document.getElementById('tableSubTitle').innerText = userAktif;
     document.getElementById('inputKelurahan').value = userAktif;
@@ -663,4 +658,64 @@
                 <tr>
                     <td align="center">${i+1}</td>
                     <td>${d.bidang}</td>
-                    <td>${d.
+                    <td>${d.kegiatan}</td>
+                    <td>${d.lokasi}</td>
+                    <td>${d.keterangan || '-'}</td>
+                    <td>${d.opd}</td>
+                    <td class="no-print" align="center">
+                        <button class="btn-edit" onclick="prepareEdit('${d.rowId}')">✎</button>
+                        <button class="btn-delete" onclick="deleteData('${d.rowId}')">🗑</button>
+                    </td>
+                </tr>`).join('');
+            document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="7" align="center">Belum ada data.</td></tr>';
+        } catch (e) { 
+            document.getElementById('usulanBody').innerHTML = '<tr><td colspan="7" align="center">Gagal memuat.</td></tr>'; 
+        }
+    }
+
+    function prepareEdit(rowId) {
+        const item = allData.find(d => d.rowId == rowId);
+        if (!item) return;
+
+        $('#rowId').val(rowId);
+        $('#formAction').val("update");
+        $('#f_bidang').val(item.bidang);
+        $('#f_opd').val(item.opd);
+        $('#kegiatan').val(item.kegiatan).trigger('change');
+        $('#f_lokasi').val(item.lokasi);
+        $('#f_keterangan').val(item.keterangan);
+
+        $('#btnSimpan').html("🆙 UPDATE DATA USULAN").css("background", "#f39c12");
+        $('#btnBatal').show();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function resetForm() {
+        $('#usulanForm')[0].reset();
+        $('#kegiatan').val(null).trigger('change');
+        $('#formAction').val("insert");
+        $('#btnSimpan').html("💾 SIMPAN DATA USULAN").css("background", "#1f8a50");
+        $('#btnBatal').hide();
+    }
+
+    async function deleteData(rowId) {
+        if (confirm("Hapus usulan ini?")) {
+            await fetch(`${SCRIPT_URL}?action=delete&rowId=${rowId}`);
+            alert("Data dihapus!");
+            loadData();
+        }
+    }
+
+    $('#usulanForm').submit(function(e) {
+        e.preventDefault();
+        $('#btnSimpan').html("⌛ Memproses...").prop('disabled', true);
+        $.post(SCRIPT_URL, $(this).serialize(), function() {
+            alert("Berhasil!");
+            resetForm();
+            loadData();
+            $('#btnSimpan').prop('disabled', false);
+        });
+    });
+</script>
+</body>
+</html>
