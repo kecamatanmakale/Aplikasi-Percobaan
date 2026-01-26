@@ -11,7 +11,7 @@
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .header { background: #1f8a50; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
@@ -24,28 +24,28 @@
         
         .btn-simpan { width: 100%; padding: 12px; background: #1f8a50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
         .btn-simpan:hover { background: #145a32; }
+        .btn-batal { width: 100%; padding: 12px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 5px; display: none; }
         
-        /* Styling Text Deadline */
-        .deadline-alert {
-            color: #e74c3c;
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+        .btn-edit { background: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; font-size: 12px; }
+        .btn-delete { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        .deadline-alert { color: #e74c3c; font-weight: bold; font-size: 18px; margin-bottom: 10px; text-align: center; }
+
+        /* Tabel Responsif & Wrap Text */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; word-wrap: break-word; white-space: normal; }
         th { background: #f8f9fa; text-align: center; text-transform: uppercase; }
 
         @media print {
             @page { size: 330mm 215mm landscape; margin: 10mm; }
-            .no-print, .header, form, .btn-simpan, .deadline-alert { display: none !important; }
+            .no-print, .header, form, .deadline-alert, .btn-edit, .btn-delete, .btn-batal { display: none !important; }
             body { padding: 0; background: white; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
-            table { border: 1px solid black !important; }
-            th, td { border: 1px solid black !important; color: black; }
-            #areaTandaTangan { display: block !important; }
+            table { width: 100% !important; border: 1px solid black !important; }
+            th, td { border: 1px solid black !important; color: black !important; }
+            /* Memperlebar kolom keterangan agar tidak terpotong saat print */
+            th:nth-child(5), td:nth-child(5) { width: 30% !important; }
+            .signature-section { display: block !important; }
         }
 
         .signature-section { margin-top: 30px; display: none; }
@@ -61,12 +61,14 @@
     </div>
 
     <form id="usulanForm" class="no-print">
+        <input type="hidden" name="action" id="formAction" value="insert">
+        <input type="hidden" name="rowId" id="rowId">
         <input type="hidden" name="kelurahan" id="inputKelurahan">
         
         <div class="form-grid">
             <div>
                 <label>Bidang</label>
-                <select name="bidang" required>
+                <select name="bidang" id="f_bidang" required>
                     <option value="">-- Pilih Bidang --</option>
                     <option>Bidang Sarana dan Prasarana</option>
                     <option>Bidang Sosial Budaya</option>
@@ -75,20 +77,12 @@
             </div>
             <div>
                 <label>OPD Tujuan</label>
-                <select name="opd" required>
+                <select name="opd" id="f_opd" required>
                     <option value="">-- Pilih OPD --</option>
                     <option>DPUTR</option><option>DPRKP</option><option>Dinas Kesehatan</option>
                     <option>Dinas Pendidikan & Kebudayaan</option><option>Dinas Sosial</option>
                     <option>DPKPP (Pertanian)</option><option>Dinas Perhubungan</option>
                     <option>BPBD</option><option>Disparpora</option><option>Diskominfo</option>
-                    <option>Dinas Koperasi & UKM</option><option>DLHD</option>
-                    <option>DPML</option><option>DPMPTSP</option>
-                    <option>Dinas DP3A & KB</option><option>Dinas Perpustakaan & Arsip Daerah</option>
-                    <option>Disnakertans</option><option>Bappelitbangda</option>
-                    <option>BPKPD (Badan Pengelola Keuangan)</option><option>Bakesbangpol</option>
-                    <option>Inspektorat Daerah</option><option>Satpol PP</option>
-                    <option>Sekretariat Daerah</option><option>Sekretariat DPRD</option>
-                    <option>RSUD Lakipadada</option>
                 </select>
             </div>
         </div>
@@ -96,7 +90,7 @@
         <label>Nama Kegiatan (Kamus Usulan)</label>
         <select name="kegiatan" id="kegiatan" class="js-select2" required>
             <option value=""></option>
-             <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
+           <option>Alat UTTP pada pedagang pasar tidak terstandar</option>
                 <option>Bantuan dana terhadap Organisasi Kepramukaan Tingkat Daerah</option>
                 <option>Banyaknya UMKM yang belum memiliki NIB</option>
 <option>Belum ada dokumen IPRO Kabupaten Tana Toraja</option>
@@ -592,53 +586,51 @@
 
         <div style="margin-top: 15px;">
             <label>Lokasi Spesifik</label>
-            <input type="text" name="lokasi" placeholder="Contoh: RT 02 Lingkungan..." required>
+            <input type="text" name="lokasi" id="f_lokasi" placeholder="Contoh: RT 02 Lingkungan..." required>
         </div>
 
         <div style="margin-top: 15px;">
             <label>Keterangan (Detail Usulan/Volume)</label>
-            <textarea name="keterangan" placeholder="Contoh: Jelaskan alasan pengusulan kegiatan ini. (Jalan rusak), Volume 500 Meter..."></textarea>
+            <textarea name="keterangan" id="f_keterangan" placeholder="Contoh: Jalan rusak, Volume 500 Meter..."></textarea>
         </div>
 
         <button type="submit" class="btn-simpan" id="btnSimpan">💾 SIMPAN DATA USULAN</button>
+        <button type="button" class="btn-batal" id="btnBatal" onclick="resetForm()">❌ BATAL EDIT</button>
     </form>
 
     <div class="card-table">
         <center>
-            <div class="deadline-alert">
+            <div class="deadline-alert no-print">
                 Penginputan Usulan Musrenbang Kelurahan/Lembang berakhir tanggal 29-01-2026 pukul 11:59 WIB
             </div>
-            
             <h2 style="margin-bottom:5px">DAFTAR USULAN MUSRENBANG T.A. 2027</h2>
             <h3 id="tableSubTitle" style="margin-top:0; color:#1f8a50;">-</h3>
         </center>
 
-        <button class="no-print" onclick="window.print()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold; margin-bottom: 10px;">🖨️ CETAK PDF </button>
+        <button class="no-print" onclick="window.print()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold; margin-bottom: 10px;">🖨️ CETAK PDF</button>
         
         <table id="usulanTable">
             <thead>
                 <tr>
                     <th width="30">No</th>
                     <th width="120">Bidang</th>
-                    <th>Kegiatan</th>
-                    <th width="150">Lokasi</th>
-                    <th width="200">Keterangan</th> 
+                    <th width="20%">Kegiatan</th>
+                    <th width="15%">Lokasi</th>
+                    <th>Keterangan</th> 
                     <th width="100">OPD</th>
+                    <th width="100" class="no-print">Aksi</th>
                 </tr>
             </thead>
             <tbody id="usulanBody">
-                <tr><td colspan="6" align="center">Memuat data...</td></tr>
+                <tr><td colspan="7" align="center">Memuat data...</td></tr>
             </tbody>
         </table>
 
         <div id="areaTandaTangan" class="signature-section">
             <div class="sig-box">
                 <p id="tglTandaTangan">Makale, ............................ 2026</p>
-                <p id="jabatanTandaTangan" style="margin-bottom: 70px; font-weight: bold;">Camat Makale,</p>
-                <p style="margin: 0; line-height: 1.0;">
-                    <strong id="namaPejabat" style="text-decoration: underline;">Benyamin Dengen, S.S., M.M.</strong>
-                </p>
-                <p id="nipPejabat" style="margin: 0; line-height: 1.0;">NIP. 197208312007011011</p>
+                <p id="jabatanTandaTangan" style="margin-bottom: 70px; font-weight: bold;">Lurah,</p>
+                <p><strong id="namaPejabat" style="text-decoration: underline;">Nama Pejabat</strong><br><span id="nipPejabat">NIP. -</span></p>
             </div>
             <div style="clear: both;"></div>
         </div>
@@ -646,67 +638,29 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbMwXPzrpzzeelIpwasGtJIRriCLQ06XxL24rgb5Zq23vdfkQ393K-AtmQliTV65F-/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWomzzUqFazfQsFZ1xgknbMz-Q5UJL8B9Dmu0BIanXZH2DzTq9du20BZvKWvZ6a_LV/exec"; 
 
-    const userAktif = localStorage.getItem("username");
-    if (!userAktif) { window.location.href = "index.html"; }
-
+    const userAktif = localStorage.getItem("username") || "Kelurahan Pantan";
     document.getElementById('userDisplay').innerText = userAktif;
     document.getElementById('tableSubTitle').innerText = userAktif;
     document.getElementById('inputKelurahan').value = userAktif;
 
-    const dataPejabat = {
-        "Kelurahan Ariang": { nama: "Martinus Kalo'bong, SE., MM", nip: "197703072009061002" },
-        "Kelurahan Batupapan": { nama: "Anthonius Parabang, SIP", nip: "198307282009011004" },
-        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025" },
-        "Kelurahan Botang": { nama: "Yohanis Pata', S.IP", nip: "197102112009061002" },
-        "Kelurahan Buntu Burake": { nama: "Thomas Mangelo", nip: "197204091992031003" },
-        "Kelurahan Kamali Pentalluan": { nama: "Melda Pakonglean, SH", nip: "197109252009062001" },
-        "Kelurahan Lamunan": { nama: "Ulpha Rante Amba, SE", nip: "197301202009062001" },
-        "Kelurahan Lapandan": { nama: "Yanti Novita, S.IP", nip: "198301302010012002" },
-        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-" },
-        "Kelurahan Manggau": { nama: "Lukas D. Tarukkada, SE", nip: "196912301989011002" },
-        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019" },
-        "Kelurahan Rante": { nama: "Alfrida Borotoding, S.TP", nip: "197204162012122001" },
-        "Kelurahan Tampo Makale": { nama: "Marta Patanduk, SE", nip: "196806171993032009" },
-        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep.,Ns", nip: "197802052006042009" },
-        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055" }
-    };
-
-    function setupTandaTangan(user) {
-        const info = dataPejabat[user];
-        if (info) {
-            const wilayah = user.replace("Kelurahan ", "").replace("Lembang ", "");
-            document.getElementById('tglTandaTangan').innerText = `${wilayah}, ............................ 2026`;
-            let jab = (user === "Kelurahan Buntu Burake") ? "Plt. Lurah Buntu Burake" : (user.includes("Kelurahan") ? "Lurah " + wilayah : "Kepala Lembang " + wilayah);
-            document.getElementById('jabatanTandaTangan').innerText = jab;
-            document.getElementById('namaPejabat').innerText = info.nama;
-            document.getElementById('nipPejabat').innerText = (info.nip !== "-") ? "NIP. " + info.nip : "NIP. -";
-            document.getElementById('areaTandaTangan').style.display = "block";
-        }
-    }
-    setupTandaTangan(userAktif);
+    let allData = [];
 
     $(document).ready(function() {
         $('.js-select2').select2({ placeholder: "Cari di Kamus Usulan...", allowClear: true });
         loadData();
     });
 
-    $('#usulanForm').submit(function(e) {
-        e.preventDefault();
-        $('#btnSimpan').html("⌛ Menyimpan...").prop('disabled', true);
-        $.post(SCRIPT_URL, $(this).serialize(), function() { alert("Berhasil!"); location.reload(); });
-    });
-
     async function loadData() {
         try {
             const res = await fetch(SCRIPT_URL + "?action=read");
             const json = await res.json();
-            const filtered = json.data.filter(d => d.kelurahan === userAktif);
-            const html = filtered.map((d, i) => `<tr><td align="center">${i+1}</td><td>${d.bidang}</td><td>${d.kegiatan}</td><td>${d.lokasi}</td><td>${d.keterangan || '-'}</td><td>${d.opd}</td></tr>`).join('');
-            document.getElementById('usulanBody').innerHTML = html || '<tr><td colspan="6" align="center">Belum ada data usulan.</td></tr>';
-        } catch (e) { document.getElementById('usulanBody').innerHTML = '<tr><td colspan="6" align="center">Gagal memuat.</td></tr>'; }
-    }
-</script>
-</body>
-</html>
+            allData = json.data;
+            const filtered = allData.filter(d => d.kelurahan === userAktif);
+            
+            const html = filtered.map((d, i) => `
+                <tr>
+                    <td align="center">${i+1}</td>
+                    <td>${d.bidang}</td>
+                    <td>${d.
