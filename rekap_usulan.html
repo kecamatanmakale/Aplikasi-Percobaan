@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REKAP MUSRENBANG</title>
+    <title>REKAP MUSRENBANG 2027</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header-title { text-align: center; color: #1b5e20; margin-bottom: 20px; text-transform: uppercase; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
+        .header-title { text-align: center; color: #1b5e20; margin-bottom: 20px; text-transform: uppercase; line-height: 1.4; }
         
         /* Statistik Cards */
         .stats-container { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -19,18 +19,40 @@
         /* Filter & Tabel */
         .filter-section { display: flex; gap: 10px; margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; }
-        th { background-color: #f8f9fa; color: #333; padding: 10px; border: 1px solid #ddd; }
-        td { padding: 8px; border: 1px solid #ddd; vertical-align: top; }
+        th { background-color: #f8f9fa !important; color: #333; padding: 10px; border: 1px solid #000; text-align: center; }
+        td { padding: 8px; border: 1px solid #000; vertical-align: top; }
 
         /* Area Tanda Tangan */
-        .signature-area { display: none; margin-top: 50px; justify-content: flex-end; width: 100%; }
-        .signature-box { width: 300px; text-align: center; }
+        .signature-area { display: none; margin-top: 30px; justify-content: flex-end; width: 100%; }
+        .signature-box { width: 350px; text-align: center; }
 
+        /* PRINT SETTINGS */
         @media print {
-            .filter-section, .btn-print, .navbar { display: none !important; }
-            .signature-area { display: flex !important; page-break-inside: avoid; }
+            @page { 
+                size: landscape; 
+                margin: 1cm; 
+            }
             body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; }
+            .container { box-shadow: none; border: none; width: 100%; padding: 0; }
+            .filter-section, .btn-print, .navbar, .stats-container { display: none !important; }
+            
+            .header-title { color: black; margin-top: 0; }
+            
+            /* Agar Header tabel muncul di setiap halaman */
+            thead { display: table-header-group; }
+            
+            /* Mencegah baris tabel terpotong di tengah */
+            tr { page-break-inside: avoid; }
+            
+            /* Mencegah Tanda Tangan Terpotong */
+            .signature-area { 
+                display: flex !important; 
+                page-break-inside: avoid; 
+                break-inside: avoid; 
+                page-break-before: auto;
+            }
+            
+            table { border: 1px solid #000; }
         }
     </style>
 </head>
@@ -46,27 +68,28 @@
     </div>
 
     <div class="filter-section">
-        <select id="filterKelurahan" onchange="fetchData()" style="padding: 10px; flex: 1; border-radius: 5px;">
+        <select id="filterKelurahan" onchange="fetchData()" style="padding: 10px; flex: 1; border-radius: 5px; border: 1px solid #ccc;">
             <option value="">Semua Kelurahan/Lembang</option>
             <option>Kelurahan Bombongan</option>
             <option>Kelurahan Tondon Mamullu</option>
             <option>Kelurahan Pantan</option>
-            <option>Lembang Lea</option>
+            <option>Kelurahan Tarongko</option>
             <option>Kelurahan Tampo Makale</option>
-            </select>
-        <button class="btn-print" onclick="window.print()" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 5px; cursor: pointer;">🖨️ Cetak PDF</button>
+            <option>Lembang Lea</option>
+        </select>
+        <button class="btn-print" onclick="window.print()" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">🖨️ Cetak PDF</button>
     </div>
 
     <table id="dataTable">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Kelurahan</th>
-                <th>Bidang</th>
-                <th>Kegiatan</th>
-                <th>Lokasi</th>
-                <th>OPD</th>
-                <th>Keterangan</th>
+                <th style="width: 30px;">NO</th>
+                <th style="width: 120px;">KELURAHAN</th>
+                <th style="width: 100px;">BIDANG</th>
+                <th>KEGIATAN</th>
+                <th>LOKASI</th>
+                <th style="width: 120px;">OPD</th>
+                <th>KETERANGAN</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -80,55 +103,59 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnDAjZ-IDJ4iPoZGeK8tkTQW3Dk6VTJulufq73aaFKEEMQNnpL-B7OVxJS88ElAwni/exec"; // Masukkan URL hasil deployment
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnDAjZ-IDJ4iPoZGeK8tkTQW3Dk6VTJulufq73aaFKEEMQNnpL-B7OVxJS88ElAwni/exec"; 
 
     const dataPejabat = {
-        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025", jabatan: "LURAH BOMBONGAN" },
-        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055", jabatan: "LURAH TONDON MAMULLU" },
-        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019", jabatan: "LURAH PANTAN" },
-        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-", jabatan: "KEPALA LEMBANG LEA" }
+        "Kelurahan Bombongan": { nama: "Ramlah, SE", nip: "196805012008012025", jabatan: "LURAH BOMBONGAN", lokasi: "Bombongan" },
+        "Kelurahan Tondon Mamullu": { nama: "Daniel Tanding, SE", nip: "197012312006041055", jabatan: "LURAH TONDON MAMULLU", lokasi: "Tondon Mamullu" },
+        "Kelurahan Pantan": { nama: "Ronald Thomas, SE., MM.", nip: "198110022010011019", jabatan: "LURAH PANTAN", lokasi: "Pantan" },
+        "Kelurahan Tarongko": { nama: "Ludia Patasik, S.Kep., Ns", nip: "197802052006042009", jabatan: "LURAH TARONGKO", lokasi: "Tarongko" },
+        "Lembang Lea": { nama: "Ir. Mesak Rante", nip: "-", jabatan: "KEPALA LEMBANG LEA", lokasi: "Lea" }
     };
-    const camatMakale = { nama: "BENYAMIN DENGEN, S.S., M.M", nip: "19720831 200701 1 011", jabatan: "CAMAT MAKALE" };
+    const camatMakale = { nama: "BENYAMIN DENGEN, S.S., M.M", nip: "19720831 200701 1 011", jabatan: "CAMAT MAKALE", lokasi: "Makale" };
 
     async function fetchData() {
         const kelFilter = document.getElementById('filterKelurahan').value;
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "<tr><td colspan='7' align='center'>Sedang mengambil data...</td></tr>";
+
         try {
             const response = await fetch(SCRIPT_URL + "?action=read");
             const result = await response.json();
             let rawData = result.data;
 
-            // Filter data
             let filtered = kelFilter ? rawData.filter(d => d.kelurahan === kelFilter) : rawData;
 
-            // Render Tabel
             let html = "";
-            filtered.forEach((d, idx) => {
-                html += `<tr>
-                    <td align="center">${idx + 1}</td>
-                    <td>${d.kelurahan}</td>
-                    <td>${d.bidang}</td>
-                    <td>${d.kegiatan}</td>
-                    <td>${d.lokasi}</td>
-                    <td>${d.opd}</td>
-                    <td>${d.keterangan}</td>
-                </tr>`;
-            });
-            document.getElementById('tableBody').innerHTML = html;
+            if (filtered.length === 0) {
+                html = "<tr><td colspan='7' align='center'>Tidak ada data ditemukan</td></tr>";
+            } else {
+                filtered.forEach((d, idx) => {
+                    html += `<tr>
+                        <td align="center">${idx + 1}</td>
+                        <td>${d.kelurahan}</td>
+                        <td>${d.bidang}</td>
+                        <td>${d.kegiatan}</td>
+                        <td>${d.lokasi}</td>
+                        <td>${d.opd}</td>
+                        <td>${d.keterangan}</td>
+                    </tr>`;
+                });
+            }
+            tbody.innerHTML = html;
 
-            // Update Statistik
             updateStats(filtered);
-            // Update Tanda Tangan
             updateSignature(kelFilter);
 
         } catch (e) {
-            document.getElementById('tableBody').innerHTML = "<tr><td colspan='7'>Gagal memuat data</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='7' align='center' style='color:red;'>Gagal memuat data.</td></tr>";
         }
     }
 
     function updateStats(data) {
-        const sarpras = data.filter(i => i.bidang.includes("Sarana")).length;
-        const sosbud = data.filter(i => i.bidang.includes("Sosial")).length;
-        const ekonomi = data.filter(i => i.bidang.includes("Ekonomi")).length;
+        const sarpras = data.filter(i => i.bidang && i.bidang.includes("Sarana")).length;
+        const sosbud = data.filter(i => i.bidang && (i.bidang.includes("Sosial") || i.bidang.includes("Budaya"))).length;
+        const ekonomi = data.filter(i => i.bidang && i.bidang.includes("Ekonomi")).length;
         const total = data.length;
 
         document.getElementById('countSarpras').innerText = sarpras;
@@ -144,12 +171,13 @@
 
     function updateSignature(kel) {
         const p = dataPejabat[kel] || camatMakale;
-        const tgl = new Date();
+        const tempatTtd = p.lokasi;
+        
         document.getElementById('signatureBox').innerHTML = `
-            <p>Makale, ${tgl.getDate()} Januari 2026</p>
-            <p style="margin-bottom: 60px;"><strong>${p.jabatan}</strong></p>
+            <p>${tempatTtd}, .................................... 2026</p>
+            <p style="margin-bottom: 70px;"><strong>${p.jabatan}</strong></p>
             <p><strong><u>${p.nama}</u></strong></p>
-            <p>NIP. ${p.nip}</p>
+            <p>${p.nip !== "-" ? "NIP. " + p.nip : ""}</p>
         `;
     }
 
