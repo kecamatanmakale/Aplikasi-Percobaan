@@ -653,8 +653,8 @@
                     <td>${d.bidang}</td>
                     <td>${d.kegiatan}</td>
                     <td>${d.lokasi}</td>
-                    <td>${d.opd || '-'}</td>
-                    <td>${d.keterangan}</td>
+                    <td>${d.keterangan || '-'}</td>
+                    <td>${d.opd}</td>
                     <td class="no-print" align="center">
                         <button class="btn-edit" onclick="prepareEdit('${d.rowId}')">✎</button>
                         <button class="btn-delete" onclick="deleteData('${d.rowId}')">🗑</button>
@@ -713,6 +713,7 @@
 </script>
 </body>
 </html>
+
 
 
 
