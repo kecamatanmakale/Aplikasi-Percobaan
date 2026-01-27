@@ -291,12 +291,64 @@
     }
 
     function exportToExcel() {
-        const wb = XLSX.utils.table_to_book(document.getElementById("rekapTable"), { sheet: "Rekap" });
-        XLSX.writeFile(wb, "Rekap_Musrenbang_2027.xlsx");
-    }
+    // 1. Ambil data dari tabel HTML
+    const table = document.getElementById("rekapTable");
+    const ws = XLSX.utils.table_to_sheet(table);
+
+    // 2. Tentukan posisi baris setelah data terakhir untuk tanda tangan
+    const rowCount = table.rows.length;
+    const signStartRow = rowCount + 2; // Beri jarak 2 baris dari tabel
+
+    // 3. Ambil data pejabat yang sedang aktif di layar
+    const tgl = document.getElementById('txtTempatTgl').innerText;
+    const jabatan = document.getElementById('txtJabatan').innerText;
+    const nama = document.getElementById('txtNamaPejabat').innerText;
+    const nip = document.getElementById('txtNIPPejabat').innerText;
+
+    // 4. Tambahkan data tanda tangan ke dalam sheet (Kolom F/G untuk posisi kanan)
+    const signData = [
+        [tgl],
+        [jabatan],
+        [""], [""], [""], // Spasi tanda tangan
+        [nama],
+        [nip]
+    ];
+
+    // Menuliskan tanda tangan mulai dari Kolom F (Indeks 5)
+    XLSX.utils.sheet_add_aoa(ws, signData, { origin: `F${signStartRow}` });
+
+    // 5. Pengaturan Lebar Kolom agar pas di F4 Landscape
+    ws['!cols'] = [
+        { wch: 5 },  // No
+        { wch: 20 }, // Kelurahan
+        { wch: 15 }, // Bidang
+        { wch: 35 }, // Nama Kegiatan
+        { wch: 20 }, // Lokasi
+        { wch: 10 }, // OPD
+        { wch: 40 }  // Keterangan
+    ];
+
+    // 6. Metadata Page Setup (Membantu Excel mengenali format)
+    ws['!pageSetup'] = {
+        orientation: 'landscape',
+        paperSize: 119, // Kode untuk F4/Folio
+        scale: 85       // Perkecil sedikit agar pasti muat di margin F4
+    };
+
+    // 7. Buat Workbook dan download
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap Musrenbang");
+    
+    // Nama file dinamis sesuai filter
+    const filter = document.getElementById('filterKelurahan').value;
+    const fileName = `Rekap_Musrenbang_2027_${filter}.xlsx`;
+    
+    XLSX.writeFile(wb, fileName);
+}
 
     fetchData();
 </script>
 </body>
 </html>
+
 
