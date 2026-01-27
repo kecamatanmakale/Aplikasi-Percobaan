@@ -291,15 +291,20 @@
     }
 
 function exportToExcel() {
-    const table = document.getElementById("rekapTable").outerHTML;
-    const footer = document.querySelector(".print-footer").outerHTML;
-    
-    // Menggabungkan konten dengan CSS khusus Excel
-    const htmlContent = `
+    // 1. Ambil data tabel & footer dari aplikasi
+    const tableHTML = document.getElementById("rekapTable").outerHTML;
+    const footerHTML = document.querySelector(".print-footer").innerHTML;
+    const filter = document.getElementById('filterKelurahan').value;
+
+    // 2. Susun template XML Excel (Tanpa meletakkan kode 119 di sel A1)
+    const template = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
             <meta charset="UTF-8">
-            <x:PaperSizeIndex>119</x:PaperSizeIndex> </x:Print>
+            <x:PaperSizeIndex>119</x:PaperSizeIndex> <x:HorizontalResolution>600</x:HorizontalResolution>
+                                    <x:VerticalResolution>600</x:VerticalResolution>
+                                </x:Print>
+                                <x:Selected/>
                             </x:WorksheetOptions>
                         </x:ExcelWorksheet>
                     </x:ExcelWorksheets>
@@ -307,31 +312,43 @@ function exportToExcel() {
             </xml>
             <![endif]-->
             <style>
-                table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid black; padding: 5px; font-family: Arial; font-size: 11pt; }
-                th { background-color: #f2f2f2; }
-                .print-footer { margin-top: 30px; }
-                .signature-box { float: right; text-align: center; width: 300px; }
-                .nama-area { font-weight: bold; text-decoration: underline; }
-                .jabatan-area { margin-bottom: 60px; font-weight: bold; }
+                table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+                th { background-color: #f2f2f2; border: 0.5pt solid windowtext; text-align: center; font-weight: bold; font-family: Arial; }
+                td { border: 0.5pt solid windowtext; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; word-wrap: break-word; }
+                
+                /* Layout Tanda Tangan agar ke Kanan */
+                .sig-container { margin-top: 20px; width: 100%; }
+                .sig-table { border: none !important; width: 100%; }
+                .sig-table td { border: none !important; text-align: center; }
+                .spacer { width: 60%; } /* Geser tanda tangan ke kanan */
+                .sig-box { width: 40%; text-align: center; font-family: Arial; }
+                .nama { font-weight: bold; text-decoration: underline; }
+                .jabatan { font-weight: bold; }
             </style>
         </head>
         <body>
-            <h2>REKAPITULASI USULAN MUSRENBANG 2027</h2>
-            ${table}
-            <br>
-            ${footer}
+            <h2 style="text-align:center; font-family: Arial;">REKAPITULASI USULAN MUSRENBANG 2027</h2>
+            ${tableHTML}
+            
+            <div class="sig-container">
+                <table class="sig-table">
+                    <tr>
+                        <td class="spacer"></td>
+                        <td class="sig-box">
+                            ${footerHTML}
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </body>
         </html>`;
 
-    // Proses download file .xls
-    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+    // 3. Eksekusi Download
+    const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    
-    const filter = document.getElementById('filterKelurahan').value;
     a.href = url;
-    a.download = `Rekap_Musrenbang_${filter}.xls`;
+    a.download = `Rekap_Musrenbang_2027_${filter}.xls`;
     a.click();
     URL.revokeObjectURL(url);
 }
@@ -340,6 +357,7 @@ function exportToExcel() {
 </script>
 </body>
 </html>
+
 
 
 
