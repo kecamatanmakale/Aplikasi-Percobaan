@@ -291,12 +291,12 @@
     }
 
 function exportToExcel() {
-    // 1. Ambil data tabel & footer (tanda tangan) dari aplikasi
+    // 1. Ambil data tabel utama dan isi tanda tangan
     const tableHTML = document.getElementById("rekapTable").outerHTML;
     const footerHTML = document.querySelector(".print-footer").innerHTML;
     const filter = document.getElementById('filterKelurahan').value;
 
-    // 2. Susun template XML agar metadata Page Setup tidak tertulis di sel A1
+    // 2. Bungkus dalam template XML khusus untuk Microsoft Excel
     const template = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
@@ -312,18 +312,18 @@ function exportToExcel() {
             </xml>
             <![endif]-->
             <style>
-                /* Style Tabel Data */
+                /* Pengaturan Tabel Utama */
                 table { border-collapse: collapse; width: 100%; }
-                th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; }
+                th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; font-size: 11pt; }
                 td { border: 0.5pt solid black; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; }
                 
-                /* Layout Tanda Tangan Menggunakan Tabel Invisible */
-                .sig-layout { border: none !important; width: 100%; margin-top: 20px; }
+                /* Layout Khusus Tanda Tangan (Invisible Table) */
+                .sig-layout { border: none !important; width: 100%; margin-top: 25px; }
                 .sig-layout td { border: none !important; padding: 0; }
-                .spacer { width: 65%; } /* Mendorong tanda tangan ke kanan */
-                .sig-content { width: 35%; text-align: center; font-family: Arial; font-size: 11pt; }
-                .nama-area { font-weight: bold; text-decoration: underline; }
-                .jabatan-area { font-weight: bold; }
+                .spacer-cell { width: 65%; } /* Mendorong tanda tangan ke kanan */
+                .sig-box { width: 35%; text-align: center; font-family: Arial; font-size: 11pt; }
+                .nama-txt { font-weight: bold; text-decoration: underline; }
+                .jabatan-txt { font-weight: bold; }
             </style>
         </head>
         <body>
@@ -333,8 +333,8 @@ function exportToExcel() {
             
             <table class="sig-layout">
                 <tr>
-                    <td class="spacer"></td>
-                    <td class="sig-content">
+                    <td class="spacer-cell"></td>
+                    <td class="sig-box">
                         ${footerHTML}
                     </td>
                 </tr>
@@ -342,7 +342,7 @@ function exportToExcel() {
         </body>
         </html>`;
 
-    // 3. Konversi ke Blob dan Download (Menggunakan format .xls agar XML terbaca)
+    // 3. Proses Download sebagai file .xls
     const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -351,11 +351,11 @@ function exportToExcel() {
     link.click();
     URL.revokeObjectURL(url);
 }
-
     fetchData();
 </script>
 </body>
 </html>
+
 
 
 
