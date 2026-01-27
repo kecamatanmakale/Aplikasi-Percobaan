@@ -291,12 +291,11 @@
     }
 
 function exportToExcel() {
-    // 1. Ambil data dari aplikasi
     const tableHTML = document.getElementById("rekapTable").outerHTML;
     const footerHTML = document.querySelector(".print-footer").innerHTML;
     const filter = document.getElementById('filterKelurahan').value;
 
-    // 2. Metadata XML dipisahkan sepenuhnya dari Body agar tidak bocor ke sel
+    // Metadata XML untuk mengunci Landscape dan F4
     const excelMetadata = `
         <xml>
             <x:ExcelWorkbook>
@@ -316,7 +315,6 @@ function exportToExcel() {
             </xml>
         </xml>`;
 
-    // 3. Susun struktur HTML
     const template = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
@@ -326,12 +324,12 @@ function exportToExcel() {
                 th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; }
                 td { border: 0.5pt solid black; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; }
                 
-                /* Tabel Bayangan untuk Tanda Tangan */
-                .sig-table { border: none !important; width: 100%; margin-top: 30px; }
-                .sig-table td { border: none !important; }
-                .spacer { width: 65%; } /* Mendorong tanda tangan ke kanan */
-                .sig-box { width: 35%; text-align: center; font-family: Arial; }
-                .nama-txt { font-weight: bold; text-decoration: underline; }
+                /* TABEL KHUSUS UNTUK MENGGESER TANDA TANGAN KE KANAN */
+                .sig-container { border: none !important; width: 100%; margin-top: 20px; }
+                .sig-container td { border: none !important; }
+                .spacer { width: 60%; } /* Kolom kosong untuk pendorong */
+                .sig-box { width: 40%; text-align: center; font-family: Arial; }
+                .nama-pejabat { font-weight: bold; text-decoration: underline; }
             </style>
         </head>
         <body>
@@ -339,10 +337,9 @@ function exportToExcel() {
             
             ${tableHTML}
             
-            <table class="sig-table">
+            <table class="sig-container">
                 <tr>
-                    <td class="spacer"></td>
-                    <td class="sig-box">
+                    <td class="spacer"></td> <td class="sig-box">
                         ${footerHTML}
                     </td>
                 </tr>
@@ -350,7 +347,6 @@ function exportToExcel() {
         </body>
         </html>`;
 
-    // 4. Download File
     const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -362,6 +358,7 @@ function exportToExcel() {
 </script>
 </body>
 </html>
+
 
 
 
