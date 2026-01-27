@@ -291,39 +291,47 @@
     }
 
 function exportToExcel() {
-    // 1. Ambil data tabel utama dan isi tanda tangan
+    // 1. Ambil data dari aplikasi
     const tableHTML = document.getElementById("rekapTable").outerHTML;
     const footerHTML = document.querySelector(".print-footer").innerHTML;
     const filter = document.getElementById('filterKelurahan').value;
 
-    // 2. Bungkus dalam template XML khusus untuk Microsoft Excel
+    // 2. Metadata XML dipisahkan sepenuhnya dari Body agar tidak bocor ke sel
+    const excelMetadata = `
+        <xml>
+            <x:ExcelWorkbook>
+                <x:ExcelWorksheets>
+                    <x:ExcelWorksheet>
+                        <x:Name>Rekap Musrenbang</x:Name>
+                        <x:WorksheetOptions>
+                            <x:Print>
+                                <x:ValidPrinterInfo/>
+                                <x:Landscape/> <x:PaperSizeIndex>119</x:PaperSizeIndex> <x:HorizontalResolution>600</x:HorizontalResolution>
+                                <x:VerticalResolution>600</x:VerticalResolution>
+                            </x:Print>
+                            <x:Selected/>
+                        </x:WorksheetOptions>
+                    </x:ExcelWorksheet>
+                </x:ExcelWorksheets>
+            </xml>
+        </xml>`;
+
+    // 3. Susun struktur HTML
     const template = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
             <meta charset="UTF-8">
-            <x:PaperSizeIndex>119</x:PaperSizeIndex> <x:HorizontalResolution>600</x:HorizontalResolution>
-                                    <x:VerticalResolution>600</x:VerticalResolution>
-                                </x:Print>
-                                <x:Selected/>
-                            </x:WorksheetOptions>
-                        </x:ExcelWorksheet>
-                    </x:ExcelWorksheets>
-                </x:ExcelWorkbook>
-            </xml>
-            <![endif]-->
             <style>
-                /* Pengaturan Tabel Utama */
                 table { border-collapse: collapse; width: 100%; }
-                th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; font-size: 11pt; }
+                th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; }
                 td { border: 0.5pt solid black; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; }
                 
-                /* Layout Khusus Tanda Tangan (Invisible Table) */
-                .sig-layout { border: none !important; width: 100%; margin-top: 25px; }
-                .sig-layout td { border: none !important; padding: 0; }
-                .spacer-cell { width: 65%; } /* Mendorong tanda tangan ke kanan */
-                .sig-box { width: 35%; text-align: center; font-family: Arial; font-size: 11pt; }
+                /* Tabel Bayangan untuk Tanda Tangan */
+                .sig-table { border: none !important; width: 100%; margin-top: 30px; }
+                .sig-table td { border: none !important; }
+                .spacer { width: 65%; } /* Mendorong tanda tangan ke kanan */
+                .sig-box { width: 35%; text-align: center; font-family: Arial; }
                 .nama-txt { font-weight: bold; text-decoration: underline; }
-                .jabatan-txt { font-weight: bold; }
             </style>
         </head>
         <body>
@@ -331,9 +339,9 @@ function exportToExcel() {
             
             ${tableHTML}
             
-            <table class="sig-layout">
+            <table class="sig-table">
                 <tr>
-                    <td class="spacer-cell"></td>
+                    <td class="spacer"></td>
                     <td class="sig-box">
                         ${footerHTML}
                     </td>
@@ -342,19 +350,19 @@ function exportToExcel() {
         </body>
         </html>`;
 
-    // 3. Proses Download sebagai file .xls
+    // 4. Download File
     const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Rekap_Musrenbang_2027_${filter}.xls`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Rekap_Musrenbang_2027_${filter}.xls`;
+    a.click();
 }
     fetchData();
 </script>
 </body>
 </html>
+
 
 
 
