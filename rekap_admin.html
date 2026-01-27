@@ -295,7 +295,7 @@ function exportToExcel() {
     const footerHTML = document.querySelector(".print-footer").innerHTML;
     const filter = document.getElementById('filterKelurahan').value;
 
-    // Metadata XML untuk mengunci Landscape dan F4
+    // Metadata XML yang lebih kuat untuk memaksa Landscape & F4
     const excelMetadata = `
         <xml>
             <x:ExcelWorkbook>
@@ -303,12 +303,14 @@ function exportToExcel() {
                     <x:ExcelWorksheet>
                         <x:Name>Rekap Musrenbang</x:Name>
                         <x:WorksheetOptions>
+                            <x:DefaultRowHeight>300</x:DefaultRowHeight>
                             <x:Print>
                                 <x:ValidPrinterInfo/>
                                 <x:Landscape/> <x:PaperSizeIndex>119</x:PaperSizeIndex> <x:HorizontalResolution>600</x:HorizontalResolution>
                                 <x:VerticalResolution>600</x:VerticalResolution>
                             </x:Print>
                             <x:Selected/>
+                            <x:Panes></x:Panes>
                         </x:WorksheetOptions>
                     </x:ExcelWorksheet>
                 </x:ExcelWorksheets>
@@ -321,14 +323,14 @@ function exportToExcel() {
             <meta charset="UTF-8">
             <style>
                 table { border-collapse: collapse; width: 100%; }
-                th { background-color: #f2f2f2; border: 0.5pt solid black; text-align: center; font-weight: bold; font-family: Arial; }
-                td { border: 0.5pt solid black; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; }
+                th { background-color: #f2f2f2; border: 0.5pt solid windowtext; text-align: center; font-weight: bold; font-family: Arial; }
+                td { border: 0.5pt solid windowtext; vertical-align: top; padding: 5px; font-family: Arial; font-size: 10pt; }
                 
-                /* TABEL KHUSUS UNTUK MENGGESER TANDA TANGAN KE KANAN */
-                .sig-container { border: none !important; width: 100%; margin-top: 20px; }
-                .sig-container td { border: none !important; }
-                .spacer { width: 60%; } /* Kolom kosong untuk pendorong */
-                .sig-box { width: 40%; text-align: center; font-family: Arial; }
+                /* STRUKTUR TABEL UNTUK MENGGESER TANDA TANGAN */
+                .sig-layout { border: none !important; width: 100%; margin-top: 20px; }
+                .sig-layout td { border: none !important; padding: 0; }
+                .spacer { width: 65%; } /* Mendorong ke kanan */
+                .sig-box { width: 35%; text-align: center; font-family: Arial; }
                 .nama-pejabat { font-weight: bold; text-decoration: underline; }
             </style>
         </head>
@@ -337,9 +339,10 @@ function exportToExcel() {
             
             ${tableHTML}
             
-            <table class="sig-container">
+            <table class="sig-layout">
                 <tr>
-                    <td class="spacer"></td> <td class="sig-box">
+                    <td class="spacer"></td> 
+                    <td class="sig-box">
                         ${footerHTML}
                     </td>
                 </tr>
@@ -353,11 +356,13 @@ function exportToExcel() {
     a.href = url;
     a.download = `Rekap_Musrenbang_2027_${filter}.xls`;
     a.click();
+    URL.revokeObjectURL(url);
 }
     fetchData();
 </script>
 </body>
 </html>
+
 
 
 
